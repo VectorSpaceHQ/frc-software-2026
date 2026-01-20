@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj.XboxController;
 
 public class ControllerSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
+  double swerveX;
+  double swerveY;
+  double rotate;
+  boolean shoot;
   public ControllerSubsystem() {}
 
   public ControllerSubsystem(Controller controllerType) {
@@ -21,7 +25,11 @@ public class ControllerSubsystem extends SubsystemBase {
         
         break;
     case FLIGHTSTICK:
-        
+      Joystick exampleJoystick = new Joystick(0);
+      swerveX = exampleJoystick.getX();
+      swerveY = exampleJoystick.getY();
+      rotate = exampleJoystick.getTwist();
+      shoot = exampleJoystick.getTop();
         break;        
     case PS4:
         
@@ -54,7 +62,14 @@ public class ControllerSubsystem extends SubsystemBase {
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
-  public boolean buttonPressed() {
+  public boolean commandShooter() {
+    // Query some boolean state, such as a digital sensor.
+    if(shoot){
+
+    }
+    return false;
+  }
+  public boolean yButtonPressed() {
     // Query some boolean state, such as a digital sensor.
     
     return false;
