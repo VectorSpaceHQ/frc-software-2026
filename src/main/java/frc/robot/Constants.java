@@ -15,5 +15,15 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    
+    //controller interface constants
+    public enum Controller{
+      XBOX,
+      FLIGHTSTICK,
+      PS4,
+      PS5
+    }
+    //change this value to change what controller type is used by ControllerSubsystem.java, enums may be a better approach.
+    public static final Controller controllerType1 = Controller.FLIGHTSTICK;
   }
 }
