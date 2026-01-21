@@ -8,15 +8,12 @@ public interface MotorIO {
         public double currentAmps = 0.0;
     }
 
+     public default void updateSim(double dt) { // For sim only
+    }
+
     public default void updateInputs(MotorIOInputs inputs) {
     }
     
-    public default void update(double dt) {
-    }
-
-    public default void setVelocity(double velocityRadPerSec) {
-    }
-
     public default void setVoltage(double volts) {
     }
 
