@@ -17,13 +17,17 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     
     //controller interface constants
-    public enum Controller{
+    public enum ControllerEnum{
       XBOX,
       FLIGHTSTICK,
       PS4,
-      PS5
+      PS5,
+      Auto
     }
     //change this value to change what controller type is used by ControllerSubsystem.java, enums may be a better approach.
-    public static final Controller controllerType1 = Controller.FLIGHTSTICK;
+    public static final ControllerEnum controllerType1 = ControllerEnum.FLIGHTSTICK;
+    public static final int controllerPort1 = 0;
+    public static final ControllerEnum controllerType2 = ControllerEnum.FLIGHTSTICK;
+    public static final int controllerPort2 = 1;
   }
 }
