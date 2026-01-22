@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ControllerCommand;
+//import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.Interfaces.ControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
@@ -29,6 +29,9 @@ public class RobotContainer {
   private final ControllerIfc m_driverControllerSubsystem = 
       //new XboxControllerIfc(OperatorConstants.controllerType1, OperatorConstants.controllerPort1);
       new XboxControllerIfc(OperatorConstants.controllerPort1);
+
+  // private final ControllerIfc m_operatorControllerSubsystem =
+  //     new XboxControllerIfc(OperatorConstants.controllerPort2);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -62,7 +65,7 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverControllerSubsystem.getShooter().whileTrue(m_driverControllerSubsystem.ControllerCommand());
+    m_driverControllerSubsystem.getShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
