@@ -5,8 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -18,6 +21,14 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+     //private static final CANBus kCANBus = new CANBus("canivore");
+
+   private final TalonFX m_leftLeader = new TalonFX(21);
+   private final TalonFX m_rightLeader = new TalonFX(1);
+
+   private final DutyCycleOut m_leftOut = new DutyCycleOut(0);
+   private final DutyCycleOut m_rightOut = new DutyCycleOut(0);
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -26,6 +37,19 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+      // retrieve joystick inputs
+      var fwd = 0.1;
+      var rot = 0;
+
+      // modify control requests
+      m_leftOut.Output = fwd + rot;
+      m_rightOut.Output = fwd - rot;
+
+      // send control requests
+      m_leftLeader.setControl(m_leftOut);
+      m_rightLeader.setControl(m_rightOut);
+
   }
 
   /**
@@ -75,6 +99,10 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+      // send control requests
+      //m_leftLeader.setControl();
+      //m_rightLeader.setControl(1);
   }
 
   /** This function is called periodically during operator control. */
