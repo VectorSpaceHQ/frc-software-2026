@@ -10,8 +10,11 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.Interfaces.ControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
+import frc.robot.components.motor.MotorIO;
+import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -26,12 +29,14 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ControllerIfc m_driverController;
   private final ControllerIfc m_operatorController;
-
+  private final MotorIO m_motor;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
       //create 2 instances of our new controller interface
       m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
       m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+      m_motor = new MotorIOKraken(21);
+    
     // Configure the trigger bindings
     configureBindings();
   }
@@ -59,7 +64,18 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
-    m_driverController.runIntake().whileTrue(new ExampleCommand(m_exampleSubsystem));
+    m_driverController.runIntake().onTrue(
+        new InstantCommand( () -> 
+        m_motor.setVoltage(6.0),
+        m_exampleSubsystem
+        )
+    );
+    m_driverController.runIntake().onTrue(
+        new InstantCommand( () -> 
+        m_motor.setVoltage(6.0),
+        m_exampleSubsystem
+        )
+    );
   }
 
   /**
