@@ -8,7 +8,7 @@ public interface MotorIO {
         public double currentAmps = 0.0;
     }
 
-     public default void updateSim(double dt) { // For sim only
+    public default void periodic () { // For sim only
     }
 
     public default void updateInputs(MotorIOInputs inputs) {
