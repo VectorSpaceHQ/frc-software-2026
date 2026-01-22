@@ -1,4 +1,4 @@
-package frc.robot.subsystems.motor;
+package frc.robot.components.motor;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VoltageOut;

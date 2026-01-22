@@ -1,4 +1,4 @@
-package frc.robot.subsystems.motor;
+package frc.robot.components.motor;
 
 public interface MotorIO {
     public static class MotorIOInputs {
