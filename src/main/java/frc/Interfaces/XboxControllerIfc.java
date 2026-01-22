@@ -12,7 +12,7 @@ public class XboxControllerIfc implements ControllerIfc {
     
     public XboxControllerIfc(int port) {
         
-        final CommandXboxController exampleJoystick = new CommandXboxController(port);
+        exampleJoystick = new CommandXboxController(port);
     }
     
     public double getX() {

@@ -24,17 +24,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  
-  //create an instance of our new controller interface
-  private final ControllerIfc m_driverController = 
-      //new XboxControllerIfc(OperatorConstants.controllerType1, OperatorConstants.controllerPort1);
-      new XboxControllerIfc(OperatorConstants.controllerPort1);
-
-  private final ControllerIfc m_operatorController =
-      new XboxControllerIfc(OperatorConstants.controllerPort2);
+  private final ControllerIfc m_driverController;
+  private final ControllerIfc m_operatorController;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+      //create 2 instances of our new controller interface
+      m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+      m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
     // Configure the trigger bindings
     configureBindings();
   }
