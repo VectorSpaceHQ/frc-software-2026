@@ -25,17 +25,13 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   
-  //create an instance of our new controller subsystem
-  private final ControllerIfc m_driverControllerSubsystem = 
+  //create an instance of our new controller interface
+  private final ControllerIfc m_driverController = 
       //new XboxControllerIfc(OperatorConstants.controllerType1, OperatorConstants.controllerPort1);
       new XboxControllerIfc(OperatorConstants.controllerPort1);
 
-  // private final ControllerIfc m_operatorControllerSubsystem =
-  //     new XboxControllerIfc(OperatorConstants.controllerPort2);
-
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final ControllerIfc m_operatorController =
+      new XboxControllerIfc(OperatorConstants.controllerPort2);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -57,16 +53,16 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // new Trigger(m_driverControllerSubsystem::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverControllerSubsystem));
+    // new Trigger(m_driverController::commandShooter)
+    //     .onTrue(new ControllerCommand(m_driverController));
     
-    // new Trigger(m_driverControllerSubsystem::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverControllerSubsystem));      
+    // new Trigger(m_driverController::commandShooter)
+    //     .onTrue(new ControllerCommand(m_driverController));      
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverControllerSubsystem.getShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
+    m_driverController.runIntake().whileTrue(new ExampleCommand(m_exampleSubsystem));
   }
 
   /**

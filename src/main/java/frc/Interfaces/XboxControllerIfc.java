@@ -30,9 +30,14 @@ public class XboxControllerIfc implements ControllerIfc {
         return exampleJoystick.getRightX();
     }
 
-    public Trigger getShooter(){
+    public Trigger runShooter(){
 
         return exampleJoystick.b();
+    }
+
+    public Trigger runIntake(){
+
+        return exampleJoystick.a();
     }
 
 }

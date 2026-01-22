@@ -18,6 +18,8 @@ public interface ControllerIfc {
 
   public double getTwist();
 
-  public Trigger getShooter();
+  public Trigger runShooter();
+
+  public Trigger runIntake();
 
 }
