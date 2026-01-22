@@ -39,5 +39,8 @@ public class XboxControllerIfc implements ControllerIfc {
 
         return exampleJoystick.a();
     }
+    public Trigger stopIntake(){
 
+        return exampleJoystick.y(); 
+    } 
 }
