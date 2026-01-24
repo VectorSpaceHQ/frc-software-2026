@@ -2,12 +2,25 @@
 
 package frc.Interfaces;
 
+import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class JoystickControllerIfc implements ControllerIfc {
 
   private CommandJoystick joystick;
+
+  public enum ExtendedButtonType {
+    Button3(3),
+    Button4(4),
+    Button5(5);
+    public final int value;
+
+    ExtendedButtonType(int value) {
+      this.value = value;
+    }
+  }
     
     public JoystickControllerIfc(int port) {
         
@@ -41,8 +54,19 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     public Trigger stopIntake(){
 
-        return joystick.top();
+        return getButton3(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
- 
+    public double  controlMotorSpeed(){
+
+        return joystick.getThrottle();
+    }
+
+    private boolean getButton3() {
+        return joystick.getHID().getRawButton(ExtendedButtonType.Button3.value);
+    }
+
+    private Trigger getButton3(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button3.value, loop);
+    }
 }
