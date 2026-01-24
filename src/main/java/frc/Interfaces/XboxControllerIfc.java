@@ -43,4 +43,7 @@ public class XboxControllerIfc implements ControllerIfc {
 
         return exampleJoystick.y(); 
     } 
+    public double controlMotorSpeed(){
+        return exampleJoystick.getLeftTriggerAxis();
+    }
 }
