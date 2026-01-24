@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.Interfaces.ControllerIfc;
+import frc.Interfaces.JoystickControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
@@ -42,8 +43,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
       //create 2 instances of our new controller interface
-      m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-      m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+      m_driverController = new JoystickControllerIfc(OperatorConstants.controllerPort1);
+      m_operatorController = new JoystickControllerIfc(OperatorConstants.controllerPort2);
       m_motor = new MotorIOKraken(21);
       feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
 
@@ -97,7 +98,7 @@ public class RobotContainer {
         double targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
         double volts = feedforward.calculate(targetRadsPerSec);
         m_motor.setVoltage(volts);
-      }).withTimeout(3)
+      })
     );
       
     

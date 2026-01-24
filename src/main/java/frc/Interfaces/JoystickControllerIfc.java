@@ -59,7 +59,7 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     public double  controlMotorSpeed(){
 
-        return joystick.getThrottle();
+        return joystick.getZ();
     }
 
     private boolean getButton3() {
