@@ -18,16 +18,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import static edu.wpi.first.units.Units.Volts;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
@@ -39,27 +41,33 @@ public class RobotContainer {
   private final double MAX_RPM = 6000;
 
   private SimpleMotorFeedforward feedforward;
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-      //create 2 instances of our new controller interface
-      m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-      m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-      m_motor = new MotorIOKraken(21);
-      feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
 
-      
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
+  public RobotContainer() {
+    // create 2 instances of our new controller interface
+    m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+    m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+    m_motor = new MotorIOKraken(21);
+    feedforward = new SimpleMotorFeedforward(0.2, 12 / 509.3);
 
     // Configure the trigger bindings
     configureBindings();
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+   * Use this method to define your trigger->command mappings. Triggers can be
+   * created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+   * an arbitrary
    * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+   * {@link
+   * CommandXboxController
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
   private void configureBindings() {
@@ -68,42 +76,40 @@ public class RobotContainer {
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     // new Trigger(m_driverController::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverController));
-    
-    // new Trigger(m_driverController::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverController));      
+    // .onTrue(new ControllerCommand(m_driverController));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
+    // new Trigger(m_driverController::commandShooter)
+    // .onTrue(new ControllerCommand(m_driverController));
+
+    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
+    // pressed,
     // cancelling on release.
 
-    // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements are needed here (for now)
+    // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements
+    // are needed here (for now)
     m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
     // Temporary start motor
     m_driverController.runIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.setVoltage(6.0))
-    );
-    
+        new InstantCommand(() -> m_motor.setVoltage(6.0)));
+
     // Temporary stop motor
     m_driverController.stopIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.stop())
-    );
+        new InstantCommand(() -> m_motor.stop()));
 
     m_driverController.runShooter().whileTrue(
-      new RunCommand( () -> {
-        double trigger = m_driverController.controlMotorSpeed();
-        double targetRPM = (trigger * MAX_RPM);
-        double targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
-        double volts = feedforward.calculate(targetRadsPerSec);
-        m_motor.setVoltage(volts);
-      }).withTimeout(3)
-    );
-      
-    
+        new RunCommand(() -> {
+          double trigger = m_driverController.controlMotorSpeed();
+          double targetRPM = (trigger * MAX_RPM);
+          double targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
+          double volts = feedforward.calculate(targetRadsPerSec);
+
+          m_motor.setVelocity(targetRadsPerSec, volts);
+
+          SmartDashboard.putNumber("Target RPM", targetRPM);
+          SmartDashboard.putNumber("volts", volts);
+        }));
 
   }
-  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

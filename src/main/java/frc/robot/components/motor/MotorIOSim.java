@@ -37,6 +37,11 @@ public class MotorIOSim implements MotorIO {
     }
 
     @Override
+    public void setVelocity(double velocityRadPerSec, double feedforwardVolts) {
+    }
+
+
+    @Override
     public void stop() {
         appliedVoltage = 0.0;
     }

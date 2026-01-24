@@ -17,6 +17,9 @@ public interface MotorIO {
     public default void setVoltage(double volts) {
     }
 
+    public default void setVelocity(double velocityRadPerSec, double feedforwardVolts) { // Temporary
+    }
+
     public default void stop() {
     }
 }

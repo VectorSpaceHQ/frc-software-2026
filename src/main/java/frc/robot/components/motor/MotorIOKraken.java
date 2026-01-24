@@ -3,6 +3,7 @@ package frc.robot.components.motor;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 
 public class MotorIOKraken implements MotorIO {
 
@@ -33,6 +34,12 @@ public class MotorIOKraken implements MotorIO {
     @Override
     public void setVoltage(double volts) {
         motor.setControl(voltageRequest.withOutput(volts)); // Applies the voltage
+    }
+    @Override
+    public void setVelocity(double velocityRadPerSec, double feedforwardVolts) {
+        double velocityRotationsPerSec = velocityRadPerSec / (2.0 * Math.PI);
+        motor.setControl(
+            new VelocityVoltage(velocityRotationsPerSec).withFeedForward(feedforwardVolts));
     }
 
     @Override
