@@ -1,39 +1,48 @@
-// package frc.Interfaces;
+package frc.Interfaces;
 
-// import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-// public class PS5ControllerIfc implements ControllerIfc {
+public class PS5ControllerIfc implements ControllerIfc {
 
-//     double swerveX;
-//     double swerveY;
-//     double rotate;
-//     public Trigger shoot;
-//     CommandXboxController exampleJoystick;
+    double swerveX;
+    double swerveY;
+    double rotate;
+    public Trigger shoot;
+    CommandPS5Controller exampleJoystick;
     
-//     public XboxControllerIfc(int port) {
+    public PS5ControllerIfc(int port) {
         
-//         final CommandXboxController exampleJoystick = new CommandXboxController(port);
-//     }
+        exampleJoystick = new CommandPS5Controller(port);
+    }
     
-//     public double getX() {
+    public double getX() {
         
-//         return exampleJoystick.getLeftX();
-//     };
+        return exampleJoystick.getLeftX();
+         };
       
-//     public double getY() {
+    public double getY() {
 
-//         return exampleJoystick.getLeftY();
-//     }
+        return exampleJoystick.getLeftY();
+    }
 
-//     public double getTwist(){
+    public double getTwist(){
 
-//         return exampleJoystick.getRightX();
-//     }
+        return exampleJoystick.getRightX();
+    }
 
-//     public Trigger getShooter(){
+    public Trigger runShooter(){
 
-//         return exampleJoystick.b();
-//     }
+        return exampleJoystick.circle();
+    }
 
-// }
+    public Trigger runIntake(){
+
+        return exampleJoystick.cross();
+    }
+    public Trigger stopIntake(){
+
+        return exampleJoystick.triangle(); 
+    } 
+}
 
