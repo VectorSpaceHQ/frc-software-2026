@@ -15,8 +15,14 @@ import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.util.Units;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -30,13 +36,19 @@ public class RobotContainer {
   private final ControllerIfc m_driverController;
   private final ControllerIfc m_operatorController;
   private final MotorIO m_motor;
+  private final double MAX_RPM = 6000;
+
+  private SimpleMotorFeedforward feedforward;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
       //create 2 instances of our new controller interface
       m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
       m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
       m_motor = new MotorIOKraken(21);
-    
+      feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
+
+      
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -77,8 +89,21 @@ public class RobotContainer {
         new InstantCommand( () -> 
         m_motor.stop())
     );
-  
+
+    m_driverController.runShooter().whileTrue(
+      new RunCommand( () -> {
+        double trigger = m_driverController.controlMotorSpeed();
+        double targetRPM = (trigger * MAX_RPM);
+        double targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
+        double volts = feedforward.calculate(targetRadsPerSec);
+        m_motor.setVoltage(volts);
+      }).withTimeout(3)
+    );
+      
+    
+
   }
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
