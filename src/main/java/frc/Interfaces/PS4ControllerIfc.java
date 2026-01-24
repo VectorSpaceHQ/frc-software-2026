@@ -30,6 +30,11 @@ public class PS4ControllerIfc implements ControllerIfc {
 
         return exampleJoystick.getRightX();
     }
+    
+    public double controlMotorSpeed(){
+        
+        return exampleJoystick.getL2Axis();
+    }
 
     public Trigger runShooter(){
 

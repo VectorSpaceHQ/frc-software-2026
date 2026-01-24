@@ -28,6 +28,11 @@ public class XboxControllerIfc implements ControllerIfc {
     public double getTwist(){
 
         return exampleJoystick.getRightX();
+        
+    }
+    public double controlMotorSpeed(){
+        
+        return exampleJoystick.getLeftTriggerAxis();
     }
 
     public Trigger runShooter(){
@@ -43,7 +48,5 @@ public class XboxControllerIfc implements ControllerIfc {
 
         return exampleJoystick.y(); 
     } 
-    public double controlMotorSpeed(){
-        return exampleJoystick.getLeftTriggerAxis();
-    }
+    
 }
