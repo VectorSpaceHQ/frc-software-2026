@@ -1,48 +1,48 @@
 //COMMANDJOYSTICK DOESN'T HAVE ENOUGH TRIGGERS TO INTERFACE CONTROLLER IFC
 
-// package frc.Interfaces;
+package frc.Interfaces;
 
-// import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-// import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-// public class JoystickControllerIfc implements ControllerIfc {
+public class JoystickControllerIfc implements ControllerIfc {
 
-//   CommandJoystick exampleJoystick;
+  private CommandJoystick joystick;
     
-//     public JoystickControllerIfc(int port) {
+    public JoystickControllerIfc(int port) {
         
-//         exampleJoystick = new CommandJoystick(port);
-//     }
+        joystick = new CommandJoystick(port);
+    }
     
-//     public double getX() {
+    public double getX() {
         
-//         return exampleJoystick.getX();
-//     };
+        return joystick.getX();
+    };
       
-//     public double getY() {
+    public double getY() {
 
-//         return exampleJoystick.getY();
-//     }
+        return joystick.getY();
+    }
 
-//     public double getTwist(){
+    public double getTwist(){
 
-//         return exampleJoystick.getTwist();
-//     }
+        return joystick.getTwist();
+    }
 
-//     public Trigger runShooter(){
+    public Trigger runShooter(){
 
-//         return new Trigger(false);
-//     }
+        return joystick.trigger();
+    }
 
-//     public Trigger runIntake(){
+    public Trigger runIntake(){
 
-//         return exampleJoystick.top();
-//     }
+        return joystick.top();
+    }
 
-//     public Trigger stopIntake(){
+    public Trigger stopIntake(){
 
-//         return exampleJoystick.trigger();
-//     }
+        return joystick.top();
+    }
 
  
-// }
+}
