@@ -13,6 +13,8 @@ import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
+//mport frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -35,10 +37,12 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
-  private final ControllerIfc m_driverController;
-  //private final ControllerIfc m_operatorController;
+  //private final Shooter m_Shooter = new Shooter();
+  public final ControllerIfc m_driverController;
+ // private final ControllerIfc m_operatorController;
   private final MotorIO m_motor;
   private final double MAX_RPM = 6000;
+  
 
   private SimpleMotorFeedforward feedforward;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -48,7 +52,7 @@ public class RobotContainer {
       //m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
       m_motor = new MotorIOKraken(21);
       feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
-
+      
       
 
     // Configure the trigger bindings
@@ -66,11 +70,11 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    //new Trigger(m_exampleSubsystem::exampleCondition)
+        //.onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // new Trigger(m_driverController::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverController));
+     //new Trigger(m_Shooter::commandShooter)
+         //.onTrue(new ControllerCommand(m_driverController));
     
     // new Trigger(m_driverController::commandShooter)
     //     .onTrue(new ControllerCommand(m_driverController));      
@@ -81,16 +85,16 @@ public class RobotContainer {
     // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements are needed here (for now)
     //m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
     // Temporary start motor
-    m_driverController.runIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.setVoltage(6.0))
-    );
+    // m_driverController.runIntake().onTrue(
+    //     new InstantCommand( () -> 
+    //     m_motor.setVoltage(6.0))
+    // );
     
     // Temporary stop motor
-    m_driverController.stopIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.stop())
-    );
+    // m_driverController.stopIntake().onTrue(
+    //     new InstantCommand( () -> 
+    //     m_motor.stop())
+    // );
 
    /*  m_driverController.runShooter().whileTrue(
       new RunCommand( () -> {
@@ -102,7 +106,7 @@ public class RobotContainer {
       }).withTimeout(3) 
     );*/
       //TODO Replace onchange when class is futher developed
-    m_driverController.runShooter().onTrue(
+     m_driverController.runShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
@@ -112,6 +116,8 @@ public class RobotContainer {
   
 
   }
+
+
   
 
   /**
