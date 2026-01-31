@@ -38,17 +38,12 @@ public class ShooterSubsystem {
     double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
     double t_volts = feedforward.calculate(t_targetRadsPerSec);
 
-    double getTwist = .2;
+    double getTwist = -.2;
     double b_targetRPM = (getTwist * MAX_RPM);
     double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_targetRPM);
     double b_volts = feedforward.calculate(b_targetRadsPerSec);
 
     shooterstatus = false;
-   
-    
-    
-    t_targetRPM = t_RPM;
-    b_targetRPM = b_RPM;
 
     }
 // Place status values here
@@ -58,11 +53,10 @@ public class ShooterSubsystem {
 
     public boolean toggleShoot() {
     if (!shooterstatus) {
-        t_motor.setVoltage(3.3);
-        b_motor.setVoltage(5.5);
+        t_motor.setVoltage(t_volts);
+        b_motor.setVoltage(b_volts);
         
-        System.out.print(t_RPM);
-        System.out.print(b_RPM);
+        
         
     }
     else {
