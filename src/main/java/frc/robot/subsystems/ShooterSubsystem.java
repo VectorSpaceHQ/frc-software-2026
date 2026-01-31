@@ -3,9 +3,11 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.VoltsPerRadianPerSecond;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import frc.Interfaces.ControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
+import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
@@ -15,10 +17,13 @@ public class ShooterSubsystem {
     private final MotorIO t_motor;
     private final MotorIO b_motor;
     private final double MAX_RPM = 6000;
+    private final double STATIC_GAIN = 0.2; // in voltage
+    private final double kV_MOTOR = 509.3; // in rpm / V: https://www.reca.lc/motors
     private final ControllerIfc m_driverController;
     private final ControllerIfc m_operatorController;
     private boolean shooterstatus;
     private SimpleMotorFeedforward feedforward;
+    private PIDController pid;
 
     double  t_motorspeed;
     double  b_motorspeed; 
@@ -33,7 +38,7 @@ public class ShooterSubsystem {
         m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
         t_motor = new MotorIOKraken(19);
         b_motor = new MotorIOKraken(20);
-        feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
+        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, Constants.MAX_MOTOR_VOLTS / kV_MOTOR);
         
         double getX = .2;
         double t_targetRPM = (getX * MAX_RPM);
