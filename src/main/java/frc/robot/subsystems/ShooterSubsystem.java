@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         t_motorInputs = new MotorIOInputs();
         b_motorInputs = new MotorIOInputs();    
 
-        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (1/velocity_MOTOR)); // inverse
+        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (12/velocity_MOTOR)); // inverse
         pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
         pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
