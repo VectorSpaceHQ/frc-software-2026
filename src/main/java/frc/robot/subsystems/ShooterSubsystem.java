@@ -26,11 +26,11 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private final MotorIO b_motor;
     private final double MAX_RPM = 6000;
     private final double STATIC_GAIN = 0.2; // in voltage
-    private final double kV_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // in rads/s https://www.reca.lc/motors
+    private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // in rads/s https://www.reca.lc/motors
     private final double k_SHOOTER_TOLERANCE_RPS = 50;
    
-    private final ControllerIfc m_driverController;
-    private final ControllerIfc m_operatorController;
+    //private final ControllerIfc m_driverController;
+    //private final ControllerIfc m_operatorController;
     private final MotorIOInputs t_motorInputs;
     private final MotorIOInputs b_motorInputs;
 
@@ -59,36 +59,26 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         t_motorInputs = new MotorIOInputs();
         b_motorInputs = new MotorIOInputs();    
 
-        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, Constants.MAX_MOTOR_VOLTS / kV_MOTOR);
-        
-        double getX = .2;
-        double t_targetRPM = (getX * MAX_RPM);
-        double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
-        feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
-
-
+        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (1/velocity_MOTOR)); // inverse
+        pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
+        pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
 
     }
 
     public void calculate() {
 
         double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_RPM);
-        t_volts = feedforward.calculate(t_targetRadsPerSec);
+        
 
         
         double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_RPM);
-        b_volts = feedforward.calculate(b_targetRadsPerSec);
+        
 
-
-        shooterstatus = false;
-
-        pid = new PIDController(kp, ki, kd);
-        pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
         t_motor.updateInputs(t_motorInputs);
-        pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
+        t_volts = feedforward.calculate(t_targetRadsPerSec) + pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
         b_motor.updateInputs(b_motorInputs);
-        pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
+        b_volts = feedforward.calculate(b_targetRadsPerSec) + pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
 
     }
 
