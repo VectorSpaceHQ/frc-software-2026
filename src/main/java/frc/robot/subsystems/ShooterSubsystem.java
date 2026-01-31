@@ -22,28 +22,30 @@ public class ShooterSubsystem {
 
     double  t_motorspeed;
     double  b_motorspeed; 
-    
+    double t_volts;
+    double b_volts;
+
     double t_RPM;
     double b_RPM;
 
     public ShooterSubsystem(){
-    m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-    m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-    t_motor = new MotorIOKraken(19);
-    b_motor = new MotorIOKraken(20);
-    feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
-    
-    double getX = .2;
-    double t_targetRPM = (getX * MAX_RPM);
-    double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
-    double t_volts = feedforward.calculate(t_targetRadsPerSec);
+        m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+        m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+        t_motor = new MotorIOKraken(19);
+        b_motor = new MotorIOKraken(20);
+        feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
+        
+        double getX = .2;
+        double t_targetRPM = (getX * MAX_RPM);
+        double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
+        t_volts = feedforward.calculate(t_targetRadsPerSec);
 
-    double getTwist = -.2;
-    double b_targetRPM = (getTwist * MAX_RPM);
-    double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_targetRPM);
-    double b_volts = feedforward.calculate(b_targetRadsPerSec);
+        double getTwist = -.2;
+        double b_targetRPM = (getTwist * MAX_RPM);
+        double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_targetRPM);
+        b_volts = feedforward.calculate(b_targetRadsPerSec);
 
-    shooterstatus = false;
+        shooterstatus = false;
 
     }
 // Place status values here
@@ -52,18 +54,18 @@ public class ShooterSubsystem {
     }
 
     public boolean toggleShoot() {
-    if (!shooterstatus) {
-        t_motor.setVoltage(t_volts);
-        b_motor.setVoltage(b_volts);
-        
-        
-        
-    }
-    else {
-        t_motor.setVoltage(0);
-        b_motor.setVoltage(0);
-    }
-   shooterstatus = !shooterstatus;
-    return !shooterstatus ;
+        if (!shooterstatus) {
+            t_motor.setVoltage(t_volts);
+            b_motor.setVoltage(b_volts);
+            
+            
+            
+        }
+        else {
+            t_motor.setVoltage(0);
+            b_motor.setVoltage(0);
+        }
+        shooterstatus = !shooterstatus;
+        return !shooterstatus ;
     }
 }
