@@ -26,12 +26,23 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private final MotorIO b_motor;
     private final double MAX_RPM = 6000;
     private final double STATIC_GAIN = 0.2; // in voltage
-    private final double kV_MOTOR = 509.3; // in rpm / V: https://www.reca.lc/motors
+    private final double kV_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // in rads/s https://www.reca.lc/motors
+    private final double k_SHOOTER_TOLERANCE_RPS = 50;
+   
     private final ControllerIfc m_driverController;
     private final ControllerIfc m_operatorController;
+    private final MotorIOInputs t_motorInputs;
+    private final MotorIOInputs b_motorInputs;
+
     private boolean shooterstatus;
     private SimpleMotorFeedforward feedforward;
     private PIDController pid;
+
+    // Set PID values (needs to be determined experimentally)
+    private double kp = 1; 
+    private double kd = 0;
+    private double ki = 0;
+
 
     double  t_motorspeed;
     double  b_motorspeed; 
@@ -45,6 +56,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     public ShooterSubsystem(){
         t_motor = new MotorIOKraken(19);
         b_motor = new MotorIOKraken(20);
+        t_motorInputs = new MotorIOInputs();
+        b_motorInputs = new MotorIOInputs();    
+
         feedforward = new SimpleMotorFeedforward(STATIC_GAIN, Constants.MAX_MOTOR_VOLTS / kV_MOTOR);
         
         double getX = .2;
