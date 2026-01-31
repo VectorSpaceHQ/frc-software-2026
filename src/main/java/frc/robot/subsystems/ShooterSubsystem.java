@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.VoltsPerRadianPerSecond;
 
 import edu.wpi.first.math.Num;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -13,7 +12,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.Interfaces.ControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
-import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
@@ -25,13 +23,10 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private final MotorIO t_motor;
     private final MotorIO b_motor;
     private final double MAX_RPM = 6000;
-    private final double STATIC_GAIN = 0.2; // in voltage
-    private final double kV_MOTOR = 509.3; // in rpm / V: https://www.reca.lc/motors
-    private final ControllerIfc m_driverController;
-    private final ControllerIfc m_operatorController;
     private boolean shooterstatus;
     private SimpleMotorFeedforward feedforward;
-    private PIDController pid;
+
+
 
     double  t_motorspeed;
     double  b_motorspeed; 
@@ -45,11 +40,16 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     public ShooterSubsystem(){
         t_motor = new MotorIOKraken(19);
         b_motor = new MotorIOKraken(20);
-        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, Constants.MAX_MOTOR_VOLTS / kV_MOTOR);
-        
-        double getX = .2;
-        double t_targetRPM = (getX * MAX_RPM);
-        double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
+        feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
+
+
+        shooterstatus = false;
+
+    }
+
+    public void calculate() {
+
+        double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_RPM);
         t_volts = feedforward.calculate(t_targetRadsPerSec);
 
         
