@@ -70,6 +70,16 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_RPM);
         b_volts = feedforward.calculate(b_targetRadsPerSec);
 
+
+        shooterstatus = false;
+
+        pid = new PIDController(kp, ki, kd);
+        pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
+        t_motor.updateInputs(t_motorInputs);
+        pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
+        b_motor.updateInputs(b_motorInputs);
+        pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
+
     }
 
 
