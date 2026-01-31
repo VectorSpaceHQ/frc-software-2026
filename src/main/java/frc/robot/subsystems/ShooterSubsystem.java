@@ -43,7 +43,6 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private double kd = 0;
     private double ki = 0;
 
-
     double  t_motorspeed;
     double  b_motorspeed; 
     double t_volts;
@@ -51,7 +50,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
 
     double t_RPM = 0.2 * MAX_RPM;
     double b_RPM = 0.2 * MAX_RPM;
-    
+    double t_realRPM = 0;
+    double b_realRPM = 0;
 
     public ShooterSubsystem(){
         t_motor = new MotorIOKraken(19);
@@ -63,8 +63,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
         pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
-
+        SmartDashboard.putData("Shooter",this);
     }
+
 
     public void calculate() {
 
@@ -93,9 +94,6 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
             calculate();
             t_motor.setVoltage(t_volts);
             b_motor.setVoltage(b_volts);
-            
-            
-            
         }
         else {
             t_motor.setVoltage(0);
@@ -112,22 +110,21 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         MotorIO.MotorIOInputs bottomMotorIOInputs = new MotorIOInputs();
         t_motor.updateInputs(topMotorIOInputs);
         b_motor.updateInputs(bottomMotorIOInputs);
-        double top_rpm = Units.radiansPerSecondToRotationsPerMinute(topMotorIOInputs.velocityRadPerSec);
-        double bottom_rpm = Units.radiansPerSecondToRotationsPerMinute(bottomMotorIOInputs.velocityRadPerSec);
-        
-        SmartDashboard.putNumber("top volts", t_volts);
-        SmartDashboard.putNumber("bottom volts", b_volts);
-        SmartDashboard.putNumber("top speed", top_rpm);
-        SmartDashboard.putNumber("bottom speed", bottom_rpm);
-        SmartDashboard.putData("Shooter",this);
+        t_realRPM = Units.radiansPerSecondToRotationsPerMinute(topMotorIOInputs.velocityRadPerSec);
+        b_realRPM = Units.radiansPerSecondToRotationsPerMinute(bottomMotorIOInputs.velocityRadPerSec);
+
     }
 
     @Override
     public void initSendable (SendableBuilder builder) {
+        System.out.println("Shooter init sendable called");
         builder.setSmartDashboardType("Shooter Controller");
         builder.addDoubleProperty("TopRPM", this::getT_RPM, this::setT_RPM);
-        
-
+        builder.addDoubleProperty("BottomRPM", this::getB_RPM, this::setB_RPM);
+        builder.addDoubleProperty("Top Volts", this::getT_volts, null);
+        builder.addDoubleProperty("Bottom Volts", this::getB_volts, null);
+        builder.addDoubleProperty("Top Real RPM", this::getT_realRPM, null);
+        builder.addDoubleProperty("Bottom Real RPM", this::getB_realRPM, null);
     }
 
     public double getT_RPM() {
@@ -150,5 +147,21 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
             b_RPM = MAX_RPM;
         }
         this.b_RPM = b_RPM;
+    }
+
+    public double getT_volts() {
+        return t_volts;
+    }
+
+    public double getB_volts() {
+        return b_volts;
+    }
+
+    public double getT_realRPM() {
+        return t_realRPM;
+    }
+
+    public double getB_realRPM() {
+        return b_realRPM;
     }
 }
