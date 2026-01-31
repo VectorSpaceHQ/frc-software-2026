@@ -64,6 +64,16 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         double getX = .2;
         double t_targetRPM = (getX * MAX_RPM);
         double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_targetRPM);
+        feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
+
+
+        shooterstatus = false;
+
+    }
+
+    public void calculate() {
+
+        double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_RPM);
         t_volts = feedforward.calculate(t_targetRadsPerSec);
 
         
