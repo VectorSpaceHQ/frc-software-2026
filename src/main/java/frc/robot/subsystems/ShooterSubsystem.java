@@ -21,16 +21,18 @@ import frc.robot.components.motor.MotorIO.MotorIOInputs;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class ShooterSubsystem extends SubsystemBase implements Sendable{
+public class ShooterSubsystem extends SubsystemBase implements Sendable {
     private final MotorIO t_motor;
     private final MotorIO b_motor;
     private final double MAX_RPM = 6000; // 628.32 rads/s
-    private final double STATIC_GAIN = 0.2; // in voltage (to overcome static friction)
-    private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s https://www.reca.lc/motors
+
+    private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
+                                                                                             // https://www.reca.lc/motors
     private final double k_SHOOTER_TOLERANCE_RPS = 50;
-   
-    //private final ControllerIfc m_driverController;
-    //private final ControllerIfc m_operatorController;
+
+    // private final ControllerIfc m_driverController;
+    // private final ControllerIfc m_operatorController;
+
     private final MotorIOInputs t_motorInputs;
     private final MotorIOInputs b_motorInputs;
 
@@ -39,13 +41,19 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private PIDController t_pid;
     private PIDController b_pid;
 
-    // Set PID values (needs to be determined experimentally)
-    private double kp = 1; 
+    // Set PID and feedforward values (needs to be determined
+    // experimentally)
+    //
+    private double ks = 0.2; // in voltage (to overcome static friction)
+    private double kv = (1.0 / velocity_MOTOR); // inverse of rads per second per volt (VoltsPerRadianPerSecond)
+
+    // kP times error (target value - measured value = error in calculate function)
+    private double kp = 0.002; // proportional gain (example error would be 0.002 * (628.32 - 0.0) = 1.25664 volts at startup)
     private double kd = 0;
     private double ki = 0;
 
-    double  t_motorspeed;
-    double  b_motorspeed; 
+    double t_motorspeed;
+    double b_motorspeed;
     double t_volts;
     double b_volts;
 
@@ -54,42 +62,39 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     double t_realRPM = 0;
     double b_realRPM = 0;
 
-    public ShooterSubsystem(){
+    public ShooterSubsystem() {
         t_motor = new MotorIOKraken(19);
         b_motor = new MotorIOKraken(20);
         t_motorInputs = new MotorIOInputs();
-        b_motorInputs = new MotorIOInputs();    
+        b_motorInputs = new MotorIOInputs();
 
-        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (1.0/velocity_MOTOR)); // inverse
+        feedforward = new SimpleMotorFeedforward(ks, kv);
         t_pid = new PIDController(kp, ki, kd);
         b_pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
         t_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
         b_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
-        SmartDashboard.putData("Shooter",this);
+        SmartDashboard.putData("Shooter", this);
     }
-
 
     public void calculate() {
 
         double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_RPM);
-        
 
-        
         double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_RPM);
-        
 
         t_motor.updateInputs(t_motorInputs);
-        t_volts = feedforward.calculate(t_targetRadsPerSec) + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
+        t_volts = feedforward.calculate(t_targetRadsPerSec)
+                + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
         b_motor.updateInputs(b_motorInputs);
-        b_volts = feedforward.calculate(b_targetRadsPerSec) + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
+        b_volts = feedforward.calculate(b_targetRadsPerSec)
+                + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
 
     }
 
-
-// Place status values here
+    // Place status values here
     public double getStatus() {
-        return  t_motorspeed;
+        return t_motorspeed;
     }
 
     public boolean toggleShoot() { // Open loop control
@@ -97,29 +102,26 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
             calculate();
             t_motor.setVoltage(t_volts);
             b_motor.setVoltage(b_volts);
-        }
-        else {
+        } else {
             t_motor.setVoltage(0);
             b_motor.setVoltage(0);
         }
         shooterstatus = !shooterstatus;
-        return !shooterstatus ;
+        return !shooterstatus;
     }
 
-
     @Override
-    public void periodic(){
-        MotorIO.MotorIOInputs topMotorIOInputs = new MotorIOInputs();
-        MotorIO.MotorIOInputs bottomMotorIOInputs = new MotorIOInputs();
-        t_motor.updateInputs(topMotorIOInputs);
-        b_motor.updateInputs(bottomMotorIOInputs);
-        t_realRPM = Units.radiansPerSecondToRotationsPerMinute(topMotorIOInputs.velocityRadPerSec);
-        b_realRPM = Units.radiansPerSecondToRotationsPerMinute(bottomMotorIOInputs.velocityRadPerSec);
+    public void periodic() {
+
+        t_motor.updateInputs(t_motorInputs);
+        b_motor.updateInputs(b_motorInputs);
+        t_realRPM = Units.radiansPerSecondToRotationsPerMinute(t_motorInputs.velocityRadPerSec);
+        b_realRPM = Units.radiansPerSecondToRotationsPerMinute(b_motorInputs.velocityRadPerSec);
 
     }
 
     @Override
-    public void initSendable (SendableBuilder builder) {
+    public void initSendable(SendableBuilder builder) {
         System.out.println("Shooter init sendable called");
         builder.setSmartDashboardType("Shooter Controller");
         builder.addDoubleProperty("TopRPM", this::getT_RPM, this::setT_RPM);
@@ -135,7 +137,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     }
 
     public void setT_RPM(double t_RPM) {
-        if (t_RPM > MAX_RPM){
+        if (t_RPM > MAX_RPM) {
             t_RPM = MAX_RPM;
         }
         this.t_RPM = t_RPM;
@@ -146,7 +148,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
     }
 
     public void setB_RPM(double b_RPM) {
-        if (b_RPM > MAX_RPM){
+        if (b_RPM > MAX_RPM) {
             b_RPM = MAX_RPM;
         }
         this.b_RPM = b_RPM;
