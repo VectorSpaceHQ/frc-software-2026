@@ -37,7 +37,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     private final MotorIOInputs b_motorInputs;
 
     private boolean shooterstatus;
-    private SimpleMotorFeedforward feedforward;
+    private SimpleMotorFeedforward t_feedforward;
+    private SimpleMotorFeedforward b_feedforward;
     private PIDController t_pid;
     private PIDController b_pid;
 
@@ -68,7 +69,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         t_motorInputs = new MotorIOInputs();
         b_motorInputs = new MotorIOInputs();
 
-        feedforward = new SimpleMotorFeedforward(ks, kv);
+        t_feedforward = new SimpleMotorFeedforward(ks, kv);
+        b_feedforward = new SimpleMotorFeedforward(ks, kv);
         t_pid = new PIDController(kp, ki, kd);
         b_pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
@@ -84,10 +86,10 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_RPM);
 
         t_motor.updateInputs(t_motorInputs);
-        t_volts = feedforward.calculate(t_targetRadsPerSec)
+        t_volts = t_feedforward.calculate(t_targetRadsPerSec)
                 + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
         b_motor.updateInputs(b_motorInputs);
-        b_volts = feedforward.calculate(b_targetRadsPerSec)
+        b_volts = b_feedforward.calculate(b_targetRadsPerSec)
                 + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
 
     }
