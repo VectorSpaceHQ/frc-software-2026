@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.VoltsPerRadianPerSecond;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Num;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -11,15 +12,15 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.Interfaces.ControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
-import frc.robot.Constants;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIO.MotorIOInputs;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 
 public class ShooterSubsystem extends SubsystemBase implements Sendable {
     private final MotorIO t_motor;
@@ -73,24 +74,22 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         b_feedforward = new SimpleMotorFeedforward(ks, kv);
         t_pid = new PIDController(kp, ki, kd);
         b_pid = new PIDController(kp, ki, kd);
-        shooterstatus = false;
         t_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
         b_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
+        shooterstatus = false;
         SmartDashboard.putData("Shooter", this);
     }
 
     public void calculate() {
 
         double t_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(t_RPM);
-
         double b_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(b_RPM);
 
-        t_motor.updateInputs(t_motorInputs);
-        t_volts = t_feedforward.calculate(t_targetRadsPerSec)
-                + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
-        b_motor.updateInputs(b_motorInputs);
-        b_volts = b_feedforward.calculate(b_targetRadsPerSec)
-                + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
+        t_volts = MathUtil.clamp(t_feedforward.calculate(t_targetRadsPerSec)
+                + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec), -12.0, 12.0);
+                
+        b_volts = MathUtil.clamp(b_feedforward.calculate(b_targetRadsPerSec)
+                + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec), -12.0, 12.0);
 
     }
 
@@ -99,27 +98,28 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         return t_motorspeed;
     }
 
-    public boolean toggleShoot() { // Open loop control
+    public boolean toggleShoot() {
+        shooterstatus = !shooterstatus;
+        return !shooterstatus;
+    }
+
+    @Override
+    public void periodic() { // Update inputs, calculate, then set voltages every loop
+        t_motor.updateInputs(t_motorInputs);
+        b_motor.updateInputs(b_motorInputs);
+
+        t_realRPM = Units.radiansPerSecondToRotationsPerMinute(t_motorInputs.velocityRadPerSec);
+        b_realRPM = Units.radiansPerSecondToRotationsPerMinute(b_motorInputs.velocityRadPerSec);
+
         if (!shooterstatus) {
             calculate();
+
             t_motor.setVoltage(t_volts);
             b_motor.setVoltage(b_volts);
         } else {
             t_motor.setVoltage(0);
             b_motor.setVoltage(0);
         }
-        shooterstatus = !shooterstatus;
-        return !shooterstatus;
-    }
-
-    @Override
-    public void periodic() {
-
-        t_motor.updateInputs(t_motorInputs);
-        b_motor.updateInputs(b_motorInputs);
-        t_realRPM = Units.radiansPerSecondToRotationsPerMinute(t_motorInputs.velocityRadPerSec);
-        b_realRPM = Units.radiansPerSecondToRotationsPerMinute(b_motorInputs.velocityRadPerSec);
-
     }
 
     @Override
