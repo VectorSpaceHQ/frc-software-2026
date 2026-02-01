@@ -24,9 +24,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class ShooterSubsystem extends SubsystemBase implements Sendable{
     private final MotorIO t_motor;
     private final MotorIO b_motor;
-    private final double MAX_RPM = 6000;
-    private final double STATIC_GAIN = 0.2; // in voltage
-    private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // in rads/s https://www.reca.lc/motors
+    private final double MAX_RPM = 6000; // 628.32 rads/s
+    private final double STATIC_GAIN = 0.2; // in voltage (to overcome static friction)
+    private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s https://www.reca.lc/motors
     private final double k_SHOOTER_TOLERANCE_RPS = 50;
    
     //private final ControllerIfc m_driverController;
@@ -36,7 +36,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
 
     private boolean shooterstatus;
     private SimpleMotorFeedforward feedforward;
-    private PIDController pid;
+    private PIDController t_pid;
+    private PIDController b_pid;
 
     // Set PID values (needs to be determined experimentally)
     private double kp = 1; 
@@ -59,10 +60,12 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         t_motorInputs = new MotorIOInputs();
         b_motorInputs = new MotorIOInputs();    
 
-        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (12/velocity_MOTOR)); // inverse
-        pid = new PIDController(kp, ki, kd);
+        feedforward = new SimpleMotorFeedforward(STATIC_GAIN, (1.0/velocity_MOTOR)); // inverse
+        t_pid = new PIDController(kp, ki, kd);
+        b_pid = new PIDController(kp, ki, kd);
         shooterstatus = false;
-        pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
+        t_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
+        b_pid.setTolerance(k_SHOOTER_TOLERANCE_RPS);
         SmartDashboard.putData("Shooter",this);
     }
 
@@ -77,9 +80,9 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         
 
         t_motor.updateInputs(t_motorInputs);
-        t_volts = feedforward.calculate(t_targetRadsPerSec) + pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
+        t_volts = feedforward.calculate(t_targetRadsPerSec) + t_pid.calculate(t_motorInputs.velocityRadPerSec, t_targetRadsPerSec);
         b_motor.updateInputs(b_motorInputs);
-        b_volts = feedforward.calculate(b_targetRadsPerSec) + pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
+        b_volts = feedforward.calculate(b_targetRadsPerSec) + b_pid.calculate(b_motorInputs.velocityRadPerSec, b_targetRadsPerSec);
 
     }
 
@@ -89,7 +92,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable{
         return  t_motorspeed;
     }
 
-    public boolean toggleShoot() {
+    public boolean toggleShoot() { // Open loop control
         if (!shooterstatus) {
             calculate();
             t_motor.setVoltage(t_volts);
