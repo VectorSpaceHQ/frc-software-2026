@@ -19,7 +19,8 @@ public class MotorIOSim implements MotorIO {
     @Override
     public void periodic() { // Look into the update function
          motorSim.setInputVoltage(
-            MathUtil.clamp(appliedVoltage, -12.0, 12.0));
+            appliedVoltage
+        );
         motorSim.update(0.02);
     }
 

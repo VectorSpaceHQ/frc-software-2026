@@ -4,6 +4,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 
+import edu.wpi.first.math.MathUtil;
+
 public class MotorIOKraken implements MotorIO {
 
     private final TalonFX motor;
@@ -32,7 +34,7 @@ public class MotorIOKraken implements MotorIO {
 
     @Override
     public void setVoltage(double volts) {
-        motor.setControl(voltageRequest.withOutput(volts)); // Applies the voltage
+        motor.setControl(voltageRequest.withOutput(MathUtil.clamp(volts, -12.0, 12.0 ))); // Applies the voltage
     }
 
     @Override
