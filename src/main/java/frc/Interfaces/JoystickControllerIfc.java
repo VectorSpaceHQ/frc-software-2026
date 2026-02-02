@@ -62,10 +62,6 @@ public class JoystickControllerIfc implements ControllerIfc {
         return joystick.getZ();
     }
 
-    private boolean getButton3() {
-        return joystick.getHID().getRawButton(ExtendedButtonType.Button3.value);
-    }
-
     private Trigger getButton3(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button3.value, loop);
     }
