@@ -29,7 +29,5 @@ public final class Constants {
     public static final int controllerPort1 = 0;
     public static final ControllerEnum controllerType2 = ControllerEnum.FLIGHTSTICK;
     public static final int controllerPort2 = 1;
-    
   }
-  public static final double MAX_MOTOR_VOLTS = 12.0;
 }
