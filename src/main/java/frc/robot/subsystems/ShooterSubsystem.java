@@ -96,12 +96,12 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     }
 
     // Place status values here
-    public double getStatus() {
-        return t_motorspeed;
+    public boolean getShooterStatus() {
+        return shooterstatus;
     }
 
     public boolean toggleShoot() {
-        //shooterstatus = !shooterstatus;
+        shooterstatus = !shooterstatus;
         return !shooterstatus;
     }
 
@@ -119,6 +119,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
             b_motor.setVoltage(b_volts);
             
         } else {
+            t_pid.reset();
+            b_pid.reset();
             t_motor.setVoltage(0);
             b_motor.setVoltage(0);
         }
@@ -134,6 +136,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         builder.addDoubleProperty("Bottom Volts", this::getB_volts, null);
         builder.addDoubleProperty("Top Real RPM", this::getT_realRPM, null);
         builder.addDoubleProperty("Bottom Real RPM", this::getB_realRPM, null);
+        builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
     }
 
     public double getT_RPM() {
