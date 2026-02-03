@@ -37,7 +37,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
-  private final IntakeSubsystem m_IntakeSubsytem = new IntakeSubsystem();
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   public final ControllerIfc m_driverController;
  // private final ControllerIfc m_operatorController;
   //private final MotorIO m_motor;
@@ -109,7 +109,11 @@ public class RobotContainer {
         m_ShooterSubsystem.toggleShoot())
     
     );
+        m_driverController.runIntake().onTrue(
+      new InstantCommand( () -> 
+        m_IntakeSubsystem.toggleIntake())
     
+    );
     
   
 
