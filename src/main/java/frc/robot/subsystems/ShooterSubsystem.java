@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.lang.Math;
+
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.VoltsPerRadianPerSecond;
 
@@ -46,13 +48,13 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     // Set PID and feedforward values (needs to be determined
     // experimentally)
     //
-    private double ks = 0.2; // in voltage (to overcome static friction)
+    private double ks = 0.12; // in voltage (to overcome static friction)
     private double kv = (1.0 / velocity_MOTOR); // inverse of rads per second per volt (VoltsPerRadianPerSecond)
 
     // kP times error (target value - measured value = error in calculate function)
-    private double kp = 0.002; // proportional gain (example error would be 0.002 * (628.32 - 0.0) = 1.25664 volts at startup)
+    private double kp = 0.0018; // proportional gain (example error would be 0.002 * (628.32 - 0.0) = 1.25664 volts at startup)
     private double kd = 0;
-    private double ki = 0;
+    private double ki = 0.00001;
 
     double t_motorspeed;
     double b_motorspeed;
@@ -94,8 +96,8 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     }
 
     // Place status values here
-    public double getStatus() {
-        return t_motorspeed;
+    public boolean getShooterStatus() {
+        return shooterstatus;
     }
 
     public boolean toggleShoot() {
@@ -113,10 +115,12 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
         if (!shooterstatus) {
             calculate();
-
             t_motor.setVoltage(t_volts);
             b_motor.setVoltage(b_volts);
+            
         } else {
+            t_pid.reset();
+            b_pid.reset();
             t_motor.setVoltage(0);
             b_motor.setVoltage(0);
         }
@@ -132,6 +136,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
         builder.addDoubleProperty("Bottom Volts", this::getB_volts, null);
         builder.addDoubleProperty("Top Real RPM", this::getT_realRPM, null);
         builder.addDoubleProperty("Bottom Real RPM", this::getB_realRPM, null);
+        builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
     }
 
     public double getT_RPM() {
@@ -157,18 +162,19 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
     }
 
     public double getT_volts() {
-        return t_volts;
+        // round to two places
+        return (Math.floor(t_volts * 100) / 100.0);
     }
 
     public double getB_volts() {
-        return b_volts;
+        return (Math.floor(b_volts * 100) / 100.0);
     }
 
     public double getT_realRPM() {
-        return t_realRPM;
+        return Math.round(t_realRPM);
     }
 
     public double getB_realRPM() {
-        return b_realRPM;
+        return Math.round(b_realRPM);
     }
 }
