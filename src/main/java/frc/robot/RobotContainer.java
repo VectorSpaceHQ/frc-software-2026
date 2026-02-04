@@ -14,9 +14,9 @@ import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
-//mport frc.robot.subsystems.Shooter;
+
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -38,22 +37,20 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem();
-  //private final Shooter m_Shooter = new Shooter();
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   public final ControllerIfc m_driverController;
  // private final ControllerIfc m_operatorController;
-  private final MotorIO m_motor;
-  private final double MAX_RPM = 6000;
+  //private final MotorIO m_motor;
+  //private final double MAX_RPM = 6000;
   
 
-  private SimpleMotorFeedforward feedforward;
+  //private SimpleMotorFeedforward feedforward;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
       //create 2 instances of our new controller interface
       m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
       //m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-      m_motor = new MotorIOKraken(21);
-      feedforward = new SimpleMotorFeedforward(0.2, 12/509.3);
-      
+
       
 
     // Configure the trigger bindings
@@ -112,7 +109,11 @@ public class RobotContainer {
         m_ShooterSubsystem.toggleShoot())
     
     );
+        m_driverController.runIntake().onTrue(
+      new InstantCommand( () -> 
+        m_IntakeSubsystem.toggleIntake())
     
+    );
     
   
 
