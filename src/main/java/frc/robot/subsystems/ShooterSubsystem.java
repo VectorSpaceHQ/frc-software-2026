@@ -51,7 +51,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
     // kP times error (target value - measured value = error in calculate function)
     private double kp = 0.0015; // proportional gain (example error would be 0.002 * (628.32 - 0.0) = 1.25664
-                               // volts at startup)
+                                // volts at startup)
     private double ki = 0.01; // integral gain
     private double kd = 0; // derivative gain
 
