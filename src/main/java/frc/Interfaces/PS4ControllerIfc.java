@@ -19,13 +19,13 @@ public class PS4ControllerIfc implements ControllerIfc {
     public double getX() {
         
         return exampleJoystick.getLeftX();
-         };
+    }
       
     public double getY() {
 
         return exampleJoystick.getLeftY();
     }
-
+    
     public double getTwist(){
 
         return exampleJoystick.getRightX();
