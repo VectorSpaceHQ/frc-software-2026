@@ -223,6 +223,7 @@ public class ShooterSubsystem extends SubsystemBase implements Sendable {
 
         if (shooterStatus) { // If true (shooter is on)
             calculate();
+            
             t_motor.setVoltage(t_volts);
             b_motor.setVoltage(b_volts);
 
