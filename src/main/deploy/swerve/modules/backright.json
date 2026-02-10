@@ -6,8 +6,8 @@
   "absoluteEncoderOffset": 0.10108,
   "drive": {
     "type": "krakenx60",
-    "id": 8,
-    "canbus": 8
+    "id": 6,
+    "canbus": "rio"
   },
   "inverted": {
     "drive": true,
@@ -15,13 +15,13 @@
   },
   "angle": {
     "type": "krakenx44",
-    "id": 9,
-    "canbus": 9
+    "id": 7,
+    "canbus": "rio"
   },
   "encoder": {
     "type": "cancoder",
-    "id": 4,
-    "canbus": 4
+    "id": 12,
+    "canbus": "rio"
   },
   "absoluteEncoderInverted": false
 }
