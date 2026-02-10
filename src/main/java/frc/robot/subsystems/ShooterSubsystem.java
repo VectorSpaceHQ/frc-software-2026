@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
-
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.util.Units;
@@ -33,16 +33,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     public ShooterSubsystem() {
-        t_PID = new PID(new MotorIOKraken(19), 6000, 12, 0.25, 0.0015, 0.01, 0);
-        b_PID = new PID(new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-        n_PID = new PID(new MotorIOSparkMax(15), 6000, 12);
+        t_PID = new PID("Top", new MotorIOKraken(19), 6000, 12, 0.25, 0.0015, 0.01, 0);
+        b_PID = new PID("Bottom", new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+        n_PID = new PID("Neo", new MotorIOSparkMax(11), 6000, 12);
         // t_motorInputs = new MotorIOInputs();
         // b_motorInputs = new MotorIOInputs();
+        
 
         shooterStatus = false;
         lastShooterStatus = false;
 
-        SmartDashboard.putData("Shooter", this);
+        SmartDashboard.putData("Shooter/Top PID", t_PID);
+        SmartDashboard.putData("Shooter/Bottom PID", b_PID);
+        SmartDashboard.putData("Shooter/Neo PID", n_PID);
     }
 
     public boolean toggleShoot() {
@@ -93,9 +96,12 @@ public class ShooterSubsystem extends SubsystemBase {
         builder.setSmartDashboardType("Shooter Controller");
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
-        t_PID.getPIDStatus(builder);
-        b_PID.getPIDStatus(builder);
-        n_PID.getPIDStatus(builder);
+
+        super.initSendable(builder);
+        t_PID.initSendable(builder);
+        b_PID.initSendable(builder);
+        n_PID.initSendable(builder);
+
     }
     
 }
