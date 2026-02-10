@@ -3,7 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.util.Units;
 
 
@@ -34,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public ShooterSubsystem() {
         t_PID = new PID("Top", new MotorIOKraken(19), 6000, 12, 0.25, 0.0015, 0.01, 0);
-        b_PID = new PID("Bottom", new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+        b_PID = new PID("Bottom", this, new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
         n_PID = new PID("Neo", new MotorIOSparkMax(11), 6000, 12);
         // t_motorInputs = new MotorIOInputs();
         // b_motorInputs = new MotorIOInputs();
@@ -89,6 +91,9 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = shooterStatus;
 
     }
+    public Command sysIdNeoQuasistatic(SysIdRoutine.Direction direction) {
+    return t_PID.getQuasistaticCommand(direction);
+}
 
     @Override
     public void initSendable(SendableBuilder builder) {
