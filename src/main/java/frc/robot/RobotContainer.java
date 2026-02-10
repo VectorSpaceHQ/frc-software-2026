@@ -40,6 +40,7 @@ public class RobotContainer {
     
     // Configure the trigger bindings
     configureBindings();
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                 () -> m_driverController.getY() * -1,
