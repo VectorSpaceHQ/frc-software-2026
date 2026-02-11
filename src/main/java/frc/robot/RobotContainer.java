@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
@@ -13,9 +12,10 @@ import frc.Interfaces.JoystickControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
-import frc.robot.subsystems.ExampleSubsystem;
-
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.configuration.Constants.OperatorConstants;
+import frc.robot.configuration.Constants;
+import frc.robot.subsystems.climb.ExampleSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;

@@ -2,14 +2,23 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.io.File;
+import edu.wpi.first.wpilibj.Filesystem;
+import swervelib.parser.SwerveParser;
+import swervelib.SwerveDrive;
+import edu.wpi.first.math.util.Units;
 
-public class ExampleSubsystem extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+  public SwerveSubsystem() {}
+
+  // double maximumSpeed = Units.feetToMeters(4.5);
+  // File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),"swerve");
+  // SwerveDrive  swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
 
   /**
    * Example command factory method.
