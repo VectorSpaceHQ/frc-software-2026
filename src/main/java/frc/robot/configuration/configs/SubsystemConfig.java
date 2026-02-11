@@ -1,6 +1,6 @@
-package frc.robot.subsystems;
-import frc.robot.Constants;
-import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
+package frc.robot.configuration.configs;
+
+import frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum;
 
 public class SubsystemConfig {
     private boolean isPresent;

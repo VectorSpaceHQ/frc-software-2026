@@ -1,7 +1,6 @@
-package frc.robot.subsystems;
-import frc.robot.Constants;
-import static frc.robot.Constants.OperatorConstants.MotorCanIDEnum.*;
-import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
+package frc.robot.configuration.configs;
+import static frc.robot.configuration.Constants.OperatorConstants.MotorCanIDEnum.*;
+import frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum;
 
 public class ShooterSubsysConfig extends SubsystemConfig {
     private final int FeederId = FEED_ROLLERS_CANID.getCanID();
