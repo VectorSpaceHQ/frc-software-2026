@@ -12,6 +12,7 @@ import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 
 public class ShooterSubsystem extends SubsystemBase {
+    private ShooterSubsysConfig ShooterConfig;
 
     private final PID t_PID;
     private final PID b_PID;
@@ -24,10 +25,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    public ShooterSubsystem() {
-        t_PID = new PID("Top", new MotorIOKraken(19), 6000, 12, 0.25, 0.0015, 0.01, 0);
-        b_PID = new PID("Bottom", new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-        n_PID = new PID("Neo", new MotorIOSparkMax(11), 6000, 12);
+    public ShooterSubsystem(ShooterSubsysConfig config) {
+        this.ShooterConfig = config;
+
+        t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
+        b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+        n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12);
 
         
 
@@ -37,6 +40,8 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putData("Shooter/Top PID", t_PID);
         SmartDashboard.putData("Shooter/Bottom PID", b_PID);
         SmartDashboard.putData("Shooter/Neo PID", n_PID);
+
+        
     }
 
     public boolean toggleShoot() {
