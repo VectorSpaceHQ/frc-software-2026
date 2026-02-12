@@ -26,9 +26,10 @@ public class MotorIOSparkMax implements MotorIO {
         inputs.velocityRadPerSec = relativeEncoder.getVelocity() * 2.0 * Math.PI * (1/60.0); // Convert from rotations per minute
                                                                                   // to radians per second
 
-        inputs.appliedVoltage = motor.getBusVoltage();
+        inputs.appliedVoltage =   motor.getAppliedOutput() * motor.getBusVoltage();
 
         inputs.currentAmps = motor.getOutputCurrent();
+        // Remember to add config files for sparkmax and neo motors to set current limits and other settings...
     }
 
     @Override
