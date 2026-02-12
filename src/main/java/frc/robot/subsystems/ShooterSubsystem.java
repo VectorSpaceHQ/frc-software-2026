@@ -12,20 +12,12 @@ import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 
 public class ShooterSubsystem extends SubsystemBase {
-    // private final MotorIO t_motor;
-    // private final MotorIO b_motor;
+
     private final PID t_PID;
     private final PID b_PID;
     private final PID n_PID;
     
-    // private final double velocity_MOTOR = Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
-                                                                                             // https://www.reca.lc/motors
 
-    // private final ControllerIfc m_driverController;
-    // private final ControllerIfc m_operatorController;
-
-    // private final MotorIOInputs t_motorInputs;
-    // private final MotorIOInputs b_motorInputs;
 
     private boolean shooterStatus;
     private boolean lastShooterStatus;
@@ -36,8 +28,7 @@ public class ShooterSubsystem extends SubsystemBase {
         t_PID = new PID("Top", new MotorIOKraken(19), 6000, 12, 0.25, 0.0015, 0.01, 0);
         b_PID = new PID("Bottom", new MotorIOKraken(20), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
         n_PID = new PID("Neo", new MotorIOSparkMax(11), 6000, 12);
-        // t_motorInputs = new MotorIOInputs();
-        // b_motorInputs = new MotorIOInputs();
+
         
 
         shooterStatus = false;
