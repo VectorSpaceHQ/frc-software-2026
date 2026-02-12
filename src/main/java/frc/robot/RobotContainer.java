@@ -14,7 +14,6 @@ import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.components.control.PID;
 
 import frc.robot.subsystems.ShooterSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
@@ -23,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -117,8 +115,7 @@ public class RobotContainer {
     
     // );
     
-    // m_driverController.getQuasistaticCommand(SysIdRoutine.Direction.kForward)
-    // .finallyDo(() -> m_ShooterSubsystem.stop()); 
+  
 
   }
 
