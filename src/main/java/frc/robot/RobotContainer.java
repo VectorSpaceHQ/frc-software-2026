@@ -20,7 +20,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SubsystemConfig;
 import frc.robot.subsystems.ShooterSubsysConfig;
-// import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,28 +42,18 @@ import edu.wpi.first.math.util.Units;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
-  // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-
-
-  //private SimpleMotorFeedforward feedforward;
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
-  //create 2 instances of our new controller interface
+
+  //create 2 instances of our new controller interface:
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-  //private final MotorIO m_motor;
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
 
-      //m_motor = new MotorIOKraken(21);
-    
-    // Configure the trigger bindings
-    configureBindings();
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-  }
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                 () -> m_driverController.getY() * -1,
                                                                 () -> m_driverController.getX() * -1)
@@ -80,6 +70,14 @@ public class RobotContainer {
 
   Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
   Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
+
+    // Configure the trigger bindings
+    configureBindings();
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+  }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -104,9 +102,7 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
 
-    // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements are needed here (for now)
-    //m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
-    // Temporary start motor
+    //TODO: Temporary start motor (Move to operator controller?)
     // m_driverController.runIntake().onTrue(
     //     new InstantCommand( () -> 
     //     m_motor.setVoltage(6.0))
@@ -118,6 +114,7 @@ public class RobotContainer {
     //     m_motor.stop())
     // );
 
+    //TODO: Should this be on the operator controller?
    /*  m_driverController.runShooter().whileTrue(
       new RunCommand( () -> {
         double trigger = m_driverController.controlMotorSpeed();
@@ -127,24 +124,20 @@ public class RobotContainer {
         m_motor.setVoltage(volts);
       }).withTimeout(3) 
     );*/
-      //TODO Replace onchange when class is futher developed
-    /*TODO: NEED TO REASSIGN TO OPERATOR CONTROLLER AS SWERVE OWNS THIS ONE: m_driverController.runShooter().onTrue(
+
+    //TODO: Replace onchange when class is futher developed (and move to operator controller?)
+    m_operatorController.runShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
-    );*/
-      //   m_driverController.runIntake().onTrue(
-      // new InstantCommand( () -> 
-      //   m_IntakeSubsystem.toggleIntake())
-    
-    // );
-    
-  
+    );
 
+    //TODO: Is this supposed to be on the operator controller?
+    //m_driverController.runIntake().onTrue(
+    //  new InstantCommand( () -> 
+    //  m_IntakeSubsystem.toggleIntake())
+    //);
   }
-
-
-  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
