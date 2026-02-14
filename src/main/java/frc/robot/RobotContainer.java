@@ -48,10 +48,6 @@ public class RobotContainer {
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 
- // private final ControllerIfc m_operatorController;
-  //private final MotorIO m_motor;
-  //private final double MAX_RPM = 6000;
-  
 
   //private SimpleMotorFeedforward feedforward;
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
@@ -61,11 +57,6 @@ public class RobotContainer {
   private final MotorIO m_motor;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-      //create 2 instances of our new controller interface
-      //m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-      //m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-
-      
 
       m_motor = new MotorIOKraken(21);
     
