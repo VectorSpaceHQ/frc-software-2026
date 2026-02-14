@@ -126,11 +126,11 @@ public class RobotContainer {
     );*/
 
     //TODO: Replace onchange when class is futher developed (and move to operator controller?)
-    m_operatorController.runShooter().onTrue(
+    /*m_operatorController.runShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
-    );
+    );*/
 
     //TODO: Is this supposed to be on the operator controller?
     //m_driverController.runIntake().onTrue(
