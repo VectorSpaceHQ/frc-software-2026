@@ -14,7 +14,7 @@ import frc.robot.components.control.PID;
 
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
-  
+    private IntakeSubsysConfig IntakeConfig;
     private final PID IntakeRollers1;
     private final PID IntakeRollers2;
 
@@ -25,9 +25,9 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
     private final ArmFeedforward pivotFeedforward;
 
     public IntakeSubsystem() {
-        IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(11),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
-        IntakeRollers2 = new PID("IntakeRollers2" ,new MotorIOSparkMax(12),-6000, 12, 0.25, 0.0015, 0.01, 0);
-        pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(13),-6000, 12, 0.25, 0.0015, 0.01, 0);
+        IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
+        IntakeRollers2 = new PID("IntakeRollers2" ,new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller2Id()),-6000, 12, 0.25, 0.0015, 0.01, 0);
+        pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(this.IntakeConfig.getIntakePivotId()),-6000, 12, 0.25, 0.0015, 0.01, 0);
         pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
   
         Intakestatus = false;
