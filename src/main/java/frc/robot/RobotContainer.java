@@ -6,19 +6,34 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.Constants;
+import static frc.robot.Constants.OperatorConstants.SubSystemIDEnum.*;
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.Interfaces.ControllerIfc;
+import frc.Interfaces.JoystickControllerIfc;
 import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
+
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SubsystemConfig;
+import frc.robot.subsystems.ShooterSubsysConfig;
+// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.math.util.Units;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -27,8 +42,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
+  // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  public final ControllerIfc m_driverController;
+ // private final ControllerIfc m_operatorController;
+  //private final MotorIO m_motor;
+  //private final double MAX_RPM = 6000;
+  
+
+  //private SimpleMotorFeedforward feedforward;
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
   //create 2 instances of our new controller interface
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
@@ -36,6 +61,12 @@ public class RobotContainer {
   private final MotorIO m_motor;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+      //create 2 instances of our new controller interface
+      m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+      //m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+
+      
+
       m_motor = new MotorIOKraken(21);
     
     // Configure the trigger bindings
@@ -70,11 +101,11 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    //new Trigger(m_exampleSubsystem::exampleCondition)
+        //.onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // new Trigger(m_driverController::commandShooter)
-    //     .onTrue(new ControllerCommand(m_driverController));
+     //new Trigger(m_Shooter::commandShooter)
+         //.onTrue(new ControllerCommand(m_driverController));
     
     // new Trigger(m_driverController::commandShooter)
     //     .onTrue(new ControllerCommand(m_driverController));      
@@ -83,20 +114,46 @@ public class RobotContainer {
     // cancelling on release.
 
     // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements are needed here (for now)
-    m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
+    //m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
     // Temporary start motor
-    m_driverController.runIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.setVoltage(6.0))
-    );
+    // m_driverController.runIntake().onTrue(
+    //     new InstantCommand( () -> 
+    //     m_motor.setVoltage(6.0))
+    // );
     
     // Temporary stop motor
-    m_driverController.stopIntake().onTrue(
-        new InstantCommand( () -> 
-        m_motor.stop())
+    // m_driverController.stopIntake().onTrue(
+    //     new InstantCommand( () -> 
+    //     m_motor.stop())
+    // );
+
+   /*  m_driverController.runShooter().whileTrue(
+      new RunCommand( () -> {
+        double trigger = m_driverController.controlMotorSpeed();
+        double targetRPM = (trigger * MAX_RPM);
+        double targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
+        double volts = feedforward.calculate(targetRadsPerSec);
+        m_motor.setVoltage(volts);
+      }).withTimeout(3) 
+    );*/
+      //TODO Replace onchange when class is futher developed
+     m_driverController.runShooter().onTrue(
+      new InstantCommand( () -> 
+        m_ShooterSubsystem.toggleShoot())
+    
     );
+      //   m_driverController.runIntake().onTrue(
+      // new InstantCommand( () -> 
+      //   m_IntakeSubsystem.toggleIntake())
+    
+    // );
+    
   
+
   }
+
+
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -108,4 +165,3 @@ public class RobotContainer {
     return Autos.exampleAuto(m_exampleSubsystem);
   }
 }
-// does this work?

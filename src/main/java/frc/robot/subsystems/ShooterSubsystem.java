@@ -1,0 +1,103 @@
+package frc.robot.subsystems;
+
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.util.Units;
+
+
+import frc.robot.components.motor.MotorIOKraken;
+import frc.robot.components.motor.MotorIOSparkMax;
+import frc.robot.components.control.PID;
+
+public class ShooterSubsystem extends SubsystemBase {
+    private ShooterSubsysConfig ShooterConfig;
+
+    private final PID t_PID;
+    private final PID b_PID;
+    private final PID n_PID;
+    
+
+
+    private boolean shooterStatus;
+    private boolean lastShooterStatus;
+
+
+
+    public ShooterSubsystem(ShooterSubsysConfig config) {
+        this.ShooterConfig = config;
+
+        t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
+        b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+        n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12);
+
+        
+
+        shooterStatus = false;
+        lastShooterStatus = false;
+
+        SmartDashboard.putData("Shooter/Top PID", t_PID);
+        SmartDashboard.putData("Shooter/Bottom PID", b_PID);
+        SmartDashboard.putData("Shooter/Neo PID", n_PID);
+
+        
+    }
+
+    public boolean toggleShoot() {
+        shooterStatus = !shooterStatus;
+        return shooterStatus; // Return the new value rather than the opposite
+    }
+    // Place status values here
+    public boolean getShooterStatus() {
+        return shooterStatus;
+    }
+
+    public boolean getLastShooterStatus() {
+        return lastShooterStatus;
+    }
+
+    
+    @Override
+    public void periodic() { // Update inputs, calculate, then set voltages every loop
+
+        t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+        b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+        n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+ 
+
+        /*
+         * This line changes the shooter status of last to the shooter status of current
+         * (so lastShooterStatus turns to true when shooterStatus is true).
+         * But lastShooterStatus is initialized to false, so when lastShooterStatus
+         * equals
+         * shooterStatus initially, !lastShooterStatus does not equal true, meaning that
+         * the PID does not reset.
+         * 
+         * Furthermore, this happens every initialization of the shooter becoming true.
+         * If shooterStatus is false, !lastShooterStatus is true; if shooterStatus is
+         * true, !lastShooterStatus remains true and resets the PID before becoming
+         * false again. This should fix the problem that the integral term is building
+         * error before shooter turns on, which needs to be reset (not periodically but
+         * after every time the shooter turns on)
+         */
+
+        lastShooterStatus = shooterStatus;
+
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        System.out.println("Shooter init sendable called");
+        builder.setSmartDashboardType("Shooter Controller");
+        builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
+        builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
+
+        super.initSendable(builder);
+        t_PID.initSendable(builder);
+        b_PID.initSendable(builder);
+        n_PID.initSendable(builder);
+
+    }
+    
+}
