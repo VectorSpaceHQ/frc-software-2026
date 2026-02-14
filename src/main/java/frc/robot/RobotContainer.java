@@ -54,11 +54,11 @@ public class RobotContainer {
   //create 2 instances of our new controller interface
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-  private final MotorIO m_motor;
+  //private final MotorIO m_motor;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-      m_motor = new MotorIOKraken(21);
+      //m_motor = new MotorIOKraken(21);
     
     // Configure the trigger bindings
     configureBindings();
@@ -128,11 +128,11 @@ public class RobotContainer {
       }).withTimeout(3) 
     );*/
       //TODO Replace onchange when class is futher developed
-     m_driverController.runShooter().onTrue(
+    /*TODO: NEED TO REASSIGN TO OPERATOR CONTROLLER AS SWERVE OWNS THIS ONE: m_driverController.runShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
-    );
+    );*/
       //   m_driverController.runIntake().onTrue(
       // new InstantCommand( () -> 
       //   m_IntakeSubsystem.toggleIntake())
