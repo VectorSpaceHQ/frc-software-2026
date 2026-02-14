@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-import frc.robot.Constants;
 import static frc.robot.Constants.OperatorConstants.MotorCanIDEnum.*;
 import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
 

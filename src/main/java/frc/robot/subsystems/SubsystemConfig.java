@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
 
 public class SubsystemConfig {
