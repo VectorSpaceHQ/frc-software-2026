@@ -29,8 +29,7 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
         IntakeRollers2 = new PID("IntakeRollers2" ,new MotorIOSparkMax(12),-6000, 12, 0.25, 0.0015, 0.01, 0);
         pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(13),-6000, 12, 0.25, 0.0015, 0.01, 0);
         pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
-  // Feed1Inputs = new MotorIOInputs();
-  // Feed2Inputs = new MotorIOInputs();
+  
         Intakestatus = false;
         lastIntakestatus = false;
 
