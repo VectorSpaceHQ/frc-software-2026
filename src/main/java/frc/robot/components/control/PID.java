@@ -65,8 +65,7 @@ public class PID implements Sendable {
                                                                            // volts of input (adjustable)
     }
 
-    public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS, double ks, double kp, double ki,
-            double kd) {
+    public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS, double ks, double kp, double ki, double kd) {
         this.name = name;
         m_motor = m_motorIO;
         m_motorInputs = new MotorIOInputs();
@@ -94,7 +93,6 @@ public class PID implements Sendable {
     public MotorIOInputs getMotorInputs() {
         return m_motorInputs;
     }
-
 
     public double calculate() {
         double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);

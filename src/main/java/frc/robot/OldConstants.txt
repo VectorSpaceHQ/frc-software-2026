@@ -81,8 +81,4 @@ public final class Constants {
     }
     
   }
-  public static class SwerveConstants {
-    public static final double maxSpeed = Units.feetToMeters(4.5);
-  }
-  public static final double MAX_MOTOR_VOLTS = 12.0;
-}
+

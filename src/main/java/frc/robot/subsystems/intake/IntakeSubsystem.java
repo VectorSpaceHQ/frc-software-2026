@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.util.sendable.Sendable;

@@ -48,8 +48,8 @@ public class ShooterSubsystem extends SubsystemBase {
         this.ShooterConfig = config;
 
         t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
-        b_PID = new PID("Bottom", this, new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-        n_PID = new PID("Neo", this, new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12, 0.090868, 0.0015, 0.01, 0,0.11741);
+        b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+        n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12, 0.090868, 0.0015, 0.01, 0,0.11741);
         // t_motorInputs = new MotorIOInputs();
         // b_motorInputs = new MotorIOInputs();
         

@@ -6,7 +6,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.configuration.Constants;
 
 import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
