@@ -16,13 +16,16 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
-import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIO.MotorIOInputs;
+import frc.robot.components.motor.MotorIOInputsAutoLogged;
+import frc.robot.components.motor.MotorIO;
+import frc.robot.components.motor.MotorIOInputsAutoLogged;
 
 public class PID implements Sendable {
     // private variables to be implemented
     private final MotorIOInputs m_motorInputs;
     private final MotorIO m_motor;
+    private final MotorIOInputsAutoLogged motorInputs = new MotorIOInputsAutoLogged();
 
     private String name;
     private double MAX_RPM = 6000.0;
@@ -55,7 +58,6 @@ public class PID implements Sendable {
 
     private double m_RPM = 0;
     private double m_realRPM;
-    
 
     public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS) {
         this.name = name;
@@ -94,32 +96,30 @@ public class PID implements Sendable {
         pid = new PIDController(kp, ki, kd);
         pid.setIntegratorRange(lowIntegrationRange, highIntegrationRange); // Integral is only responsible for -2 to 2
 
-        
-
     } // volts of input (adjustable)
 
     public MotorIOInputs getMotorInputs() {
         return m_motorInputs;
     }
 
-public double calculate() {
-    double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
-    m_volts = MathUtil.clamp(
-        feedforward.calculate(target)
-        + pid.calculate(m_motorInputs.velocityRadPerSec, target),
-        -12.0,
-        12.0
-    );
-    return m_volts;
-}
 
+    public double calculate() {
+        double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
+        m_volts = MathUtil.clamp(
+                feedforward.calculate(target)
+                        + pid.calculate(m_motorInputs.velocityRadPerSec, target),
+                -12.0,
+                12.0);
+        return m_volts;
+    }
 
     public void m_setVoltage() { // For PID
         m_motor.setVoltage(m_volts);
     }
-    public void m_setRawVoltage(double volts) { // For SysId (uses raw volts)
-    m_motor.setVoltage(volts);
-}
+
+    public void m_setRawVoltage(double volts) {
+        m_motor.setVoltage(MathUtil.clamp(volts, -12.0, 12.0));
+    }
 
     public void zeroVoltage() {
         m_motor.setVoltage(0);
@@ -128,6 +128,11 @@ public double calculate() {
     public void m_updateInputs() {
         m_motor.updateInputs(m_motorInputs);
         m_realRPM = Units.radiansPerSecondToRotationsPerMinute(m_motorInputs.velocityRadPerSec);
+        System.out.println(
+                "Pos: " + m_motorInputs.positionRad +
+                        " Vel: " + m_motorInputs.velocityRadPerSec +
+                        " Volt: " + m_motorInputs.appliedVoltage +
+                        " Curr: " + m_motorInputs.currentAmps);
 
     }
 
@@ -185,6 +190,7 @@ public double calculate() {
             this.resetPID();
         }
         if (toggleStatus) {
+            calculate();
             this.m_setVoltage();
         } else {
             this.zeroVoltage();
@@ -221,7 +227,5 @@ public double calculate() {
         builder.addDoubleProperty(name + "kD", this::getkD, this::setkD);
 
     }
-
-
 
 }

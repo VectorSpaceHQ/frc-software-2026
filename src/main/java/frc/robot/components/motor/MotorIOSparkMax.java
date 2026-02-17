@@ -1,8 +1,14 @@
 package frc.robot.components.motor;
 
+
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.SparkLowLevel;
 
 public class MotorIOSparkMax implements MotorIO {
@@ -11,25 +17,40 @@ public class MotorIOSparkMax implements MotorIO {
     private final SparkAbsoluteEncoder absoluteEncoder;
     private final RelativeEncoder relativeEncoder;
     private final SparkLowLevel.MotorType motorType = SparkLowLevel.MotorType.kBrushless; // Brushless motor
+    private final SparkBaseConfig config = new SparkMaxConfig();
 
     public MotorIOSparkMax(int canID) {
-        motor = new SparkMax(canID, motorType);
-        absoluteEncoder = motor.getAbsoluteEncoder();
-        relativeEncoder = motor.getEncoder();
-        relativeEncoder.setPosition(absoluteEncoder.getPosition()); // Sync to zero
-    }
+    motor = new SparkMax(canID, motorType);
+
+    config.idleMode(IdleMode.kCoast);
+
+    config.smartCurrentLimit(80);
+
+    motor.configure(
+        config,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kNoPersistParameters
+    );
+
+    absoluteEncoder = motor.getAbsoluteEncoder();
+    relativeEncoder = motor.getEncoder();
+    relativeEncoder.setPosition(absoluteEncoder.getPosition());
+}
+
+
 
     @Override
     public void updateInputs(MotorIOInputs inputs) {
         inputs.positionRad = relativeEncoder.getPosition() * 2.0 * Math.PI; // Convert from rotations to radians
 
-        inputs.velocityRadPerSec = relativeEncoder.getVelocity() * 2.0 * Math.PI * (1/60.0); // Convert from rotations per minute
-                                                                                  // to radians per second
+        inputs.velocityRadPerSec = relativeEncoder.getVelocity() * 2.0 * Math.PI * (1 / 60.0); // Convert from rotations
+                                                                                               // per minute
+        // to radians per second
 
-        inputs.appliedVoltage =   motor.getAppliedOutput() * motor.getBusVoltage();
+        inputs.appliedVoltage = motor.getAppliedOutput() * motor.getBusVoltage();
 
         inputs.currentAmps = motor.getOutputCurrent();
-        // Remember to add config files for sparkmax and neo motors to set current limits and other settings...
+
     }
 
     @Override

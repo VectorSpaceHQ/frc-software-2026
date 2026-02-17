@@ -11,11 +11,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.util.Units;
+import frc.robot.components.motor.MotorIOInputsAutoLogged;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
+import org.littletonrobotics.junction.Logger;
+
 
 public class ShooterSubsystem extends SubsystemBase {
     private ShooterSubsysConfig ShooterConfig;
@@ -28,6 +31,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SysIdRoutine bottomSysId;
     private final SysIdRoutine neoSysId;
 
+    private final MotorIOInputsAutoLogged neoInputs = new MotorIOInputsAutoLogged();
     // private final double velocity_MOTOR =
     // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
     // https://www.reca.lc/motors
@@ -42,14 +46,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean lastShooterStatus;
     private boolean runningSysId;
 
+
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.ShooterConfig = config;
+        
 
         t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01,
                 0);
         b_PID = new PID("Bottom", this, new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25,
                 0.0015, 0.01, 0, 1 / Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-        n_PID = new PID("Neo", new MotorIOSparkMax(11), 6000, 12);
+        n_PID = new PID("Neo", this, new MotorIOSparkMax(11), 6000, 12, 0.090868, 0.0015, 0.01, 0,0.11741);
         // t_motorInputs = new MotorIOInputs();
         // b_motorInputs = new MotorIOInputs();
 
@@ -60,6 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putData("Shooter/Top PID", t_PID);
         SmartDashboard.putData("Shooter/Bottom PID", b_PID);
         SmartDashboard.putData("Shooter/Neo PID", n_PID);
+        
         topSysId = SysId.createRoutine(this, t_PID, "Top");
         bottomSysId = SysId.createRoutine(this, b_PID, "Bottom");
         neoSysId = SysId.createRoutine(this, n_PID, "Neo");
@@ -80,11 +87,17 @@ public class ShooterSubsystem extends SubsystemBase {
         return lastShooterStatus;
     }
 
+    
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         t_PID.m_updateInputs();
         b_PID.m_updateInputs();
         n_PID.m_updateInputs();
+        neoInputs.positionRad = n_PID.getMotorInputs().positionRad;
+        neoInputs.velocityRadPerSec = n_PID.getMotorInputs().velocityRadPerSec;
+        neoInputs.appliedVoltage = n_PID.getMotorInputs().appliedVoltage;
+        neoInputs.currentAmps = n_PID.getMotorInputs().currentAmps;
+        Logger.processInputs("Shooter/Neo", neoInputs);
 
         if (!runningSysId) {
             t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
@@ -112,11 +125,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    public Command sysIdNeoQuasistatic(SysIdRoutine.Direction dir) {
-        return neoSysId.quasistatic(dir)
-                .beforeStarting(() -> runningSysId = true)
-                .finallyDo(() -> runningSysId = false);
-    }
+
+public Command sysIdNeoQuasistatic(SysIdRoutine.Direction dir) {
+    return neoSysId.quasistatic(dir)
+        .beforeStarting(() -> runningSysId = true)
+        .finallyDo(() -> runningSysId = false);
+}
+
+public Command sysIdNeoDynamic(SysIdRoutine.Direction dir) {
+    return neoSysId.dynamic(dir)
+        .beforeStarting(() -> runningSysId = true)
+        .finallyDo(() -> runningSysId = false);
+}
+
 
     @Override
     public void initSendable(SendableBuilder builder) {

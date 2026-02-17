@@ -5,15 +5,21 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import frc.robot.components.control.SysId;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
@@ -38,7 +44,13 @@ public class Robot extends TimedRobot {
 
 // what happen to this code? -sam d  ^
 
-
+@Override
+    public void robotInit() {
+        Logger.recordMetadata("ProjectName", "MyRobot");
+        Logger.addDataReceiver(new NT4Publisher()); 
+        Logger.start();
+        
+     } // Starts AdvantageKit logging
 
   @Override
   public void robotPeriodic() {

@@ -49,5 +49,13 @@ public class PS4ControllerIfc implements ControllerIfc {
 
         return exampleJoystick.triangle(); 
     } 
+    public Trigger runClimb(){
+    
+        return exampleJoystick.square();
+    }
+    public Trigger startShooter() {
+
+        return exampleJoystick.options();
+    }
 }
 

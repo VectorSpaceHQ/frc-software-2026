@@ -23,7 +23,12 @@ public interface ControllerIfc {
   public Trigger runIntake();
 
   public Trigger stopIntake();
+
+  public Trigger runClimb();
+
+  public Trigger startShooter();
   
   public double controlMotorSpeed();
+
 
 }

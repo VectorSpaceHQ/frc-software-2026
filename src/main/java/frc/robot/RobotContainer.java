@@ -111,7 +111,7 @@ public class RobotContainer {
       }).withTimeout(3) 
     );*/
       //TODO Replace onchange when class is futher developed
-     m_driverController.runShooter().onTrue(
+     m_driverController.startShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
@@ -122,8 +122,23 @@ public class RobotContainer {
     
     // );
     
-    // m_driverController.getQuasistaticCommand(SysIdRoutine.Direction.kForward)
-    // .finallyDo(() -> m_ShooterSubsystem.stop()); 
+    // NEO (names of controller commands unimportant for this case / temporary)
+m_driverController.runIntake().whileTrue(
+    m_ShooterSubsystem.sysIdNeoQuasistatic(SysIdRoutine.Direction.kForward)
+);
+
+m_driverController.runShooter().whileTrue(
+    m_ShooterSubsystem.sysIdNeoQuasistatic(SysIdRoutine.Direction.kReverse)
+);
+
+m_driverController.stopIntake().whileTrue(
+    m_ShooterSubsystem.sysIdNeoDynamic(SysIdRoutine.Direction.kForward)
+);
+
+m_driverController.runClimb().whileTrue(
+    m_ShooterSubsystem.sysIdNeoDynamic(SysIdRoutine.Direction.kReverse)
+);
+
 
   }
 

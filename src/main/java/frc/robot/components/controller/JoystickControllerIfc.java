@@ -9,60 +9,78 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class JoystickControllerIfc implements ControllerIfc {
 
-  private CommandJoystick joystick;
+    private CommandJoystick joystick;
 
-  public enum ExtendedButtonType {
-    Button3(3),
-    Button4(4),
-    Button5(5);
-    public final int value;
+    public enum ExtendedButtonType {
+        Button3(3),
+        Button4(4),
+        Button5(5);
 
-    ExtendedButtonType(int value) {
-      this.value = value;
+        public final int value;
+
+        ExtendedButtonType(int value) {
+            this.value = value;
+        }
     }
-  }
-    
+
     public JoystickControllerIfc(int port) {
-        
+
         joystick = new CommandJoystick(port);
     }
-    
+
     public double getX() {
-        
+
         return joystick.getX();
     };
-      
+
     public double getY() {
 
         return joystick.getY();
     }
 
-    public double getTwist(){
+    public double getTwist() {
 
         return joystick.getTwist();
     }
 
-    public Trigger runShooter(){
+    public Trigger runShooter() {
 
         return joystick.trigger();
     }
 
-    public Trigger runIntake(){
+    public Trigger runIntake() {
 
         return joystick.top();
     }
 
-    public Trigger stopIntake(){
+    public Trigger stopIntake() {
 
         return getButton3(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
-    public double  controlMotorSpeed(){
+    public Trigger runClimb() {
+
+        return getButton4(CommandScheduler.getInstance().getDefaultButtonLoop());
+    }
+    public Trigger startShooter() {
+
+        return getButton5(CommandScheduler.getInstance().getDefaultButtonLoop());
+    }
+
+    public double controlMotorSpeed() {
 
         return joystick.getZ();
     }
 
     private Trigger getButton3(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button3.value, loop);
+    }
+
+    private Trigger getButton4(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button4.value, loop);
+    }
+
+    private Trigger getButton5(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button5.value, loop);
     }
 }
