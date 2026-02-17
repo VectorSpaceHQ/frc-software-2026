@@ -1,0 +1,27 @@
+{
+  "location": {
+    "front": -11.25,
+    "left": 11.1875
+  },
+  "absoluteEncoderOffset": 15,
+  "drive": {
+    "type": "krakenx60",
+    "id": 8,
+    "canbus": "rio"
+  },
+  "inverted": {
+    "drive": false,
+    "angle": true
+  },
+  "angle": {
+    "type": "krakenx44",
+    "id": 9,
+    "canbus": "rio"
+  },
+  "encoder": {
+    "type": "cancoder",
+    "id": 13,
+    "canbus": "rio"
+  },
+  "absoluteEncoderInverted": false
+}

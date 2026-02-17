@@ -16,6 +16,9 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.subsystems.climb.ExampleSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.drive.SwerveSubsystem;
+import swervelib.SwerveInputStream;
 import frc.robot.components.control.PID;
 import frc.robot.components.controller.ControllerIfc;
 import frc.robot.components.controller.JoystickControllerIfc;
@@ -40,28 +43,41 @@ import edu.wpi.first.math.util.Units;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
-  // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-  public final ControllerIfc m_driverController;
- // private final ControllerIfc m_operatorController;
-  //private final MotorIO m_motor;
-  //private final double MAX_RPM = 6000;
-  
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
-  //private SimpleMotorFeedforward feedforward;
+  //create 2 instances of our new controller interface:
+  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                                                () -> m_driverController.getY() * -1,
+                                                                () -> m_driverController.getX() * -1)
+                                                            .withControllerRotationAxis(m_driverController::getTwist)
+                                                            .deadband(OperatorConstants.DEADBAND)
+                                                            .scaleTranslation(0.8)
+                                                            .allianceRelativeControl(false);
+  /**
+   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
+   */
+  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(m_driverController::getX,
+                                                                                             m_driverController::getY)
+                                                           .headingWhile(true);
+
+  Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
+  Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-      //create 2 instances of our new controller interface
-      m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-      //m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-
-      
 
     // Configure the trigger bindings
     configureBindings();
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
@@ -87,9 +103,7 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
 
-    // Note: Motor not part of any subsystem (m_exampleSubsystem) so no requirements are needed here (for now)
-    //m_driverController.runShooter().whileTrue(new ExampleCommand(m_exampleSubsystem));
-    // Temporary start motor
+    //TODO: Temporary start motor (Move to operator controller?)
     // m_driverController.runIntake().onTrue(
     //     new InstantCommand( () -> 
     //     m_motor.setVoltage(6.0))
@@ -101,6 +115,7 @@ public class RobotContainer {
     //     m_motor.stop())
     // );
 
+    //TODO: Should this be on the operator controller?
    /*  m_driverController.runShooter().whileTrue(
       new RunCommand( () -> {
         double trigger = m_driverController.controlMotorSpeed();
@@ -110,8 +125,9 @@ public class RobotContainer {
         m_motor.setVoltage(volts);
       }).withTimeout(3) 
     );*/
-      //TODO Replace onchange when class is futher developed
-     m_driverController.startShooter().onTrue(
+
+    //TODO: Replace onchange when class is futher developed (and move to operator controller?)
+    /*m_operatorController.startShooter().onTrue(
       new InstantCommand( () -> 
         m_ShooterSubsystem.toggleShoot())
     
@@ -144,6 +160,14 @@ m_driverController.runClimb().whileTrue(
 
 
   
+    );*/
+
+    //TODO: Is this supposed to be on the operator controller?
+    //m_driverController.runIntake().onTrue(
+    //  new InstantCommand( () -> 
+    //  m_IntakeSubsystem.toggleIntake())
+    //);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
