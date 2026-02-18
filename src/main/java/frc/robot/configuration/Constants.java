@@ -106,7 +106,7 @@ public final class Constants {
   public static class VisionConstants {
     // Constants for the camera name and field layout path
     public static final AprilTagFields field_welded_2026 = AprilTagFields.k2026RebuiltWelded;
-    public static final String camera_name = "Team10257_Front_Camera";
+    public static final String camera_name = "Team10257_Front_CameraX";
 
     // Strategy for processing multiple AprilTags on the coprocessor
     public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_PROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
@@ -116,12 +116,12 @@ public final class Constants {
     public static final double maxAmbiguity = 0.2;
 
     // Constants for the Transformation3d objects for the camera and robot
-    public static final double TranslationX = 0.1; // Meters forward from the robot center
-    public static final double TranslationY = 0.2; // Meters to the left from the robot center
-    public static final double TranslationZ = 0.1; // Meters above the robot center
+    public static final double TranslationX = 0.275; // Meters forward from the robot center
+    public static final double TranslationY = 0.165; // Meters to the left from the robot center
+    public static final double TranslationZ = 0.075; // Meters above the robot center
 
     public static final double RotationX = 0.0; // No rotation around the X-axis
-    public static final double RotationY = Math.toRadians(-20); // Rotate 20 degrees downward
+    public static final double RotationY = Math.toRadians(10); // Rotate 20 degrees downward
     public static final double RotationZ = 0.0; // No rotation around the Z-axis
 
     // Constants for the distance from the camera to the robot
