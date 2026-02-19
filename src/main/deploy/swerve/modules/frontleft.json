@@ -20,7 +20,7 @@
   },
   "encoder": {
     "type": "cancoder",
-    "id": 10,
+    "id": 21,
     "canbus": "rio"
   },
   "absoluteEncoderInverted": false
