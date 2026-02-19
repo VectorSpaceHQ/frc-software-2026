@@ -29,7 +29,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem() {
     try
     {
-      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), 
+      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed*0.5, new Pose2d(new Translation2d(Meter.of(1), 
                                                                                                                                     Meter.of(4)), 
                                                                                                                                   Rotation2d.fromDegrees(0)));
       // Alternative method if you don't want to supply the conversion factor via JSON files.

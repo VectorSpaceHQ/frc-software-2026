@@ -40,7 +40,7 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     public double getTwist() {
 
-        return joystick.getTwist();
+        return joystick.getThrottle(); // Actually returns the twist (throttle and twist are switched for our joystick)
     }
 
     public Trigger runShooter() {
@@ -67,9 +67,9 @@ public class JoystickControllerIfc implements ControllerIfc {
         return getButton5(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
-    public double controlMotorSpeed() {
+   public double controlMotorSpeed() {
 
-        return joystick.getZ();
+         return 0;
     }
 
     private Trigger getButton3(EventLoop loop) {

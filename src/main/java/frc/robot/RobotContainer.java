@@ -56,7 +56,7 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
   // create 2 instances of our new controller interface:
-  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_driverController = new JoystickControllerIfc(OperatorConstants.controllerPort1);
   // private final ControllerIfc m_operatorController = new
   // XboxControllerIfc(OperatorConstants.controllerPort2);
 
