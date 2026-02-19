@@ -16,7 +16,7 @@ import frc.Interfaces.XboxControllerIfc;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.subsystems.ExampleSubsystem;
-
+import frc.robot.subsystems.IntakeSubsysConfig;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SubsystemConfig;
 import frc.robot.subsystems.ShooterSubsysConfig;
@@ -44,10 +44,11 @@ import edu.wpi.first.math.util.Units;
 public class RobotContainer {
   //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
+  private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
-  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
   private final SwerveSubsystem drivebase = new SwerveSubsystem();
 
   //create 2 instances of our new controller interface:

@@ -25,7 +25,9 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
     private final PID pivotMotorPid;
     private final ArmFeedforward pivotFeedforward;
 
-    public IntakeSubsystem() {
+    public IntakeSubsystem(IntakeSubsysConfig config) {
+        this.IntakeConfig = config;
+
         IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
         IntakeRollers2 = new PID("IntakeRollers2",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller2Id()),-6000, 12, 0.25, 0.0015, 0.01, 0);
         pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(this.IntakeConfig.getIntakePivotId()),-6000, 12, 0.25, 0.0015, 0.01, 0);
