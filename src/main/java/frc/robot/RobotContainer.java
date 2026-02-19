@@ -43,7 +43,7 @@ import edu.wpi.first.math.util.Units;
  */
 public class RobotContainer {
   //subsystems:
-  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
+  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
