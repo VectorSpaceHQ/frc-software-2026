@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
-    
+
     // PhotonVision camera
     private PhotonCamera camera;
 
@@ -75,7 +75,8 @@ public class VisionSubsystem extends SubsystemBase {
         return cameraConnected;
     }
 
-    // Initializes the AprilTag field layout from the JSON file containing the 2026 layout
+    // Initializes the AprilTag field layout from the JSON file containing the 2026
+    // layout
     private void initializeAprilTagFieldLayout() throws IOException {
 
         layout = AprilTagFieldLayout.loadField(VisionConstants.field_welded_2026);
@@ -106,7 +107,8 @@ public class VisionSubsystem extends SubsystemBase {
     // Gets the target yaw directly from camera measurement
     public double getTargetYaw(int id) {
 
-        if (allUnreadResults.isEmpty()) return Double.NaN;
+        if (allUnreadResults.isEmpty())
+            return Double.NaN;
 
         var latestResult = allUnreadResults.get(allUnreadResults.size() - 1);
 
@@ -122,7 +124,8 @@ public class VisionSubsystem extends SubsystemBase {
     // Gets the straight-line range from camera to tag
     public double getTargetRange(int id) {
 
-        if (allUnreadResults.isEmpty()) return Double.NaN;
+        if (allUnreadResults.isEmpty())
+            return Double.NaN;
 
         var latestResult = allUnreadResults.get(allUnreadResults.size() - 1);
 
@@ -146,16 +149,17 @@ public class VisionSubsystem extends SubsystemBase {
 
             var result = allUnreadResults.get(resultsIndex);
 
-            if (!result.hasTargets()) continue;
+            if (!result.hasTargets())
+                continue;
 
             // Target must have acceptable ambiguity
             boolean hasValidTags = result.getTargets().stream()
                     .anyMatch(t -> t.getPoseAmbiguity() < VisionConstants.maxAmbiguity);
 
-            if (!hasValidTags) continue;
+            if (!hasValidTags)
+                continue;
 
-            Optional<EstimatedRobotPose> estimatedVisionPose =
-                    poseEstimator.update(result);
+            Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
 
             if (estimatedVisionPose.isPresent()) {
                 latestVisionMeasurement = estimatedVisionPose;
@@ -167,7 +171,8 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!cameraConnected) return;
+        if (!cameraConnected)
+            return;
 
         allUnreadResults = camera.getAllUnreadResults();
 

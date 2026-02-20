@@ -15,27 +15,29 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
-import swervelib.SwerveInputStream;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 public class SwerveSubsystem extends SubsystemBase {
-  
-  File directory = new File(Filesystem.getDeployDirectory(),"swerve");
-  SwerveDrive  swerveDrive;
+
+  File directory = new File(Filesystem.getDeployDirectory(), "swerve");
+  SwerveDrive swerveDrive;
+
   public SwerveSubsystem() {
-    try
-    {
-      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed*0.5, new Pose2d(new Translation2d(Meter.of(1), 
-                                                                                                                                    Meter.of(4)), 
-                                                                                                                                  Rotation2d.fromDegrees(0)));
-      // Alternative method if you don't want to supply the conversion factor via JSON files.
-      // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
-    } catch (Exception e)
-    {
+    try {
+      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * 0.5,
+          new Pose2d(new Translation2d(Meter.of(1),
+              Meter.of(4)),
+              Rotation2d.fromDegrees(0)));
+      // Alternative method if you don't want to supply the conversion factor via JSON
+      // files.
+      // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
+      // angleConversionFactor, driveConversionFactor);
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -55,7 +57,8 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   * An example method querying a boolean state of the subsystem (for example, a
+   * digital sensor).
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
@@ -74,7 +77,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  public SwerveDrive getSwerveDrive(){
+  public SwerveDrive getSwerveDrive() {
     return swerveDrive;
   }
 
@@ -83,8 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @param velocity Velocity according to the field.
    */
-  public void driveFieldOriented(ChassisSpeeds velocity)
-  {
+  public void driveFieldOriented(ChassisSpeeds velocity) {
     swerveDrive.driveFieldOriented(velocity);
   }
 
@@ -93,10 +95,23 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @param velocity Velocity according to the field.
    */
-  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity)
-  {
+  public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
     return run(() -> {
       swerveDrive.driveFieldOriented(velocity.get());
     });
+
+  }
+
+  // These are for the pose estimator subsystem, which needs to access the kinematics, module positions, and yaw of the swerve drive
+  public SwerveDriveKinematics getKinematics() {
+    return swerveDrive.kinematics;
+  }
+
+  public SwerveModulePosition[] getModulePositions() {
+    return swerveDrive.getModulePositions();
+  }
+
+  public Rotation2d getYaw() {
+    return swerveDrive.getYaw();
   }
 }
