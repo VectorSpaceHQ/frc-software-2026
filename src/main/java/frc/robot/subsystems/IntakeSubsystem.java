@@ -40,6 +40,7 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
             SmartDashboard.putData("Intake", this);
         }
+        SmartDashboard.putBoolean("Intake Present", IntakeConfig.getIsPresent());
     }
 
     public boolean toggleIntake() {
