@@ -16,27 +16,30 @@ import frc.robot.components.control.PID;
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
      private IntakeSubsysConfig IntakeConfig;
 
-    private final PID IntakeRollers1;
-    private final PID IntakeRollers2;
+    private PID IntakeRollers1;
+    private PID IntakeRollers2;
 
     private boolean Intakestatus;
     private boolean lastIntakestatus;
 
-    private final PID pivotMotorPid;
-    private final ArmFeedforward pivotFeedforward;
+    private PID pivotMotorPid;
+    private ArmFeedforward pivotFeedforward;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
 
-        IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
-        IntakeRollers2 = new PID("IntakeRollers2",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller2Id()),-6000, 12, 0.25, 0.0015, 0.01, 0);
-        pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(this.IntakeConfig.getIntakePivotId()),-6000, 12, 0.25, 0.0015, 0.01, 0);
-        pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
-  
-        Intakestatus = false;
-        lastIntakestatus = false;
+        if (this.IntakeConfig.getIsPresent()) {
 
-        SmartDashboard.putData("Intake", this);
+            IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
+            IntakeRollers2 = new PID("IntakeRollers2",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller2Id()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(this.IntakeConfig.getIntakePivotId()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
+  
+            Intakestatus = false;
+            lastIntakestatus = false;
+
+            SmartDashboard.putData("Intake", this);
+        }
     }
 
     public boolean toggleIntake() {
@@ -56,9 +59,10 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
+        if (this.IntakeConfig.getIsPresent()) {
             IntakeRollers1.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
             IntakeRollers2.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
-
+        }
     }
     
 

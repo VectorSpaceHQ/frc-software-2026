@@ -60,10 +60,11 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
 
-        t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-        b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-        n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
- 
+        if (ShooterConfig.getIsPresent()) {
+            t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+        }
 
         /*
          * This line changes the shooter status of last to the shooter status of current
