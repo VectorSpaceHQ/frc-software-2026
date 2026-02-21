@@ -23,20 +23,23 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 
 public class SwerveSubsystem extends SubsystemBase {
-  
+  private SwerveSubsysConfig SwerveConfig;
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   SwerveDrive  swerveDrive;
-  public SwerveSubsystem() {
-    try
-    {
+  public SwerveSubsystem(SwerveSubsysConfig config) {
+    this.SwerveConfig = config;
+    if (SwerveConfig.getIsPresent()) {
+      try
+      {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), 
                                                                                                                                     Meter.of(4)), 
                                                                                                                                   Rotation2d.fromDegrees(0)));
       // Alternative method if you don't want to supply the conversion factor via JSON files.
       // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
-    } catch (Exception e)
-    {
-      throw new RuntimeException(e);
+      } catch (Exception e)
+      {
+        throw new RuntimeException(e);
+      }
     }
   }
 

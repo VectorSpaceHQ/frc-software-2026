@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
 import frc.robot.commands.Autos;
 import frc.robot.Constants;
 import static frc.robot.Constants.OperatorConstants.SubSystemIDEnum.*;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsysConfig;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SubsystemConfig;
+import frc.robot.subsystems.SwerveSubsysConfig;
 import frc.robot.subsystems.ShooterSubsysConfig;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -45,11 +47,12 @@ public class RobotContainer {
   //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false, SWERVE_SUBSYSTEM);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
-  private final SwerveSubsystem drivebase = new SwerveSubsystem();
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(SwerveSSConfig);
 
   //create 2 instances of our new controller interface:
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
