@@ -3,30 +3,28 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
 
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
+
     private IntakeSubsysConfig IntakeConfig;
-    private final PID IntakeRollers1;
-    private final PID IntakeRollers2;
+    private PID IntakeRollers1 = null;
+    private PID IntakeRollers2 = null;
 
-    private boolean Intakestatus;
-    private boolean lastIntakestatus;
+    private boolean Intakestatus = false;
+    private boolean lastIntakestatus = false;
 
-    private PID pivotMotorPid;
-    private ArmFeedforward pivotFeedforward;
+    private PID pivotMotorPid = null;
+    private ArmFeedforward pivotFeedforward = null;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
-
+        
         if (this.IntakeConfig.getIsPresent()) {
 
             IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
@@ -39,6 +37,7 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
             SmartDashboard.putData("Intake", this);
         }
+    
         SmartDashboard.putBoolean("Intake Present", IntakeConfig.getIsPresent());
     }
 

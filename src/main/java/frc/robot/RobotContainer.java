@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
 import frc.robot.commands.Autos;
 import frc.robot.Constants;
 import static frc.robot.Constants.OperatorConstants.SubSystemIDEnum.*;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsysConfig;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SubsystemConfig;
+import frc.robot.subsystems.SwerveSubsysConfig;
 import frc.robot.subsystems.ShooterSubsysConfig;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -42,42 +44,30 @@ import edu.wpi.first.math.util.Units;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    //create 2 instances of our new controller interface:
+  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
   //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
+                                                                           SWERVE_SUBSYSTEM,
+                                                                          m_driverController,
+                                                                          OperatorConstants.DEADBAND);
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
-  private final SwerveSubsystem drivebase = new SwerveSubsystem();
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(SwerveSSConfig);
 
-  //create 2 instances of our new controller interface:
-  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-  private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
 
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                () -> m_driverController.getY() * -1,
-                                                                () -> m_driverController.getX() * -1)
-                                                            .withControllerRotationAxis(m_driverController::getTwist)
-                                                            .deadband(OperatorConstants.DEADBAND)
-                                                            .scaleTranslation(0.8)
-                                                            .allianceRelativeControl(false);
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(m_driverController::getX,
-                                                                                             m_driverController::getY)
-                                                           .headingWhile(true);
 
-  Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
-  Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
     // Configure the trigger bindings
     configureBindings();
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
