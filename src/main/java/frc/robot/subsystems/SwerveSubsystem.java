@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
+import swervelib.SwerveInputStream;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,15 +23,20 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 
 public class SwerveSubsystem extends SubsystemBase {
-  private SwerveSubsysConfig SwerveConfig;
+  private SwerveSubsysConfig swerveConfig = null;
+  private SwerveInputStream driveDirectAngle = null;
+  private Command driveFieldOrientedDirectAngle = null;
+  private Command driveFieldOrientedAnglularVelocity = null;
+  private SwerveInputStream driveAngularVelocity = null;
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
-  SwerveDrive  swerveDrive;
+  private SwerveDrive  swerveDrive;
+
   public SwerveSubsystem(SwerveSubsysConfig config) {
-    this.SwerveConfig = config;
-    if (SwerveConfig.getIsPresent()) {
+    this.swerveConfig = config;
+    if (swerveConfig.getIsPresent()) {
       try
       {
-      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), 
+        swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed, new Pose2d(new Translation2d(Meter.of(1), 
                                                                                                                                     Meter.of(4)), 
                                                                                                                                   Rotation2d.fromDegrees(0)));
       // Alternative method if you don't want to supply the conversion factor via JSON files.
@@ -39,6 +45,23 @@ public class SwerveSubsystem extends SubsystemBase {
       {
         throw new RuntimeException(e);
       }
+      driveAngularVelocity = SwerveInputStream.of(swerveDrive,
+                                                  () -> swerveConfig.getController().getY() * -1,
+                                                  () -> swerveConfig.getController().getX() * -1)
+                                                .withControllerRotationAxis(swerveConfig.getController()::getTwist)
+                                                .deadband(swerveConfig.getDeadband())
+                                                .scaleTranslation(0.8)
+                                                .allianceRelativeControl(false);
+      /**
+      * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
+      */
+      driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getX,
+                                                                               swerveConfig.getController()::getY)
+                                                    .headingWhile(true);
+
+      driveFieldOrientedDirectAngle      = driveFieldOriented(driveDirectAngle);
+      driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
+      setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
   }
 
@@ -76,9 +99,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  public SwerveDrive getSwerveDrive(){
-    return swerveDrive;
-  }
 
   /**
    * Drive the robot given a chassis field oriented velocity.
