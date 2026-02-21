@@ -24,6 +24,22 @@ import edu.wpi.first.math.util.Units;
 
 public class SwerveSubsystem extends SubsystemBase {
   
+  private enum Orientation {
+    FIELD(0), 
+    ROBOT(1);
+
+    private int value;
+
+    private Orientation (int value){
+      this.value = value;
+    }
+    public int getValue() {
+        return value;
+    }
+  }
+
+  private Orientation driveOrientation = Orientation.FIELD;
+
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   SwerveDrive  swerveDrive;
   public SwerveSubsystem() {
@@ -98,5 +114,32 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       swerveDrive.driveFieldOriented(velocity.get());
     });
+  }
+
+  public boolean isFieldOriented (){
+    if (driveOrientation == Orientation.FIELD){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public boolean isRobotOriented (){
+    if (driveOrientation == Orientation.ROBOT){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public void orientationToggle (){
+    if (driveOrientation == Orientation.FIELD){
+      driveOrientation = Orientation.ROBOT;
+    }
+    else {
+      driveOrientation = Orientation.FIELD;
+    }
   }
 }

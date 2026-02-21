@@ -61,7 +61,8 @@ public class RobotContainer {
                                                             .withControllerRotationAxis(m_driverController::getTwist)
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
-                                                            .allianceRelativeControl(false);
+                                                            .allianceRelativeControl(() -> drivebase.isFieldOriented())
+                                                            .robotRelative(() -> drivebase.isRobotOriented());
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
    */
