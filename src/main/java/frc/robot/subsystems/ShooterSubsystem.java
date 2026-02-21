@@ -14,9 +14,9 @@ import frc.robot.components.control.PID;
 public class ShooterSubsystem extends SubsystemBase {
     private ShooterSubsysConfig ShooterConfig;
 
-    private final PID t_PID;
-    private final PID b_PID;
-    private final PID n_PID;
+    private PID t_PID;
+    private PID b_PID;
+    private PID n_PID;
     
 
 
@@ -28,26 +28,26 @@ public class ShooterSubsystem extends SubsystemBase {
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.ShooterConfig = config;
 
-        t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
-        b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-        n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12);
-
-        
-
         shooterStatus = false;
         lastShooterStatus = false;
 
-        SmartDashboard.putData("Shooter/Top PID", t_PID);
-        SmartDashboard.putData("Shooter/Bottom PID", b_PID);
-        SmartDashboard.putData("Shooter/Neo PID", n_PID);
+        if (ShooterConfig.getIsPresent()) {
+            t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
+            b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+            n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12);
 
-        
+            SmartDashboard.putData("Shooter/Top PID", t_PID);
+            SmartDashboard.putData("Shooter/Bottom PID", b_PID);
+            SmartDashboard.putData("Shooter/Neo PID", n_PID);
+        }
+        SmartDashboard.putBoolean("Shooter Present", ShooterConfig.getIsPresent());
     }
 
     public boolean toggleShoot() {
         shooterStatus = !shooterStatus;
         return shooterStatus; // Return the new value rather than the opposite
     }
+
     // Place status values here
     public boolean getShooterStatus() {
         return shooterStatus;
@@ -61,10 +61,11 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
 
-        t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-        b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-        n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
- 
+        if (ShooterConfig.getIsPresent()) {
+            t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+        }
 
         /*
          * This line changes the shooter status of last to the shooter status of current
