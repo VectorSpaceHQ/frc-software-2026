@@ -49,6 +49,10 @@ public class PS5ControllerIfc implements ControllerIfc {
 
         return exampleJoystick.triangle(); 
     } 
+    public Trigger toggleOrientation(){
+
+        return exampleJoystick.square();
+    }
 
 }
 

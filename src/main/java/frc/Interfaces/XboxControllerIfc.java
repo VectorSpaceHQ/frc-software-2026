@@ -48,5 +48,9 @@ public class XboxControllerIfc implements ControllerIfc {
 
         return exampleJoystick.y(); 
     } 
+    public Trigger toggleOrientation(){
+
+        return exampleJoystick.x();
+    }
     
 }
