@@ -62,7 +62,15 @@ public class JoystickControllerIfc implements ControllerIfc {
         return joystick.getZ();
     }
 
+    public Trigger toggleOrientation(){
+
+        return getButton4(CommandScheduler.getInstance().getDefaultButtonLoop());
+    }
+
     private Trigger getButton3(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button3.value, loop);
+    }
+        private Trigger getButton4(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button4.value, loop);
     }
 }

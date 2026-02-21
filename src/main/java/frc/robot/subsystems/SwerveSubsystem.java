@@ -23,11 +23,29 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 
 public class SwerveSubsystem extends SubsystemBase {
+  private enum Orientation {
+    FIELD(0), 
+    ROBOT(1);
+
+    private int value;
+
+    private Orientation (int value){
+      this.value = value;
+    }
+    public int getValue() {
+        return value;
+    }
+  }
+
   private SwerveSubsysConfig swerveConfig = null;
   private SwerveInputStream driveDirectAngle = null;
   private Command driveFieldOrientedDirectAngle = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
+
+
+  private Orientation driveOrientation = Orientation.FIELD;
+
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   private SwerveDrive  swerveDrive;
 
@@ -51,7 +69,8 @@ public class SwerveSubsystem extends SubsystemBase {
                                                 .withControllerRotationAxis(swerveConfig.getController()::getTwist)
                                                 .deadband(swerveConfig.getDeadband())
                                                 .scaleTranslation(0.8)
-                                                .allianceRelativeControl(false);
+                                                .allianceRelativeControl(() -> isFieldOriented())
+                                                .robotRelative(() -> isRobotOriented());
       /**
       * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
       */
@@ -120,5 +139,32 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       swerveDrive.driveFieldOriented(velocity.get());
     });
+  }
+
+  public boolean isFieldOriented (){
+    if (driveOrientation == Orientation.FIELD){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public boolean isRobotOriented (){
+    if (driveOrientation == Orientation.ROBOT){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  public void orientationToggle (){
+    if (driveOrientation == Orientation.FIELD){
+      driveOrientation = Orientation.ROBOT;
+    }
+    else {
+      driveOrientation = Orientation.FIELD;
+    }
   }
 }

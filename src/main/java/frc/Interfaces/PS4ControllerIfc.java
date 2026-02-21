@@ -48,6 +48,10 @@ public class PS4ControllerIfc implements ControllerIfc {
     public Trigger stopIntake(){
 
         return exampleJoystick.triangle(); 
+    }
+    public Trigger toggleOrientation(){
+
+        return exampleJoystick.square();
     } 
 }
 
