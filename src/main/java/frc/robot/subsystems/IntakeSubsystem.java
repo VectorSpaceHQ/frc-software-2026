@@ -14,10 +14,9 @@ import frc.robot.components.control.PID;
 
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
-     private IntakeSubsysConfig IntakeConfig;
-
-    private PID IntakeRollers1;
-    private PID IntakeRollers2;
+    private IntakeSubsysConfig IntakeConfig;
+    private final PID IntakeRollers1;
+    private final PID IntakeRollers2;
 
     private boolean Intakestatus;
     private boolean lastIntakestatus;
