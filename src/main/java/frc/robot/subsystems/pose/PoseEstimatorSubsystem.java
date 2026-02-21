@@ -13,32 +13,37 @@ import org.photonvision.EstimatedRobotPose;
 
 import frc.robot.subsystems.vision.VisionSubsystem;
 
+import frc.robot.subsystems.drive.SwerveSubsystem;
+
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
     private final SwerveDrivePoseEstimator poseEstimator;
     private VisionSubsystem visionSubsystem;
+    private SwerveSubsystem swerveSubsystem;
 
     public PoseEstimatorSubsystem(
-            SwerveDriveKinematics kinematics,
-            Rotation2d gyroAngle,
-            SwerveModulePosition[] modulePositions,
+            VisionSubsystem visionSubsystem,
+            SwerveSubsystem swerveSubsystem,
             Pose2d initialPose) {
 
+        this.visionSubsystem = visionSubsystem; // The class variables
+        this.swerveSubsystem = swerveSubsystem;
+
         poseEstimator = new SwerveDrivePoseEstimator(
-                kinematics,
-                gyroAngle,
-                modulePositions,
-                initialPose,
+                // Calling swerve for these (with the custom getters)
+                swerveSubsystem.getKinematics(), 
+                swerveSubsystem.getYaw(),
+                swerveSubsystem.getModulePositions(),
+
+                new Pose2d(),
                 VecBuilder.fill(0.1, 0.1, 0.05), // State std devs (meters, meters, radians): needs to be detrmined
                                                  // experimentally
                 VecBuilder.fill(0.9, 0.9, 0.9)); // Vision measurement std devs, also);
     }
 
-    public void update(
-            Rotation2d gyroAngle,
-            SwerveModulePosition[] modulePositions) {
-        poseEstimator.update(gyroAngle, modulePositions);
-        poseEstimator.update(gyroAngle, modulePositions);
+    public void update() {
+        poseEstimator.update(
+                swerveSubsystem.getYaw(), swerveSubsystem.getModulePositions());
 
         if (visionSubsystem.getLatestVisionMeasurement().isPresent()) {
             EstimatedRobotPose visionMeasurement = visionSubsystem.getLatestVisionMeasurement().get();

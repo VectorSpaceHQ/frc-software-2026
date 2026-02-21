@@ -17,7 +17,10 @@ import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.subsystems.climb.ExampleSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.pose.PoseEstimatorSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
 import swervelib.SwerveInputStream;
 import frc.robot.components.control.PID;
 import frc.robot.components.controller.ControllerIfc;
@@ -53,14 +56,17 @@ public class RobotContainer {
   // private final ShooterSubsystem m_ShooterSubsystem = new
   // ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
-  private final SwerveSubsystem drivebase = new SwerveSubsystem();
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
+
+  private final PoseEstimatorSubsystem poseEstimator = new PoseEstimatorSubsystem(m_visionSubsystem, m_swerveSubsystem,new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
 
   // create 2 instances of our new controller interface:
-  private final ControllerIfc m_driverController = new JoystickControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   // private final ControllerIfc m_operatorController = new
   // XboxControllerIfc(OperatorConstants.controllerPort2);
 
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swerveSubsystem.getSwerveDrive(),
       () -> m_driverController.getY() * -1,
       () -> m_driverController.getX() * -1)
       .withControllerRotationAxis(m_driverController::getTwist)
@@ -75,8 +81,8 @@ public class RobotContainer {
       m_driverController::getY)
       .headingWhile(true);
 
-  Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-  Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+  Command driveFieldOrientedDirectAngle = m_swerveSubsystem.driveFieldOriented(driveDirectAngle);
+  Command driveFieldOrientedAnglularVelocity = m_swerveSubsystem.driveFieldOriented(driveAngularVelocity);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -85,7 +91,7 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
