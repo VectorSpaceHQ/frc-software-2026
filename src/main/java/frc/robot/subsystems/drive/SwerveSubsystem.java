@@ -7,6 +7,7 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.configuration.Constants;
+import frc.robot.configuration.configs.SwerveSubsysConfig;
 
 import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
@@ -21,24 +22,71 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import swervelib.SwerveInputStream;
 
 public class SwerveSubsystem extends SubsystemBase {
 
   File directory = new File(Filesystem.getDeployDirectory(), "swerve");
-  SwerveDrive swerveDrive;
+  private SwerveDrive swerveDrive;
 
-  public SwerveSubsystem() {
-    try {
-      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * 0.5,
-          new Pose2d(new Translation2d(Meter.of(1),
-              Meter.of(4)),
-              Rotation2d.fromDegrees(0)));
-      // Alternative method if you don't want to supply the conversion factor via JSON
-      // files.
-      // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
-      // angleConversionFactor, driveConversionFactor);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+  private enum Orientation {
+    FIELD(0),
+    ROBOT(1);
+
+    private int value;
+
+    private Orientation(int value) {
+      this.value = value;
+    }
+
+    public int getValue() {
+      return value;
+    }
+  }
+
+  private SwerveSubsysConfig swerveConfig = null;
+  private SwerveInputStream driveDirectAngle = null;
+  private Command driveFieldOrientedDirectAngle = null;
+  private Command driveFieldOrientedAnglularVelocity = null;
+  private SwerveInputStream driveAngularVelocity = null;
+
+  private Orientation driveOrientation = Orientation.FIELD;
+  private double speedLimiter = 0.5;
+
+  public SwerveSubsystem(SwerveSubsysConfig config) {
+    this.swerveConfig = config;
+    if (swerveConfig.getIsPresent()) {
+      try {
+        swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
+            new Pose2d(new Translation2d(Meter.of(1),
+                Meter.of(4)),
+                Rotation2d.fromDegrees(0)));
+        // Alternative method if you don't want to supply the conversion factor via JSON
+        // files.
+        // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
+        // angleConversionFactor, driveConversionFactor);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      driveAngularVelocity = SwerveInputStream.of(swerveDrive,
+          () -> swerveConfig.getController().getY() * -1,
+          () -> swerveConfig.getController().getX() * -1)
+          .withControllerRotationAxis(swerveConfig.getController()::getTwist)
+          .deadband(swerveConfig.getDeadband())
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(() -> isFieldOriented())
+          .robotRelative(() -> isRobotOriented());
+      /**
+       * Clone's the angular velocity input stream and converts it to a fieldRelative
+       * input stream.
+       */
+      driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getX,
+          swerveConfig.getController()::getY)
+          .headingWhile(true);
+
+      driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
+      driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
+      setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
   }
 
@@ -102,7 +150,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
-  // These are for the pose estimator subsystem, which needs to access the kinematics, module positions, and yaw of the swerve drive
+  // These are for the pose estimator subsystem, which needs to access the
+  // kinematics, module positions, and yaw of the swerve drive
   public SwerveDriveKinematics getKinematics() {
     return swerveDrive.kinematics;
   }
@@ -113,5 +162,29 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Rotation2d getYaw() {
     return swerveDrive.getYaw();
+  }
+
+  public boolean isFieldOriented() {
+    if (driveOrientation == Orientation.FIELD) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean isRobotOriented() {
+    if (driveOrientation == Orientation.ROBOT) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public void orientationToggle() {
+    if (driveOrientation == Orientation.FIELD) {
+      driveOrientation = Orientation.ROBOT;
+    } else {
+      driveOrientation = Orientation.FIELD;
+    }
   }
 }

@@ -47,7 +47,7 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem() {
 
         // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
-        camera = new PhotonCamera(VisionConstants.camera_name);
+        camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
         initializeSubsystem();
 
@@ -79,7 +79,7 @@ public class VisionSubsystem extends SubsystemBase {
     // layout
     private void initializeAprilTagFieldLayout() throws IOException {
 
-        layout = AprilTagFieldLayout.loadField(VisionConstants.field_welded_2026);
+        layout = AprilTagFieldLayout.loadField(VisionConstants.FIELD_WELDED_2026);
 
         // Origin Point
         var alliance = DriverStation.getAlliance();
@@ -154,7 +154,7 @@ public class VisionSubsystem extends SubsystemBase {
 
             // Target must have acceptable ambiguity
             boolean hasValidTags = result.getTargets().stream()
-                    .anyMatch(t -> t.getPoseAmbiguity() < VisionConstants.maxAmbiguity);
+                    .anyMatch(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY);
 
             if (!hasValidTags)
                 continue;

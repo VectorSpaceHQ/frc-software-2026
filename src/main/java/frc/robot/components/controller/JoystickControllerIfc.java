@@ -14,7 +14,8 @@ public class JoystickControllerIfc implements ControllerIfc {
     public enum ExtendedButtonType {
         Button3(3),
         Button4(4),
-        Button5(5);
+        Button5(5),
+        Button6(6);
 
         public final int value;
 
@@ -40,7 +41,7 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     public double getTwist() {
 
-        return joystick.getThrottle(); // Actually returns the twist (throttle and twist are switched for our joystick)
+        return joystick.getTwist();
     }
 
     public Trigger runShooter() {
@@ -58,18 +59,24 @@ public class JoystickControllerIfc implements ControllerIfc {
         return getButton3(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
-    public Trigger runClimb() {
+    public double controlMotorSpeed() {
+
+        return joystick.getZ();
+    }
+
+    public Trigger toggleOrientation() {
 
         return getButton4(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
-    public Trigger startShooter() {
+
+    public Trigger runClimb() {
 
         return getButton5(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
-   public double controlMotorSpeed() {
+    public Trigger startShooter() {
 
-         return 0;
+        return getButton6(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
     private Trigger getButton3(EventLoop loop) {
@@ -82,5 +89,9 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     private Trigger getButton5(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button5.value, loop);
+    }
+
+    private Trigger getButton6(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button6.value, loop);
     }
 }

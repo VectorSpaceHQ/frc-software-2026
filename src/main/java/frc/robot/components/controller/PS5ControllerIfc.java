@@ -51,6 +51,12 @@ public class PS5ControllerIfc implements ControllerIfc {
         return exampleJoystick.triangle();
     }
 
+    // Button mapping needs to be changed since this has the same binding as runClimb()
+    public Trigger toggleOrientation() {
+
+        return exampleJoystick.square();
+    }
+
     public Trigger runClimb() {
 
         return exampleJoystick.square();

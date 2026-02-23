@@ -105,38 +105,39 @@ public final class Constants {
   // vision constants
   public static class VisionConstants {
     // Constants for the camera name and field layout path
-    public static final AprilTagFields field_welded_2026 = AprilTagFields.k2026RebuiltWelded;
-    public static final String camera_name = "Team10257_Front_CameraX";
+    public static final AprilTagFields FIELD_WELDED_2026 = AprilTagFields.k2026RebuiltWelded;
+    public static final String CAMERA_NAME = "Team10257_Front_CameraX";
 
     // Strategy for processing multiple AprilTags on the coprocessor
     public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_PROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
 
     // Constants for the maximum pose age and ambiguity
-    public static final double maxPoseAge = 0.5;
-    public static final double maxAmbiguity = 0.2;
+    public static final double MAX_POSE_AGE = 0.5;
+    public static final double MAX_AMBIGUITY = 0.2;
 
     // Constants for the Transformation3d objects for the camera and robot
-    public static final double TranslationX = 0.275; // Meters forward from the robot center
-    public static final double TranslationY = 0.165; // Meters to the left from the robot center
-    public static final double TranslationZ = 0.075; // Meters above the robot center
+    public static final double TRANSLATION_X = 0.275; // Meters forward from the robot center
+    public static final double TRANSLATION_Y = 0.165; // Meters to the left from the robot center
+    public static final double TRANSLATION_Z = 0.075; // Meters above the robot center
 
-    public static final double RotationX = 0.0; // No rotation around the X-axis
-    public static final double RotationY = Math.toRadians(10); // Rotate 20 degrees downward
-    public static final double RotationZ = 0.0; // No rotation around the Z-axis
+    public static final double ROTATION_X = 0.0; // No rotation around the X-axis
+    public static final double ROTATION_Y = Math.toRadians(-10); // Rotate 10 degrees upward
+    public static final double ROTATION_Z = 0.0; // No rotation around the Z-axis
 
     // Constants for the distance from the camera to the robot
     public static final Transform3d cameraToRobot = new Transform3d( // Will have to change before next deploy
-        new Translation3d(TranslationX, TranslationY, TranslationZ),
-        new Rotation3d(RotationX, RotationY, RotationZ));
+        new Translation3d(TRANSLATION_X, TRANSLATION_Y, TRANSLATION_Z),
+        new Rotation3d(ROTATION_X, ROTATION_Y, ROTATION_Z));
 
     // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-apriltag-images-user-guide.pdf
     // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
     // Lefts and rights are relative to the appropriate alliance side
     // driverstations. Consistent with 2026 rebuilt fields.
 
+    // For reference (and potentially commands)
     public enum Apriltags {
       None(0.0),
-      RedTrenchRightNeutralSide(1.0),
+      RedTrenchRightNeutralSide(1.0), // Right
       RedHubRightBumpNeutralSide(2.0), // Right
       RedHubRightNeutralSide(3.0), // Front
       RedHubLeftNeutralSide(4.0), // Front
@@ -153,7 +154,7 @@ public final class Constants {
       RedTowerLeftSide(15.0), // Left (alliance side)
       RedTowerRightSide(16.0), // Right (alliance side)
 
-      BlueTrenchRightNeutralSide(17.0),
+      BlueTrenchRightNeutralSide(17.0), // Right
       BlueHubRightBumpNeutralSide(18.0), // Right
       BlueHubRightNeutralSide(19.0), // Front
       BlueHubLeftNeutralSide(20.0), // Front

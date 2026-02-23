@@ -3,37 +3,43 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
+import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
+
+    private IntakeSubsysConfig IntakeConfig = null;
+    private PID IntakeRollers1 = null;
+    private PID IntakeRollers2 = null;
+
+    private boolean Intakestatus = false;
+    private boolean lastIntakestatus = false;
+
+    private PID pivotMotorPid = null;
+    private ArmFeedforward pivotFeedforward = null;
+
+    public IntakeSubsystem(IntakeSubsysConfig config) {
+        this.IntakeConfig = config;
+        
+        if (this.IntakeConfig.getIsPresent()) {
+
+            IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller1Id()),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
+            IntakeRollers2 = new PID("IntakeRollers2",new MotorIOSparkMax(this.IntakeConfig.getIntakeRoller2Id()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(this.IntakeConfig.getIntakePivotId()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
   
-    private final PID IntakeRollers1;
-    private final PID IntakeRollers2;
+            Intakestatus = false;
+            lastIntakestatus = false;
 
-    private boolean Intakestatus;
-    private boolean lastIntakestatus;
-
-    private final PID pivotMotorPid;
-    private final ArmFeedforward pivotFeedforward;
-
-    public IntakeSubsystem() {
-        IntakeRollers1 = new PID("IntakeRollers1",new MotorIOSparkMax(11),6000.0, 12.0, 0.25, 0.0015, 0.01, 0.0);
-        IntakeRollers2 = new PID("IntakeRollers2" ,new MotorIOSparkMax(12),-6000, 12, 0.25, 0.0015, 0.01, 0);
-        pivotMotorPid = new PID("PivotMotor" ,new MotorIOSparkMax(13),-6000, 12, 0.25, 0.0015, 0.01, 0);
-        pivotFeedforward = new ArmFeedforward(0, 1.75, 1.95); // TODO: need to calibrate
-  
-        Intakestatus = false;
-        lastIntakestatus = false;
-
-        SmartDashboard.putData("Intake", this);
+            SmartDashboard.putData("Intake", this);
+        }
+    
+        SmartDashboard.putBoolean("Intake Present", IntakeConfig.getIsPresent());
     }
 
     public boolean toggleIntake() {
@@ -53,9 +59,10 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
+        if (this.IntakeConfig.getIsPresent()) {
             IntakeRollers1.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
             IntakeRollers2.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
-
+        }
     }
     
 

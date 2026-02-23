@@ -10,52 +10,60 @@ public class PS4ControllerIfc implements ControllerIfc {
     double rotate;
     public Trigger shoot;
     CommandPS4Controller exampleJoystick;
-    
+
     public PS4ControllerIfc(int port) {
-        
+
         exampleJoystick = new CommandPS4Controller(port);
     }
-    
+
     public double getX() {
-        
+
         return exampleJoystick.getLeftX();
     }
-      
+
     public double getY() {
 
         return exampleJoystick.getLeftY();
     }
-    
-    public double getTwist(){
+
+    public double getTwist() {
 
         return exampleJoystick.getRightX();
     }
-    
-    public double controlMotorSpeed(){
-        
+
+    public double controlMotorSpeed() {
+
         return exampleJoystick.getL2Axis();
     }
 
-    public Trigger runShooter(){
+    public Trigger runShooter() {
 
         return exampleJoystick.circle();
     }
 
-    public Trigger runIntake(){
+    public Trigger runIntake() {
 
         return exampleJoystick.cross();
     }
-    public Trigger stopIntake(){
 
-        return exampleJoystick.triangle(); 
-    } 
-    public Trigger runClimb(){
+    public Trigger stopIntake() {
+
+        return exampleJoystick.triangle();
+    }
     
+     // Button mapping needs to be changed since this has the same binding as runClimb()
+    public Trigger toggleOrientation() {
+
         return exampleJoystick.square();
     }
+
+    public Trigger runClimb() {
+
+        return exampleJoystick.square();
+    }
+
     public Trigger startShooter() {
 
         return exampleJoystick.options();
     }
 }
-

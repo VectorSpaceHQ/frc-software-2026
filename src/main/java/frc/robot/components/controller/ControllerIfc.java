@@ -30,5 +30,6 @@ public interface ControllerIfc {
   
   public double controlMotorSpeed();
 
+  public Trigger toggleOrientation();
 
 }

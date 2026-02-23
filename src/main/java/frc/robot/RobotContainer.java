@@ -12,8 +12,10 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
-import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.SubsystemConfig;
+import frc.robot.configuration.configs.SwerveSubsysConfig;
+import frc.robot.configuration.configs.ShooterSubsysConfig;
+import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.subsystems.climb.ExampleSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -48,41 +50,28 @@ import edu.wpi.first.math.util.Units;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+  // create 2 instances of our new controller interface:
+  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+
   // subsystems:
-  // private final ShooterSubsysConfig ShooterSSConfig = new
-  // ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
-  // The robot's subsystems and commands are defined here...
+  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
+  private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
+      SWERVE_SUBSYSTEM,
+      m_driverController,
+      OperatorConstants.DEADBAND);
+
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   // private final ShooterSubsystem m_ShooterSubsystem = new
   // ShooterSubsystem(ShooterSSConfig);
-  // private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  // private final IntakeSubsystem m_IntakeSubsystem = new
+  // IntakeSubsystem(IntakeSSConfig);
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
-
-  private final PoseEstimatorSubsystem poseEstimator = new PoseEstimatorSubsystem(m_visionSubsystem, m_swerveSubsystem,new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
-
-  // create 2 instances of our new controller interface:
-  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-  // private final ControllerIfc m_operatorController = new
-  // XboxControllerIfc(OperatorConstants.controllerPort2);
-
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swerveSubsystem.getSwerveDrive(),
-      () -> m_driverController.getY() * -1,
-      () -> m_driverController.getX() * -1)
-      .withControllerRotationAxis(m_driverController::getTwist)
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(false);
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative
-   * input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(m_driverController::getX,
-      m_driverController::getY)
-      .headingWhile(true);
-
-  Command driveFieldOrientedDirectAngle = m_swerveSubsystem.driveFieldOriented(driveDirectAngle);
-  Command driveFieldOrientedAnglularVelocity = m_swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+  private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
+      m_swerveSubsystem,
+      new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -91,7 +80,6 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-    m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
   /**
