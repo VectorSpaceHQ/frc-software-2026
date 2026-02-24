@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -54,13 +55,14 @@ public class SwerveSubsystem extends SubsystemBase {
   private double speedLimiter = 0.5;
 
   public SwerveSubsystem(SwerveSubsysConfig config) {
+
     this.swerveConfig = config;
     if (swerveConfig.getIsPresent()) {
       try {
         swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
-            new Pose2d(new Translation2d(Meter.of(1),
-                Meter.of(4)),
-                Rotation2d.fromDegrees(0)));
+            new Pose2d());
+        zeroGyro();
+        resetOdometry();
         // Alternative method if you don't want to supply the conversion factor via JSON
         // files.
         // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
@@ -73,7 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
           () -> swerveConfig.getController().getX() * -1)
           .withControllerRotationAxis(swerveConfig.getController()::getTwist)
           .deadband(swerveConfig.getDeadband())
-          .scaleTranslation(0.8)
+          .scaleTranslation(1)
           .allianceRelativeControl(() -> isFieldOriented())
           .robotRelative(() -> isRobotOriented());
       /**
@@ -129,6 +131,17 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveDrive;
   }
 
+  public SwerveDrivePoseEstimator getPoseEstimator() {
+    return swerveDrive.swerveDrivePoseEstimator;
+  }
+
+  public ChassisSpeeds getVelocity() {
+    return swerveDrive.getRobotVelocity();
+  }
+  public void stopDrive() {
+    swerveDrive.drive(new ChassisSpeeds());
+  }
+
   /**
    * Drive the robot given a chassis field oriented velocity.
    *
@@ -178,6 +191,15 @@ public class SwerveSubsystem extends SubsystemBase {
     } else {
       return false;
     }
+  }
+
+  public void zeroGyro() {
+    swerveDrive.zeroGyro();
+  }
+
+  public void resetOdometry() {
+    swerveDrive.resetOdometry(new Pose2d());
+
   }
 
   public void orientationToggle() {

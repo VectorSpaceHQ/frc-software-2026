@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
 
 @Override
     public void robotInit() {
-        Logger.recordMetadata("ProjectName", "MyRobot");
+        Logger.recordMetadata("ProjectName", "Team_10257");
         Logger.addDataReceiver(new NT4Publisher()); 
         Logger.start();
         

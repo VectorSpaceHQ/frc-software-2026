@@ -8,10 +8,15 @@ package frc.robot.configuration;
 import org.photonvision.PhotonPoseEstimator;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -102,6 +107,23 @@ public final class Constants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
   }
 
+  public static class DriveToTargetConstants { // Constants for profiled PID controllers
+
+
+    public static final double TRANSLATION_P = 4.0;
+    public static final double TRANSLATION_I = 0.0;
+    public static final double TRANSLATION_D = 0.0;
+    public static final double TRANSLATION_MAX_VEL = 4.0;
+    public static final double TRANSLATION_MAX_ACCEL = 4.0;
+
+    public static final double ROTATION_P = 4.0;
+    public static final double ROTATION_I = 0.0;
+    public static final double ROTATION_D = 0.0;
+    public static final double ROTATION_MAX_VEL = 6.0;
+    public static final double ROTATION_MAX_ACCEL = 8.0;
+
+  }
+
   // vision constants
   public static class VisionConstants {
     // Constants for the camera name and field layout path
@@ -109,7 +131,7 @@ public final class Constants {
     public static final String CAMERA_NAME = "Team10257_Front_CameraX";
 
     // Strategy for processing multiple AprilTags on the coprocessor
-    public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_PROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+    public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_COPROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
 
     // Constants for the maximum pose age and ambiguity
     public static final double MAX_POSE_AGE = 0.5;
@@ -123,6 +145,8 @@ public final class Constants {
     public static final double ROTATION_X = 0.0; // No rotation around the X-axis
     public static final double ROTATION_Y = Math.toRadians(-10); // Rotate 10 degrees upward
     public static final double ROTATION_Z = 0.0; // No rotation around the Z-axis
+    public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
+                                                                                                   // Degrees
 
     // Constants for the distance from the camera to the robot
     public static final Transform3d cameraToRobot = new Transform3d( // Will have to change before next deploy
@@ -136,7 +160,7 @@ public final class Constants {
 
     // For reference (and potentially commands)
     public enum Apriltags {
-      None(0.0),
+      None(-1.0),
       RedTrenchRightNeutralSide(1.0), // Right
       RedHubRightBumpNeutralSide(2.0), // Right
       RedHubRightNeutralSide(3.0), // Front
@@ -180,7 +204,13 @@ public final class Constants {
       public int getId() {
         return this.value;
       }
-    }
-  }
 
+      public Pose2d getPose(AprilTagFieldLayout layout) {
+        return layout.getTagPose(getId())
+            .map(p -> p.toPose2d())
+            .orElseThrow(() -> new RuntimeException("Tag not found in layout: " + getId()));
+      }
+    }
+
+  }
 }

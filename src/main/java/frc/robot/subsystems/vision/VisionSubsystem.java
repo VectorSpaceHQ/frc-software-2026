@@ -1,7 +1,5 @@
 package frc.robot.subsystems.vision;
 
-import static frc.robot.configuration.Constants.VisionConstants;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +17,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.configuration.Constants.VisionConstants;
+import frc.robot.configuration.Constants.VisionConstants.Apriltags;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -29,7 +30,10 @@ public class VisionSubsystem extends SubsystemBase {
     private AprilTagFieldLayout layout;
 
     // Pose estimator used ONLY to generate vision measurements
+
     private PhotonPoseEstimator poseEstimator;
+
+    private double lastVisionTimestamp = -1;
 
     // Status of the camera
     private boolean cameraConnected;
@@ -83,16 +87,16 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Origin Point
         var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            layout.setOrigin(alliance.get() == Alliance.Red
-                    ? OriginPosition.kRedAllianceWallRightSide
-                    : OriginPosition.kBlueAllianceWallRightSide);
+        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+            layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
+        } else {
+            layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
         }
 
         // Initialize pose estimator (ONLY for generating measurements)
         poseEstimator = new PhotonPoseEstimator(
                 layout,
-                VisionConstants.MULTI_TAG_PNP_ON_PROCESSOR,
+                VisionConstants.MULTI_TAG_PNP_ON_COPROCESSOR,
                 robotToCamera);
 
         poseEstimator.setMultiTagFallbackStrategy(
@@ -141,6 +145,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     // Updates the vision measurement (periodic)
+
     private void updateVisionMeasurement() {
 
         latestVisionMeasurement = Optional.empty();
@@ -152,6 +157,11 @@ public class VisionSubsystem extends SubsystemBase {
             if (!result.hasTargets())
                 continue;
 
+            // Reject duplicate timestamps
+            double timestamp = result.getTimestampSeconds();
+            if (timestamp <= lastVisionTimestamp)
+                continue;
+
             // Target must have acceptable ambiguity
             boolean hasValidTags = result.getTargets().stream()
                     .anyMatch(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY);
@@ -161,10 +171,18 @@ public class VisionSubsystem extends SubsystemBase {
 
             Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
 
-            if (estimatedVisionPose.isPresent()) {
-                latestVisionMeasurement = estimatedVisionPose;
-                break;
-            }
+            if (estimatedVisionPose.isEmpty())
+                continue;
+
+            // For stale poses
+            double poseAge = Timer.getFPGATimestamp() - timestamp;
+            if (poseAge > VisionConstants.MAX_POSE_AGE)
+                continue;
+
+            // Accept measurement
+            latestVisionMeasurement = estimatedVisionPose;
+            lastVisionTimestamp = timestamp;
+            break;
         }
     }
 
@@ -181,5 +199,28 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             latestVisionMeasurement = Optional.empty();
         }
+
     }
+
+    public AprilTagFieldLayout getLayout() {
+        return layout;
+    }
+
+    public Optional<Apriltags> getBestVisibleTag() {
+        if (allUnreadResults.isEmpty())
+            return Optional.empty();
+
+        var latest = allUnreadResults.get(allUnreadResults.size() - 1);
+        if (!latest.hasTargets())
+            return Optional.empty();
+
+        int id = latest.getBestTarget().getFiducialId();
+
+        for (Apriltags tag : Apriltags.values()) {
+            if (tag.getId() == id)
+                return Optional.of(tag);
+        }
+        return Optional.empty();
+    }
+
 }

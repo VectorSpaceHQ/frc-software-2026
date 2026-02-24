@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 //import frc.robot.commands.ControllerCommand;
@@ -12,6 +13,7 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
+import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
@@ -23,6 +25,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.pose.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import swervelib.SwerveInputStream;
 import frc.robot.components.control.PID;
 import frc.robot.components.controller.ControllerIfc;
@@ -57,7 +60,7 @@ public class RobotContainer {
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
-  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
       SWERVE_SUBSYSTEM,
       m_driverController,
       OperatorConstants.DEADBAND);
@@ -181,6 +184,19 @@ public class RobotContainer {
     // new InstantCommand( () ->
     // m_IntakeSubsystem.toggleIntake())
     // );
+
+    m_driverController.toggleOrientation().whileTrue(
+    new DriveToTargetCommand(
+        m_swerveSubsystem,
+        m_visionSubsystem,
+        m_poseEstimatorSubsystem,
+        null,
+        1.0,
+        0.05,
+        0.035,
+        Rotation2d.fromDegrees(0)
+    ).withTimeout(10)
+);
   }
 
   /**
