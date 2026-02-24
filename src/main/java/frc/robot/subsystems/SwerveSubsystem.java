@@ -88,6 +88,7 @@ public class SwerveSubsystem extends SubsystemBase {
       //publish field oreiantation to smart dashboard
     }
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
+    SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
   }
 
   /**
@@ -116,11 +117,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     // This method will be called once per scheduler run
   }
 
   @Override
   public void simulationPeriodic() {
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     // This method will be called once per scheduler run during simulation
   }
 
