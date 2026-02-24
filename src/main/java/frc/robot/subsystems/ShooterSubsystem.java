@@ -48,6 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return shooterStatus; // Return the new value rather than the opposite
     }
 
+
     // Place status values here
     public boolean getShooterStatus() {
         return shooterStatus;

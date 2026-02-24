@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
@@ -26,7 +27,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private enum Orientation {
     FIELD(0), 
     ROBOT(1);
-
+  
     private int value;
 
     private Orientation (int value){
@@ -34,6 +35,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     public int getValue() {
         return value;
+    }
+    public String textValue() {
+       return this.name();
     }
   }
 
@@ -81,7 +85,9 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOrientedDirectAngle      = driveFieldOriented(driveDirectAngle);
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      //publish field oreiantation to smart dashboard
     }
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
   }
 
   /**

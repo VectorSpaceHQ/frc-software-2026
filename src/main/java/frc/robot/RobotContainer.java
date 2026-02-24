@@ -50,7 +50,7 @@ public class RobotContainer {
   //subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
-  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
                                                                            SWERVE_SUBSYSTEM,
                                                                           m_driverController,
                                                                           OperatorConstants.DEADBAND);
