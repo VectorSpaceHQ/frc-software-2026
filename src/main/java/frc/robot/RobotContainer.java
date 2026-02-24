@@ -128,6 +128,11 @@ public class RobotContainer {
     //  new InstantCommand( () -> 
     //  m_IntakeSubsystem.toggleIntake())
     //);
+    
+    //bind the orientation toggle
+    m_driverController.toggleOrientation().onTrue(
+      new InstantCommand(()->drivebase.orientationToggle())
+    );
   }
 
   /**
