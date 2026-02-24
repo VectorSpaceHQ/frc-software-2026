@@ -150,6 +150,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
+  public void driveRobotOriented(ChassisSpeeds velocity){
+    swerveDrive.drive(velocity);
+  }
+
+  public Command driveRobotOriented(Supplier<ChassisSpeeds> velocity) {
+    return run(() -> {
+      swerveDrive.drive(velocity.get());
+    });
+
+  }
+
   // These are for the pose estimator subsystem, which needs to access the
   // kinematics, module positions, and yaw of the swerve drive
   public SwerveDriveKinematics getKinematics() {
