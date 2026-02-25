@@ -53,7 +53,8 @@ public class XboxControllerIfc implements ControllerIfc {
 
     }
 
-    // Button mapping needs to be changed since this has the same binding as runClimb()
+    // Button mapping needs to be changed since this has the same binding as
+    // runClimb()
     public Trigger toggleOrientation() {
 
         return exampleJoystick.rightBumper();
@@ -67,5 +68,9 @@ public class XboxControllerIfc implements ControllerIfc {
     public Trigger startShooter() {
 
         return exampleJoystick.start();
+    }
+
+    public Trigger driveToTarget() {
+        return exampleJoystick.leftBumper();
     }
 }
