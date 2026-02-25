@@ -32,9 +32,9 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
 
         if (ShooterConfig.getIsPresent()) {
-            t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
-            b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterBottomId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-            n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFiringId()), 6000, 12);
+            t_PID = new PID("Top", new MotorIOKraken(this.ShooterConfig.getShooterMainId()), 6000, 12, 0.25, 0.0015, 0.01, 0);
+            b_PID = new PID("Bottom", new MotorIOKraken(this.ShooterConfig.getShooterEnglishId()), 6000, 12, 0.25, 0.0015, 0.01, 0, 1/Units.rotationsPerMinuteToRadiansPerSecond(509.3));
+            n_PID = new PID("Neo", new MotorIOSparkMax(this.ShooterConfig.getFeederId()), 6000, 12);
 
             SmartDashboard.putData("Shooter/Top PID", t_PID);
             SmartDashboard.putData("Shooter/Bottom PID", b_PID);
