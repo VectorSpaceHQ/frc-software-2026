@@ -6,25 +6,33 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.util.Units;
-import frc.robot.components.motor.MotorIOInputsAutoLogged;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
+import frc.robot.configuration.Constants.ShooterConstants;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
-import org.littletonrobotics.junction.Logger;
+
 
 public class ShooterSubsystem extends SubsystemBase {
+
+    public enum SysIdTarget {
+        ENGLISH,
+        MAIN,
+        FEEDER
+    }
+
     private ShooterSubsysConfig shooterConfig = null;
 
-    private PID t_PID = null;
-    private PID b_PID = null;
-    private PID n_PID = null;
-    private SysIdRoutine topSysId = null; // Unused
-    private SysIdRoutine bottomSysId = null; // Unused
-    private SysIdRoutine neoSysId = null;
+    private PID english_PID = null;
+    private PID main_PID = null;
+    private PID feeder_PID = null;
+    private SysIdRoutine englishSysId = null;
+    private SysIdRoutine mainSysId = null;
+    private SysIdRoutine feederSysId = null;
 
-    private final MotorIOInputsAutoLogged neoInputs = new MotorIOInputsAutoLogged();
+    private SysIdTarget sysIdTarget = SysIdTarget.FEEDER;
+    
     // private final double velocity_MOTOR =
     // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
     // https://www.reca.lc/motors
@@ -45,22 +53,23 @@ public class ShooterSubsystem extends SubsystemBase {
         runningSysId = false;
 
         if (shooterConfigPresent) {
-            t_PID = new PID("Top", new MotorIOKraken(this.shooterConfig.getShooterTopId()), 6000, 12, 0.25, 0.0015,
-                    0.01, 0);
-            b_PID = new PID("Bottom", new MotorIOKraken(this.shooterConfig.getShooterBottomId()), 6000, 12, 0.25,
-                    0.0015, 0.01, 0, 1 / Units.rotationsPerMinuteToRadiansPerSecond(509.3));
-            n_PID = new PID("Neo", new MotorIOSparkMax(this.shooterConfig.getFiringId()), 6000, 12, 0.090868, 0.0015,
-                    0.01, 0, 0.11741);
+            english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 0,
+                    0,
+                    0.01, 0, 0, 0);
+            main_PID = new PID("Bottom", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 0,
+                    0, 0, 0, 0, 0);
+            feeder_PID = new PID("Neo", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 0, 0,
+                    0, 0, 0, 0);
 
-            topSysId = SysId.createRoutine(this, t_PID, "Top");
-            bottomSysId = SysId.createRoutine(this, b_PID, "Bottom");
-            neoSysId = SysId.createRoutine(this, n_PID, "Neo");
+            englishSysId = SysId.createRoutine(this, english_PID, "English");
+            mainSysId = SysId.createRoutine(this, main_PID, "Main");
+            feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
             // t_motorInputs = new MotorIOInputs();
             // b_motorInputs = new MotorIOInputs();
 
-            SmartDashboard.putData("Shooter/Top PID", t_PID);
-            SmartDashboard.putData("Shooter/Bottom PID", b_PID);
-            SmartDashboard.putData("Shooter/Neo PID", n_PID);
+            SmartDashboard.putData("Shooter/Top PID", english_PID);
+            SmartDashboard.putData("Shooter/Bottom PID", main_PID);
+            SmartDashboard.putData("Shooter/Neo PID", feeder_PID);
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
@@ -69,6 +78,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public boolean toggleShoot() {
         shooterStatus = !shooterStatus;
         return shooterStatus; // Return the new value rather than the opposite
+    }
+
+    public void setSysIdTarget(SysIdTarget target) {
+        sysIdTarget = target;
+    }
+
+    public SysIdTarget getSysIdTarget() {
+        return sysIdTarget;
     }
 
     // Place status values here
@@ -80,21 +97,38 @@ public class ShooterSubsystem extends SubsystemBase {
         return lastShooterStatus;
     }
 
+    private SysIdRoutine getActiveSysIdRoutine() {
+        switch (sysIdTarget) {
+            case ENGLISH:
+                return englishSysId;
+            case MAIN:
+                return mainSysId;
+            case FEEDER:
+                return feederSysId;
+            default:
+                return feederSysId;
+        }
+    }
+
+public boolean atSpeed() {
+    return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+        && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+        && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+}
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
-        t_PID.m_updateInputs();
-        b_PID.m_updateInputs();
-        n_PID.m_updateInputs();
-        neoInputs.positionRad = n_PID.getMotorInputs().positionRad;
-        neoInputs.velocityRadPerSec = n_PID.getMotorInputs().velocityRadPerSec;
-        neoInputs.appliedVoltage = n_PID.getMotorInputs().appliedVoltage;
-        neoInputs.currentAmps = n_PID.getMotorInputs().currentAmps;
-        Logger.processInputs("Shooter/Neo", neoInputs);
+        english_PID.m_updateInputs();
+        main_PID.m_updateInputs();
+        feeder_PID.m_updateInputs();
+
+        english_PID.processInputs("Shooter/English");
+        main_PID.processInputs("Shooter/Main");
+        feeder_PID.processInputs("Shooter/Feeder");
 
         if (!runningSysId & shooterConfig.getIsPresent()) {
-            t_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            b_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            n_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            main_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
         }
 
         /*
@@ -117,14 +151,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    public Command sysIdNeoQuasistatic(SysIdRoutine.Direction dir) {
-        return neoSysId.quasistatic(dir)
+    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
+        return getActiveSysIdRoutine().quasistatic(dir)
                 .beforeStarting(() -> runningSysId = true)
                 .finallyDo(() -> runningSysId = false);
     }
 
-    public Command sysIdNeoDynamic(SysIdRoutine.Direction dir) {
-        return neoSysId.dynamic(dir)
+    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
+        return getActiveSysIdRoutine().dynamic(dir)
                 .beforeStarting(() -> runningSysId = true)
                 .finallyDo(() -> runningSysId = false);
     }
@@ -135,11 +169,12 @@ public class ShooterSubsystem extends SubsystemBase {
         builder.setSmartDashboardType("Shooter Controller");
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
+        builder.addBooleanProperty("At speed", this::atSpeed, null);
 
         super.initSendable(builder);
-        t_PID.initSendable(builder);
-        b_PID.initSendable(builder);
-        n_PID.initSendable(builder);
+        english_PID.initSendable(builder);
+        main_PID.initSendable(builder);
+        feeder_PID.initSendable(builder);
 
     }
 

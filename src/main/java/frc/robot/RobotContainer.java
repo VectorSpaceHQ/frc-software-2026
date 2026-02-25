@@ -20,6 +20,7 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.subsystems.climb.ExampleSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -58,7 +59,7 @@ public class RobotContainer {
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
 
   // subsystems:
-  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(false, SHOOTER_SUBSYSTEM);
+  private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
   private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
       SWERVE_SUBSYSTEM,
@@ -66,20 +67,24 @@ public class RobotContainer {
       OperatorConstants.DEADBAND);
 
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  // private final ShooterSubsystem m_ShooterSubsystem = new
-  // ShooterSubsystem(ShooterSSConfig);
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new
   // IntakeSubsystem(IntakeSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig);
+  // Will add configs for these later:
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
   private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
       m_swerveSubsystem,
       new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
 
+
+  private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
 
     // Configure the trigger bindings
     configureBindings();
@@ -153,31 +158,24 @@ public class RobotContainer {
      * // m_IntakeSubsystem.toggleIntake())
      * 
      * // );
-     * 
-     * // NEO (names of controller commands unimportant for this case / temporary)
-     * m_driverController.runIntake().whileTrue(
-     * m_ShooterSubsystem.sysIdNeoQuasistatic(SysIdRoutine.Direction.kForward)
-     * );
-     * 
-     * m_driverController.runShooter().whileTrue(
-     * m_ShooterSubsystem.sysIdNeoQuasistatic(SysIdRoutine.Direction.kReverse)
-     * );
-     * 
-     * m_driverController.stopIntake().whileTrue(
-     * m_ShooterSubsystem.sysIdNeoDynamic(SysIdRoutine.Direction.kForward)
-     * );
-     * 
-     * m_driverController.runClimb().whileTrue(
-     * m_ShooterSubsystem.sysIdNeoDynamic(SysIdRoutine.Direction.kReverse)
-     * );
-     * 
-     * 
-     * }
-     * 
-     * 
-     * 
-     * );
      */
+
+    // NEO (names of controller commands unimportant for this case / temporary)
+    m_driverController.runIntake().whileTrue(
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+    );
+
+    m_driverController.runShooter().whileTrue(
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+    );
+
+    m_driverController.stopIntake().whileTrue(
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
+    );
+
+    m_driverController.runClimb().whileTrue(
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+    );
 
     // TODO: Is this supposed to be on the operator controller?
     // m_driverController.runIntake().onTrue(

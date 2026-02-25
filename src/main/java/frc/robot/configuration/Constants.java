@@ -73,8 +73,8 @@ public final class Constants {
       WASHING_MACHINE_INDEXER_CANID(14),
       FEED_ROLLERS_CANID(15),
       FIRING_ROLLERS_CANID(16),
-      SHOOTER_TOP_MOTOR_CANID(17),
-      SHOOTER_BOTTOM_MOTOR_CANID(18),
+      SHOOTER_ENGLISH_MOTOR_CANID(17),
+      SHOOTER_MAIN_MOTOR_CANID(18),
       CLIMBER_CANID(19),
       PROTO_SHOOTER_TOP_MOTOR_CANID(19),
       PROTO_SHOOTER_BOTTOM_MOTOR_CANID(20);
@@ -107,8 +107,12 @@ public final class Constants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
   }
 
-  public static class DriveToTargetConstants { // Constants for profiled PID controllers
+  public static class ShooterConstants {
+    // Within 75 rpm
+    public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
+  }
 
+  public static class DriveToTargetConstants { // Constants for profiled PID controllers
 
     public static final double TRANSLATION_P = 4.0;
     public static final double TRANSLATION_I = 0.0;
@@ -213,4 +217,5 @@ public final class Constants {
     }
 
   }
+
 }
