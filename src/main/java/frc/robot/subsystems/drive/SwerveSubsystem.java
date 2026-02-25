@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -33,7 +34,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private enum Orientation {
     FIELD(0),
     ROBOT(1);
-
+  
     private int value;
 
     private Orientation(int value) {
@@ -42,6 +43,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public int getValue() {
       return value;
+    }
+    public String textValue() {
+       return this.name();
     }
   }
 
@@ -89,7 +93,10 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      //publish field oreiantation to smart dashboard
     }
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
+    SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
   }
 
   /**
@@ -119,11 +126,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     // This method will be called once per scheduler run
   }
 
   @Override
   public void simulationPeriodic() {
+    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     // This method will be called once per scheduler run during simulation
   }
 

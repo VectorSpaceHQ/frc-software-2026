@@ -197,6 +197,11 @@ public class RobotContainer {
         Rotation2d.fromDegrees(0)
     ).withTimeout(10)
 );
+    
+    //bind the orientation toggle
+    m_driverController.toggleOrientation().onTrue(
+      new InstantCommand(()->m_swerveSubsystem.orientationToggle())
+    );
   }
 
   /**

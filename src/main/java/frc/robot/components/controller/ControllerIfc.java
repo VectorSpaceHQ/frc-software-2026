@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.Constants.OperatorConstants.ControllerEnum;
 //import edu.wpi.first.wpilibj.Joystick;
 
-
 public interface ControllerIfc {
 
   public double getX();
@@ -27,9 +26,11 @@ public interface ControllerIfc {
   public Trigger runClimb();
 
   public Trigger startShooter();
-  
+
   public double controlMotorSpeed();
 
   public Trigger toggleOrientation();
+
+  public Trigger driveToTarget();
 
 }

@@ -15,7 +15,8 @@ public class JoystickControllerIfc implements ControllerIfc {
         Button3(3),
         Button4(4),
         Button5(5),
-        Button6(6);
+        Button6(6),
+        Button7(7);
 
         public final int value;
 
@@ -79,6 +80,10 @@ public class JoystickControllerIfc implements ControllerIfc {
         return getButton6(CommandScheduler.getInstance().getDefaultButtonLoop());
     }
 
+    public Trigger driveToTarget() {
+        return getButton7(CommandScheduler.getInstance().getDefaultButtonLoop());
+    }
+
     private Trigger getButton3(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button3.value, loop);
     }
@@ -93,5 +98,9 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     private Trigger getButton6(EventLoop loop) {
         return joystick.button(ExtendedButtonType.Button6.value, loop);
+    }
+
+    private Trigger getButton7(EventLoop loop) {
+        return joystick.button(ExtendedButtonType.Button7.value, loop);
     }
 }
