@@ -80,6 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem(SwerveSubsysConfig config, VisionSubsystem visionSubsystem, Pose2d initialPose) {
     this.swerveConfig = config;
     this.visionSubsystem = visionSubsystem;
+
     if (swerveConfig.getIsPresent()) {
       //taken from poseEstimator SS
       getSwerveDrive().resetOdometry(initialPose);
@@ -118,23 +119,20 @@ public class SwerveSubsystem extends SubsystemBase {
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
       //publish field orientation to smart dashboard
       
-      RobotConfig PathPlannerConfig;
-      //Create robot config object for Pathplanner
-      try{
-        PathPlannerConfig = RobotConfig.fromGUISettings();
-      } catch (Exception e) {
-        // Handle exception as needed
-        e.printStackTrace();
-    }
+
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
 
+     RobotConfig PathPlannerConfig;
+    //Create robot config object for Pathplanner
+    try{
+        PathPlannerConfig = RobotConfig.fromGUISettings();
 
-    // Configure AutoBuilder last
+            // Configure AutoBuilder last
     AutoBuilder.configure(
             this::getEstimatedPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             (speeds, feedforwards) -> driveRobotOriented(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
@@ -154,6 +152,10 @@ public class SwerveSubsystem extends SubsystemBase {
             },
             this // Reference to this subsystem to set requirements
     );
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
   }
 }
   /**
@@ -213,7 +215,7 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
-    
+    //periodic from pose estimator
     update();
     Pose2d pose = getEstimatedPose();
     Supplier<Pose2d> currentPose = () -> pose;

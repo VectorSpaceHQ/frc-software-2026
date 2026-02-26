@@ -24,7 +24,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.pose.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import swervelib.SwerveInputStream;
@@ -70,13 +69,10 @@ public class RobotContainer {
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new
   // IntakeSubsystem(IntakeSSConfig);
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig);
   // Will add configs for these later:
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
-      m_swerveSubsystem,
-      new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
-
+  //current pose2d in constructor is dummy value
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem, new Pose2d());
 
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
 
@@ -187,7 +183,6 @@ public class RobotContainer {
     new DriveToTargetCommand(
         m_swerveSubsystem,
         m_visionSubsystem,
-        m_poseEstimatorSubsystem,
         null,
         1.0,
         0.05,
