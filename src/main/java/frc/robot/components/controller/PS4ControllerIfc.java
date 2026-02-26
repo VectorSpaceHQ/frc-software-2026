@@ -50,11 +50,12 @@ public class PS4ControllerIfc implements ControllerIfc {
 
         return exampleJoystick.triangle();
     }
-    
-     // Button mapping needs to be changed since this has the same binding as runClimb()
+
+    // Button mapping needs to be changed since this has the same binding as
+    // runClimb()
     public Trigger toggleOrientation() {
 
-        return exampleJoystick.square();
+        return exampleJoystick.R2();
     }
 
     public Trigger runClimb() {
@@ -65,5 +66,9 @@ public class PS4ControllerIfc implements ControllerIfc {
     public Trigger startShooter() {
 
         return exampleJoystick.options();
+    }
+
+    public Trigger driveToTarget() {
+        return exampleJoystick.L2();
     }
 }
