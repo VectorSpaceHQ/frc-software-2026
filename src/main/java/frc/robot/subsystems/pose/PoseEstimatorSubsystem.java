@@ -2,6 +2,9 @@ package frc.robot.subsystems.pose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -48,7 +51,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public Pose2d getEstimatedPose() {
         return swerveSubsystem.getSwerveDrive().getPose();
     }
-
+    
     // Unused
     public void resetPose() {
         swerveSubsystem.resetOdometry();
@@ -59,7 +62,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public void periodic() {
         update();
         Pose2d pose = getEstimatedPose();
-
+        Supplier<Pose2d> currentPose = () -> pose;
         Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
         Logger.recordOutput("PoseEstimator/X", pose.getX());
         Logger.recordOutput("PoseEstimator/Y", pose.getY());
