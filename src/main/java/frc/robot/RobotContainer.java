@@ -4,10 +4,15 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
+// import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.components.motor.MotorIO;
@@ -18,13 +23,12 @@ import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
-import frc.robot.subsystems.climb.ExampleSubsystem;
+
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.pose.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import swervelib.SwerveInputStream;
@@ -43,6 +47,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -66,28 +72,38 @@ public class RobotContainer {
       m_driverController,
       OperatorConstants.DEADBAND);
 
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new
   // IntakeSubsystem(IntakeSSConfig);
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig);
   // Will add configs for these later:
-  //private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  //private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
-     // m_swerveSubsystem,
-     // new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
-
-
-  private static final SysIdTarget SYSID_TARGET = SysIdTarget.MAIN;
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+  //current pose2d in constructor is dummy value
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem, new Pose2d());
+  //auto command chooser 
+  private final SendableChooser<Command> autoChooser;
+  private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
+    // Register Named Commands. These will be used in our auto routines.
+    // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
+    // NamedCommands.registerCommand("exampleCommand", exampleSubsystem.exampleCommand());
+    // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
 
     // Configure the trigger bindings
     configureBindings();
+
+    // Build an auto chooser. This will use Commands.none() as the default option.
+    autoChooser = AutoBuilder.buildAutoChooser();
+    //Auto chooser with specific autos has documentation if we want it.
+
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -161,20 +177,16 @@ public class RobotContainer {
 
     // // NEO (names of controller commands unimportant for this case / temporary)
     m_driverController.runIntake().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runShooter().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     m_driverController.stopIntake().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runClimb().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // TODO: Is this supposed to be on the operator controller?
     // m_driverController.runIntake().onTrue(
@@ -182,23 +194,21 @@ public class RobotContainer {
     // m_IntakeSubsystem.toggleIntake())
     // );
 
-   // m_driverController.toggleOrientation().whileTrue(
-//     new DriveToTargetCommand(
-//         m_swerveSubsystem,
-//         m_visionSubsystem,
-//         m_poseEstimatorSubsystem,
-//         null,
-//         1.0,
-//         0.05,
-//         0.035,
-//         Rotation2d.fromDegrees(0)
-//     ).withTimeout(10)
-// );
+    m_driverController.toggleOrientation().whileTrue(
+    new DriveToTargetCommand(
+        m_swerveSubsystem,
+        m_visionSubsystem,
+        null,
+        1.0,
+        0.05,
+        0.035,
+        Rotation2d.fromDegrees(0)
+    ).withTimeout(10)
+);
     
-    // //bind the orientation toggle
-    // m_driverController.toggleOrientation().onTrue(
-    //   new InstantCommand(()->m_swerveSubsystem.orientationToggle())
-    // );
+    //bind the orientation toggle
+    m_driverController.toggleOrientation().onTrue(
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
   }
 
   /**
@@ -206,8 +216,11 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // This method loads the auto when it is called, however, it is recommended
+    // to first load your paths/autos when code starts, then return the
+    // pre-loaded auto/path
+    return autoChooser.getSelected();
   }
 }
