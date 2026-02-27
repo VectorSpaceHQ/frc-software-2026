@@ -82,9 +82,6 @@ public class SwerveSubsystem extends SubsystemBase {
     this.visionSubsystem = visionSubsystem;
 
     if (swerveConfig.getIsPresent()) {
-      //taken from poseEstimator SS
-      getSwerveDrive().resetOdometry(initialPose);
-      getSwerveDrive().setVisionMeasurementStdDevs(VisionConstants.VISION_ST_DEVS);
 
       try {
         swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
@@ -156,6 +153,11 @@ public class SwerveSubsystem extends SubsystemBase {
       // Handle exception as needed
       e.printStackTrace();
     }
+
+      //taken from poseEstimator SS
+      swerveDrive.resetOdometry(initialPose);
+      swerveDrive.setVisionMeasurementStdDevs(VisionConstants.VISION_ST_DEVS);
+    
   }
 }
   /**
@@ -176,7 +178,7 @@ public class SwerveSubsystem extends SubsystemBase {
       var visionMeasurement = visionSubsystem.getLatestVisionMeasurement();
 
         visionMeasurement.ifPresent(measurement -> { // If there is a present vision measurement (estimated robot pose based on vision)
-            getSwerveDrive().addVisionMeasurement(
+            swerveDrive.addVisionMeasurement(
                     measurement.estimatedPose.toPose2d(),
                     measurement.timestampSeconds);
             Logger.recordOutput("PoseEstimator/RawVisionPose",
@@ -188,12 +190,17 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void resetPose(Pose2d newPose) {
-        getSwerveDrive().resetOdometry(newPose);
+        swerveDrive.resetOdometry(newPose);
   }
 
-    public Pose2d getEstimatedPose() {
-        return getSwerveDrive().getPose();
+  public Pose2d getEstimatedPose() {
+        return swerveDrive.getPose();
   }
+  
+  public SwerveDrive getSwerveDrive() {
+        return swerveDrive;
+
+  }    
     
   // Unused
   public void resetPose() {
@@ -231,10 +238,6 @@ public class SwerveSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     // This method will be called once per scheduler run during simulation
-  }
-
-  public SwerveDrive getSwerveDrive() {
-    return swerveDrive;
   }
 
   public SwerveDrivePoseEstimator getPoseEstimator() {
