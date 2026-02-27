@@ -1,6 +1,8 @@
 package frc.robot.components.control;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
@@ -8,12 +10,16 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
 import frc.robot.components.motor.MotorIO.MotorIOInputs;
+import frc.robot.components.motor.MotorIOInputsAutoLogged;
 import frc.robot.components.motor.MotorIO;
+import frc.robot.components.motor.MotorIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 public class PID implements Sendable {
     // private variables to be implemented
     private final MotorIOInputs m_motorInputs;
     private final MotorIO m_motor;
+    private final MotorIOInputsAutoLogged motorInputs = new MotorIOInputsAutoLogged();
 
     private String name;
     private double MAX_RPM = 6000.0;
@@ -22,14 +28,14 @@ public class PID implements Sendable {
     private PIDController pid;
     private SimpleMotorFeedforward feedforward;
 
-    // Set PID and feedforward values (needs to be determined
+    // Set PID and feedforward default values (needs to be determined
     // experimentally)
     private double ks = 0.25; // static gain
     private double kv = 0; // velocity gain
+    private double ka = 0; // accelerartion gain
 
     // kP times error (target value - measured value = error in calculate function)
-    private double kp = 0.002; // proportional gain (example error would be 0.002 * (628.32 - 0.0) = 1.25664
-                               // volts at startup)
+    private double kp = 0.002; // proportional gain
     private double ki = 0; // integral gain
     private double kd = 0; // derivative gain
 
@@ -53,7 +59,7 @@ public class PID implements Sendable {
         m_motorInputs = new MotorIOInputs();
         MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
         kv = (1.0 / MAX_RPM_PER_VOLT);
-        feedforward = new SimpleMotorFeedforward(ks, kv);
+        feedforward = new SimpleMotorFeedforward(ks, kv, ka);
         pid = new PIDController(kp, ki, kd);
         pid.setIntegratorRange(lowIntegrationRange, highIntegrationRange); // Integral is only responsible for -2 to 2
                                                                            // volts of input (adjustable)
@@ -66,38 +72,51 @@ public class PID implements Sendable {
         m_motorInputs = new MotorIOInputs();
         MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
         kv = (1.0 / MAX_RPM_PER_VOLT);
-        feedforward = new SimpleMotorFeedforward(ks, kv);
+        feedforward = new SimpleMotorFeedforward(ks, kv, ka);
         pid = new PIDController(kp, ki, kd);
         pid.setIntegratorRange(lowIntegrationRange, highIntegrationRange); // Integral is only responsible for -2 to 2
                                                                            // volts of input (adjustable)
     }
 
+    // The constructor we are using:
     public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS, double ks, double kp, double ki,
-            double kd, double kv) {
+            double kd, double kv, double ka) {
         this.name = name;
         m_motor = m_motorIO;
         m_motorInputs = new MotorIOInputs();
         MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
+        this.ks = ks;
         this.kv = kv;
-        feedforward = new SimpleMotorFeedforward(ks, kv);
+        this.ka = ka;
+        this.kp = kp;
+        this.ki = ki;
+        this.kd = kd;
+        feedforward = new SimpleMotorFeedforward(ks, kv, ka);
         pid = new PIDController(kp, ki, kd);
         pid.setIntegratorRange(lowIntegrationRange, highIntegrationRange); // Integral is only responsible for -2 to 2
-                                                                           // volts of input (adjustable)
-    }
+
+    } // volts of input (adjustable)
 
     public MotorIOInputs getMotorInputs() {
         return m_motorInputs;
     }
 
     public double calculate() {
-        double m_targetRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
-        double m_volts = MathUtil.clamp(feedforward.calculate(m_targetRadsPerSec)
-                + pid.calculate(m_motorInputs.velocityRadPerSec, m_targetRadsPerSec), -12.0, 12.0);
+        double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
+        m_volts = MathUtil.clamp(
+                feedforward.calculate(target)
+                        + pid.calculate(m_motorInputs.velocityRadPerSec, target),
+                -12.0,
+                12.0);
         return m_volts;
     }
 
-    public void m_setVoltage() {
-        m_motor.setVoltage(this.calculate());
+    public void m_setVoltage() { // For PID
+        m_motor.setVoltage(m_volts);
+    }
+
+    public void m_setRawVoltage(double volts) {
+        m_motor.setVoltage(MathUtil.clamp(volts, -12.0, 12.0));
     }
 
     public void zeroVoltage() {
@@ -106,8 +125,22 @@ public class PID implements Sendable {
 
     public void m_updateInputs() {
         m_motor.updateInputs(m_motorInputs);
+        motorInputs.positionRad = m_motorInputs.positionRad;
+        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec;
+        motorInputs.appliedVoltage = m_motorInputs.appliedVoltage;
+        motorInputs.currentAmps = m_motorInputs.currentAmps;
         m_realRPM = Units.radiansPerSecondToRotationsPerMinute(m_motorInputs.velocityRadPerSec);
+        // System.out.println(
+        // "Pos: " + m_motorInputs.positionRad +
+        // " Vel: " + m_motorInputs.velocityRadPerSec +
+        // " Volt: " + m_motorInputs.appliedVoltage +
+        // " Curr: " + m_motorInputs.currentAmps);
 
+    }
+
+    // Process the inputs for the logger
+    public void processInputs(String key) {
+        Logger.processInputs(key, motorInputs);
     }
 
     public void resetPID() {
@@ -126,6 +159,10 @@ public class PID implements Sendable {
         return m_integralError;
     }
 
+    public boolean atSpeed(double toleranceRPM) {
+        return Math.abs(getError()) <= toleranceRPM;
+    }
+
     // PID setters and getters for tuning
     public void setkP(double kp) {
         this.kp = kp;
@@ -142,6 +179,21 @@ public class PID implements Sendable {
         pid.setD(kd);
     }
 
+    public void setkS(double ks) {
+        this.ks = ks;
+        feedforward.setKs(ks);
+    }
+
+    public void setkV(double kv) {
+        this.kv = kv;
+        feedforward.setKv(kv);
+    }
+
+    public void setkA(double ka) {
+        this.ka = ka;
+        feedforward.setKa(ka);
+    }
+
     public double getkP() {
         return pid.getP();
     }
@@ -154,6 +206,18 @@ public class PID implements Sendable {
         return pid.getD();
     }
 
+    public double getkS() {
+        return feedforward.getKs();
+    }
+
+    public double getkV() {
+        return feedforward.getKv();
+    }
+
+    public double getkA() {
+        return feedforward.getKa();
+    }
+
     public double getM_RPM() {
         return m_RPM;
     }
@@ -164,6 +228,7 @@ public class PID implements Sendable {
             this.resetPID();
         }
         if (toggleStatus) {
+            calculate();
             this.m_setVoltage();
         } else {
             this.zeroVoltage();
@@ -196,8 +261,9 @@ public class PID implements Sendable {
         builder.addDoubleProperty(name + "kP", this::getkP, this::setkP);
         builder.addDoubleProperty(name + "kI", this::getkI, this::setkI);
         builder.addDoubleProperty(name + "kD", this::getkD, this::setkD);
-        builder.addDoubleProperty(name + "kI", this::getkI, this::setkI);
-        builder.addDoubleProperty(name + "kD", this::getkD, this::setkD);
+        builder.addDoubleProperty(name + "kS", this::getkS, this::setkS);
+        builder.addDoubleProperty(name + "kV", this::getkV, this::setkV);
+        builder.addDoubleProperty(name + "kA", this::getkA, this::setkA);
 
     }
 

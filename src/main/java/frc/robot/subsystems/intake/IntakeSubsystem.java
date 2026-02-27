@@ -1,10 +1,11 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
@@ -12,7 +13,7 @@ import frc.robot.components.control.PID;
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
-    private IntakeSubsysConfig IntakeConfig;
+    private IntakeSubsysConfig IntakeConfig = null;
     private PID IntakeRollers1 = null;
     private PID IntakeRollers2 = null;
 

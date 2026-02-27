@@ -1,6 +1,6 @@
-package frc.robot.subsystems;
-import static frc.robot.Constants.OperatorConstants.MotorCanIDEnum.*;
-import frc.robot.Constants.OperatorConstants.SubSystemIDEnum;
+package frc.robot.configuration.configs;
+import static frc.robot.configuration.Constants.OperatorConstants.MotorCanIDEnum.*;
+import frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum;
 
 public class IntakeSubsysConfig extends SubsystemConfig {
     private final int IntakeRoller1Id = INTAKE_ROLLERS_1_CANID.getCanID();
