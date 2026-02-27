@@ -61,7 +61,7 @@ public class RobotContainer {
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
-  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
       SWERVE_SUBSYSTEM,
       m_driverController,
       OperatorConstants.DEADBAND);
@@ -72,13 +72,13 @@ public class RobotContainer {
   // IntakeSubsystem(IntakeSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig);
   // Will add configs for these later:
-  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
-      m_swerveSubsystem,
-      new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
+  //private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
+  //private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
+     // m_swerveSubsystem,
+     // new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
 
 
-  private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
+  private static final SysIdTarget SYSID_TARGET = SysIdTarget.MAIN;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -147,20 +147,19 @@ public class RobotContainer {
 
     // TODO: Replace onchange when class is futher developed (and move to operator
     // controller?)
-    /*
-     * m_operatorController.startShooter().onTrue(
-     * new InstantCommand( () ->
-     * m_ShooterSubsystem.toggleShoot())
-     * 
-     * );
-     * // m_driverController.runIntake().onTrue(
-     * // new InstantCommand( () ->
-     * // m_IntakeSubsystem.toggleIntake())
-     * 
-     * // );
-     */
+    
+      m_operatorController.startShooter().onTrue(
+      new InstantCommand( () ->
+       m_ShooterSubsystem.toggleShoot()) 
+      );
+    //  // m_driverController.runIntake().onTrue(
+    //  * // new InstantCommand( () ->
+    //  * // m_IntakeSubsystem.toggleIntake())
+    //  * 
+    //  * // );
+    //  */
 
-    // NEO (names of controller commands unimportant for this case / temporary)
+    // // NEO (names of controller commands unimportant for this case / temporary)
     m_driverController.runIntake().whileTrue(
         m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
     );
@@ -183,23 +182,23 @@ public class RobotContainer {
     // m_IntakeSubsystem.toggleIntake())
     // );
 
-    m_driverController.toggleOrientation().whileTrue(
-    new DriveToTargetCommand(
-        m_swerveSubsystem,
-        m_visionSubsystem,
-        m_poseEstimatorSubsystem,
-        null,
-        1.0,
-        0.05,
-        0.035,
-        Rotation2d.fromDegrees(0)
-    ).withTimeout(10)
-);
+   // m_driverController.toggleOrientation().whileTrue(
+//     new DriveToTargetCommand(
+//         m_swerveSubsystem,
+//         m_visionSubsystem,
+//         m_poseEstimatorSubsystem,
+//         null,
+//         1.0,
+//         0.05,
+//         0.035,
+//         Rotation2d.fromDegrees(0)
+//     ).withTimeout(10)
+// );
     
-    //bind the orientation toggle
-    m_driverController.toggleOrientation().onTrue(
-      new InstantCommand(()->m_swerveSubsystem.orientationToggle())
-    );
+    // //bind the orientation toggle
+    // m_driverController.toggleOrientation().onTrue(
+    //   new InstantCommand(()->m_swerveSubsystem.orientationToggle())
+    // );
   }
 
   /**
