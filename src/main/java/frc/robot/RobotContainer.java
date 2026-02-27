@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
+// import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
@@ -23,7 +23,7 @@ import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
-import frc.robot.subsystems.climb.ExampleSubsystem;
+
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -72,7 +72,6 @@ public class RobotContainer {
       m_driverController,
       OperatorConstants.DEADBAND);
 
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new
   // IntakeSubsystem(IntakeSSConfig);
@@ -179,20 +178,16 @@ public class RobotContainer {
 
     // NEO (names of controller commands unimportant for this case / temporary)
     m_driverController.runIntake().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runShooter().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     m_driverController.stopIntake().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runClimb().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // TODO: Is this supposed to be on the operator controller?
     // m_driverController.runIntake().onTrue(
@@ -214,8 +209,7 @@ public class RobotContainer {
     
     //bind the orientation toggle
     m_driverController.toggleOrientation().onTrue(
-      new InstantCommand(()->m_swerveSubsystem.orientationToggle())
-    );
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
   }
 
   /**
