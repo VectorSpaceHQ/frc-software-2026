@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
+// import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
@@ -18,7 +18,7 @@ import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
-import frc.robot.subsystems.climb.ExampleSubsystem;
+
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -66,7 +66,6 @@ public class RobotContainer {
       m_driverController,
       OperatorConstants.DEADBAND);
 
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   // private final IntakeSubsystem m_IntakeSubsystem = new
   // IntakeSubsystem(IntakeSSConfig);
@@ -76,7 +75,6 @@ public class RobotContainer {
   private final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem(m_visionSubsystem,
       m_swerveSubsystem,
       new Pose2d()); // Instantiate pose estimator (reliant on vision and swerve subsystems though)
-
 
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
 
@@ -162,20 +160,16 @@ public class RobotContainer {
 
     // NEO (names of controller commands unimportant for this case / temporary)
     m_driverController.runIntake().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runShooter().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
     m_driverController.stopIntake().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
     m_driverController.runClimb().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
-    );
+        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // TODO: Is this supposed to be on the operator controller?
     // m_driverController.runIntake().onTrue(
@@ -184,22 +178,19 @@ public class RobotContainer {
     // );
 
     m_driverController.toggleOrientation().whileTrue(
-    new DriveToTargetCommand(
-        m_swerveSubsystem,
-        m_visionSubsystem,
-        m_poseEstimatorSubsystem,
-        null,
-        1.0,
-        0.05,
-        0.035,
-        Rotation2d.fromDegrees(0)
-    ).withTimeout(10)
-);
-    
-    //bind the orientation toggle
+        new DriveToTargetCommand(
+            m_swerveSubsystem,
+            m_visionSubsystem,
+            m_poseEstimatorSubsystem,
+            null,
+            1.0,
+            0.05,
+            0.035,
+            Rotation2d.fromDegrees(0)).withTimeout(10));
+
+    // bind the orientation toggle
     m_driverController.toggleOrientation().onTrue(
-      new InstantCommand(()->m_swerveSubsystem.orientationToggle())
-    );
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
   }
 
   /**
@@ -207,8 +198,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+  // public Command getAutonomousCommand() {
+  // // An example command will be run in autonomous
+
 }
