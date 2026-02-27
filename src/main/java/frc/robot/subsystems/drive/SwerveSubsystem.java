@@ -13,6 +13,12 @@ import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
@@ -26,10 +32,23 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import swervelib.SwerveInputStream;
 
+//Imports for Pose Estimator
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.configuration.Constants.VisionConstants;
+
 public class SwerveSubsystem extends SubsystemBase {
 
   File directory = new File(Filesystem.getDeployDirectory(), "swerve");
   private SwerveDrive swerveDrive;
+  private final VisionSubsystem visionSubsystem;
 
   private enum Orientation {
     FIELD(0),
@@ -58,10 +77,15 @@ public class SwerveSubsystem extends SubsystemBase {
   private Orientation driveOrientation = Orientation.FIELD;
   private double speedLimiter = 0.5;
 
-  public SwerveSubsystem(SwerveSubsysConfig config) {
-
+  public SwerveSubsystem(SwerveSubsysConfig config, VisionSubsystem visionSubsystem, Pose2d initialPose) {
     this.swerveConfig = config;
+    this.visionSubsystem = visionSubsystem;
+
     if (swerveConfig.getIsPresent()) {
+      //taken from poseEstimator SS
+      getSwerveDrive().resetOdometry(initialPose);
+      getSwerveDrive().setVisionMeasurementStdDevs(VisionConstants.VISION_ST_DEVS);
+
       try {
         swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
             new Pose2d());
@@ -93,12 +117,47 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
-      //publish field oreiantation to smart dashboard
-    }
+      //publish field orientation to smart dashboard
+      
+
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
-  }
 
+     RobotConfig PathPlannerConfig;
+    //Create robot config object for Pathplanner
+    try{
+        PathPlannerConfig = RobotConfig.fromGUISettings();
+
+            // Configure AutoBuilder last
+    AutoBuilder.configure(
+            this::getEstimatedPose, // Robot pose supplier
+            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            (speeds, feedforwards) -> driveRobotOriented(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+            ),
+            PathPlannerConfig, // The robot configuration
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+  }
+}
   /**
    * Example command factory method.
    *
@@ -112,6 +171,35 @@ public class SwerveSubsystem extends SubsystemBase {
           /* one-time action goes here */
         });
   }
+  //methods from Pose Estimator SS
+  public void update() {
+      var visionMeasurement = visionSubsystem.getLatestVisionMeasurement();
+
+        visionMeasurement.ifPresent(measurement -> { // If there is a present vision measurement (estimated robot pose based on vision)
+            getSwerveDrive().addVisionMeasurement(
+                    measurement.estimatedPose.toPose2d(),
+                    measurement.timestampSeconds);
+            Logger.recordOutput("PoseEstimator/RawVisionPose",
+                    measurement.estimatedPose.toPose2d());
+            Logger.recordOutput("PoseEstimator/VisionTimestamp",
+                    measurement.timestampSeconds);
+        });
+
+  }
+
+  public void resetPose(Pose2d newPose) {
+        getSwerveDrive().resetOdometry(newPose);
+  }
+
+    public Pose2d getEstimatedPose() {
+        return getSwerveDrive().getPose();
+  }
+    
+  // Unused
+  public void resetPose() {
+        resetOdometry();
+
+  }  
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a
@@ -127,6 +215,15 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
+    //periodic from pose estimator
+    update();
+    Pose2d pose = getEstimatedPose();
+    Supplier<Pose2d> currentPose = () -> pose;
+    Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
+    Logger.recordOutput("PoseEstimator/X", pose.getX());
+    Logger.recordOutput("PoseEstimator/Y", pose.getY());
+    Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
+
     // This method will be called once per scheduler run
   }
 
@@ -180,7 +277,6 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       swerveDrive.drive(velocity.get());
     });
-
   }
 
   // These are for the pose estimator subsystem, which needs to access the
@@ -219,7 +315,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetOdometry() {
     swerveDrive.resetOdometry(new Pose2d());
-
   }
 
   public void orientationToggle() {

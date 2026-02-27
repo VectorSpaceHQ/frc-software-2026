@@ -15,7 +15,6 @@ import swervelib.SwerveInputStream;
 
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.subsystems.pose.PoseEstimatorSubsystem;
 import frc.robot.configuration.Constants.DriveToTargetConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
 
@@ -28,7 +27,6 @@ public class DriveToTargetCommand extends Command {
 
         private final SwerveSubsystem swerve;
         private final VisionSubsystem vision;
-        private final PoseEstimatorSubsystem pose;
 
         private final LoggedNetworkNumber loggedDistance;
         private final LoggedNetworkNumber loggedToleranceMeters;
@@ -65,8 +63,6 @@ public class DriveToTargetCommand extends Command {
         public DriveToTargetCommand(
                         SwerveSubsystem swerve,
                         VisionSubsystem vision,
-                        PoseEstimatorSubsystem pose,
-
                         Apriltags tagId,
                         double distanceMeters,
                         double toleranceMeters,
@@ -75,7 +71,6 @@ public class DriveToTargetCommand extends Command {
 
                 this.swerve = swerve;
                 this.vision = vision;
-                this.pose = pose;
                 this.tagId = tagId;
 
                 // For debugging: using constructor parameters as dashboard starting defaults
@@ -136,7 +131,7 @@ public class DriveToTargetCommand extends Command {
                 // Start at an empty (zeroed) state
                 targetPose = null;
                 inputStream = null;
-                robotPose = pose.getEstimatedPose();
+                robotPose = swerve.getEstimatedPose();
 
                 // error each cycle, so resetting to zero here can cause an initial velocity
                 // spike
@@ -153,7 +148,7 @@ public class DriveToTargetCommand extends Command {
         public void execute() {
                 // Fetch the latest robot pose once per loop so all calculations use the same
                 // value
-                robotPose = pose.getEstimatedPose();
+                robotPose = swerve.getEstimatedPose();
 
                 // Re-apply tolerances and PID values each loop in case values were changed in
                 // dashboard
@@ -267,7 +262,7 @@ public class DriveToTargetCommand extends Command {
 
                 // Recompute errors fresh from current pose rather than relying on cached values
                 // (not global)
-                Pose2d currentPose = pose.getEstimatedPose();
+                Pose2d currentPose = swerve.getEstimatedPose();
                 double currentDistanceError = currentPose.getTranslation()
                                 .getDistance(targetPose.getTranslation());
                 double currentRotationError = Math.abs(currentPose.getRotation()
