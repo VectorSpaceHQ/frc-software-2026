@@ -32,7 +32,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private SysIdRoutine feederSysId = null;
 
     private SysIdTarget sysIdTarget = SysIdTarget.FEEDER;
-    
+
     // private final double velocity_MOTOR =
     // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
     // https://www.reca.lc/motors
@@ -55,7 +55,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (shooterConfigPresent) {
             english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 0,
                     0,
-                    0.01, 0, 0, 0);
+                    0, 0, 0, 0);
             main_PID = new PID("Bottom", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 0,
                     0, 0, 0, 0, 0);
             feeder_PID = new PID("Neo", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 0, 0,
