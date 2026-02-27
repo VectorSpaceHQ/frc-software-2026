@@ -8,6 +8,11 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.components.motor.MotorIO;
@@ -42,6 +47,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -73,7 +80,8 @@ public class RobotContainer {
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
   //current pose2d in constructor is dummy value
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem, new Pose2d());
-
+  //auto command chooser 
+  private final SendableChooser<Command> autoChooser;
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
 
   /**
@@ -81,9 +89,22 @@ public class RobotContainer {
    */
   public RobotContainer() {
     m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
+    // Register Named Commands. These will be used in our auto routines.
+    // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
+    // NamedCommands.registerCommand("exampleCommand", exampleSubsystem.exampleCommand());
+    // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
 
     // Configure the trigger bindings
     configureBindings();
+
+    // Build an auto chooser. This will use Commands.none() as the default option.
+    autoChooser = AutoBuilder.buildAutoChooser();
+    //Auto chooser with specific autos has documentation if we want it.
+
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -202,8 +223,11 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // This method loads the auto when it is called, however, it is recommended
+    // to first load your paths/autos when code starts, then return the
+    // pre-loaded auto/path
+    return autoChooser.getSelected();
   }
 }
