@@ -67,9 +67,9 @@ public final class Constants {
       SWERVE_BACK_LEFT_CANCODER_CANID(13),
       SWERVE_BACK_RIGHT_CANCODER_CANID(12),
       HOPPER_EXTENDER_CANID(10),
-      INTAKE_ROLLERS_1_CANID(11),
-      INTAKE_ROLLERS_2_CANID(12),
-      INTAKE_PIVOT_CANID(13),
+      INTAKE_ROLLERS_CANID(11),
+      INTAKE_PIVOT_LEFT_CANID(12),
+      INTAKE_PIVOT_RIGHT_CANID(13),
       WASHING_MACHINE_INDEXER_CANID(14),
       FEED_ROLLERS_CANID(15),
       SHOOTER_ENGLISH_MOTOR_CANID(17),
@@ -106,9 +106,17 @@ public final class Constants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
   }
 
+  public static class IntakeConstants {
+    public static final double PIVOT_GEAR_RATIO = 60.0; // Needs TBD
+    public static final double PIVOT_MIN_ANGLE_RAD = 0.0; // Needs TBD
+    public static final double PIVOT_MAX_ANGLE_RAD = 0.0; // Needs TBD
+    public static final double PIVOT_TOLERANCE_RAD = 0.05; // Within 0.05 radians of correct value
+  }
+
   public static class ShooterConstants {
     // Within 75 rpm
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
+    public static final boolean RUNNING_SYS_ID = false;
   }
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers

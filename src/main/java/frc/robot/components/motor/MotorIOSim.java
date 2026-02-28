@@ -41,4 +41,9 @@ public class MotorIOSim implements MotorIO {
     public void stop() {
         appliedVoltage = 0.0;
     }
+    
+    @Override
+    public void zeroPosition() {
+        motorSim.setState(0, motorSim.getAngularVelocityRadPerSec());
+    }
 }

@@ -226,7 +226,6 @@ public class PID implements Sendable {
     }
 
     public void PIDPeriodic(boolean resetStatus, boolean toggleStatus) {
-        this.m_updateInputs();
         if (resetStatus) {
             this.resetPID();
         }

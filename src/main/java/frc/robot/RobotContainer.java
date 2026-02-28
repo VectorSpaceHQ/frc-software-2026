@@ -15,12 +15,16 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakePivotCommand;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
+import frc.robot.configuration.Constants.ShooterConstants;
 import frc.robot.configuration.Constants.VisionConstants;
+import frc.robot.configuration.Constants.IntakeConstants;
 import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
+import frc.robot.configuration.configs.VisionSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
@@ -67,19 +71,18 @@ public class RobotContainer {
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
+  private final VisionSubsysConfig VisionSSConfig = new VisionSubsysConfig(false, VISION_SUBSYSTEM);
   private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
       SWERVE_SUBSYSTEM,
       m_driverController,
       OperatorConstants.DEADBAND);
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
-  // private final IntakeSubsystem m_IntakeSubsystem = new
-  // IntakeSubsystem(IntakeSSConfig);
-  // Will add configs for these later:
-  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
-  //current pose2d in constructor is dummy value
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem, new Pose2d());
-  //auto command chooser 
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem,
+      new Pose2d());
+  // auto command chooser
   private final SendableChooser<Command> autoChooser;
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
 
@@ -90,7 +93,8 @@ public class RobotContainer {
     m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
     // Register Named Commands. These will be used in our auto routines.
     // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    // NamedCommands.registerCommand("exampleCommand", exampleSubsystem.exampleCommand());
+    // NamedCommands.registerCommand("exampleCommand",
+    // exampleSubsystem.exampleCommand());
     // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
 
     // Configure the trigger bindings
@@ -98,7 +102,7 @@ public class RobotContainer {
 
     // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
-    //Auto chooser with specific autos has documentation if we want it.
+    // Auto chooser with specific autos has documentation if we want it.
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
@@ -163,50 +167,51 @@ public class RobotContainer {
 
     // TODO: Replace onchange when class is futher developed (and move to operator
     // controller?)
-    
-      m_operatorController.startShooter().onTrue(
-      new InstantCommand( () ->
-       m_ShooterSubsystem.toggleShoot()) 
-      );
-    //  // m_driverController.runIntake().onTrue(
-    //  * // new InstantCommand( () ->
-    //  * // m_IntakeSubsystem.toggleIntake())
-    //  * 
-    //  * // );
-    //  */
+
+    m_operatorController.startShooter().onTrue(
+        new InstantCommand(() -> m_ShooterSubsystem.toggleShoot()));
+    // // m_driverController.runIntake().onTrue(
+    // * // new InstantCommand( () ->
+    // * // m_IntakeSubsystem.toggleIntake())
+    // *
+    // * // );
+    // */
 
     // // NEO (names of controller commands unimportant for this case / temporary)
-    m_driverController.runIntake().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    if (ShooterConstants.RUNNING_SYS_ID) {
+      m_driverController.runIntake().whileTrue(
+          m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-    m_driverController.runShooter().whileTrue(
-        m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      m_driverController.runShooter().whileTrue(
+          m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-    m_driverController.stopIntake().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      m_driverController.stopIntake().whileTrue(
+          m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
-    m_driverController.runClimb().whileTrue(
-        m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      m_driverController.runClimb().whileTrue(
+          m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    }
 
-    // TODO: Is this supposed to be on the operator controller?
-    // m_driverController.runIntake().onTrue(
-    // new InstantCommand( () ->
-    // m_IntakeSubsystem.toggleIntake())
+    m_operatorController.runIntake().onTrue(
+        new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MAX_ANGLE_RAD)
+            .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
+
+    m_driverController.stopIntake().onTrue(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())
+        .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
+
+    // m_driverController.toggleOrientation().whileTrue(
+    // new DriveToTargetCommand(
+    // m_swerveSubsystem,
+    // m_visionSubsystem,
+    // null,
+    // 1.0,
+    // 0.05,
+    // 0.035,
+    // Rotation2d.fromDegrees(0)
+    // ).withTimeout(10)
     // );
 
-    m_driverController.toggleOrientation().whileTrue(
-    new DriveToTargetCommand(
-        m_swerveSubsystem,
-        m_visionSubsystem,
-        null,
-        1.0,
-        0.05,
-        0.035,
-        Rotation2d.fromDegrees(0)
-    ).withTimeout(10)
-);
-    
-    //bind the orientation toggle
+    // bind the orientation toggle
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
   }

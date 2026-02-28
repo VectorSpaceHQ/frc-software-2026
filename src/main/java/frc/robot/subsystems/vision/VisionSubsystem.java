@@ -20,9 +20,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
+import frc.robot.configuration.configs.VisionSubsysConfig;
 
 public class VisionSubsystem extends SubsystemBase {
 
+    // Config file for vision
+    private VisionSubsysConfig visionConfig = null;
     // PhotonVision camera
     private PhotonCamera camera;
 
@@ -48,17 +51,19 @@ public class VisionSubsystem extends SubsystemBase {
     private Transform3d robotToCamera = VisionConstants.cameraToRobot.inverse();
 
     // Vision Subsystem constructor
-    public VisionSubsystem() {
+    public VisionSubsystem(VisionSubsysConfig config) {
+        this.visionConfig = config;
+        if (visionConfig.getIsPresent()) {
+            // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
+            camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
-        // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
-        camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
+            initializeSubsystem();
 
-        initializeSubsystem();
-
-        try {
-            initializeAprilTagFieldLayout();
-        } catch (IOException e) {
-            cameraConnected = false;
+            try {
+                initializeAprilTagFieldLayout();
+            } catch (IOException e) {
+                cameraConnected = false;
+            }
         }
     }
 

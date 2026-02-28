@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.math.util.Units;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.Constants.ShooterConstants;
@@ -45,13 +44,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterStatus;
     private boolean lastShooterStatus;
     private boolean runningSysId;
+    
 
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.shooterConfig = config;
         shooterConfigPresent = shooterConfig.getIsPresent();
         shooterStatus = false;
         lastShooterStatus = false;
-        runningSysId = false;
+        runningSysId = ShooterConstants.RUNNING_SYS_ID;
+
 
         if (shooterConfigPresent) {
             english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 1.5, 0.20027,
