@@ -70,9 +70,9 @@ public class RobotContainer {
 
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
-  private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
-  private final VisionSubsysConfig VisionSSConfig = new VisionSubsysConfig(false, VISION_SUBSYSTEM);
-  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
+  private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(true, INTAKE_SUBSYSTEM);
+  private final VisionSubsysConfig VisionSSConfig = new VisionSubsysConfig(true, VISION_SUBSYSTEM);
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
       SWERVE_SUBSYSTEM,
       m_driverController,
       OperatorConstants.DEADBAND);
@@ -168,8 +168,6 @@ public class RobotContainer {
     // TODO: Replace onchange when class is futher developed (and move to operator
     // controller?)
 
-    m_operatorController.startShooter().onTrue(
-        new InstantCommand(() -> m_ShooterSubsystem.toggleShoot()));
     // // m_driverController.runIntake().onTrue(
     // * // new InstantCommand( () ->
     // * // m_IntakeSubsystem.toggleIntake())
@@ -190,14 +188,18 @@ public class RobotContainer {
 
       m_driverController.runClimb().whileTrue(
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    } else {
+
+      m_operatorController.runIntake().onTrue(
+          new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MAX_ANGLE_RAD)
+              .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
+
+      m_operatorController.stopIntake().onTrue(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())
+          .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
+
+      m_operatorController.startShooter().onTrue(
+          new InstantCommand(() -> m_ShooterSubsystem.toggleShoot()));
     }
-
-    m_operatorController.runIntake().onTrue(
-        new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MAX_ANGLE_RAD)
-            .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
-
-    m_driverController.stopIntake().onTrue(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())
-        .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
 
     // m_driverController.toggleOrientation().whileTrue(
     // new DriveToTargetCommand(

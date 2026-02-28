@@ -7,7 +7,7 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
 import com.revrobotics.spark.SparkLowLevel;
 
-public class MotorIOSparkMaxFollower implements MotorIO{
+public class MotorIOSparkMaxFollower {
 
     private final SparkMax follower;
     private final SparkLowLevel.MotorType motorType = SparkLowLevel.MotorType.kBrushless; // Brushless motor

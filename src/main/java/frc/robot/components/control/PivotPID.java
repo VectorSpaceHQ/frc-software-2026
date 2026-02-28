@@ -86,8 +86,8 @@ public class PivotPID implements Sendable {
         m_volts = MathUtil.clamp(
                 feedforward.calculate(currentAngle, currentVelocity)
                         + pid.calculate(currentAngle, m_targetAngleRad),
-                -12.0,
-                12.0);
+                -6,
+                6);
         return m_volts;
     }
 

@@ -18,7 +18,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum SysIdTarget {
         ENGLISH,
         MAIN,
-        FEEDER
+        FEEDER,
+        ROLLER,
+        PIVOT
     }
 
     private ShooterSubsysConfig shooterConfig = null;
@@ -99,7 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return lastShooterStatus;
     }
 
-    private SysIdRoutine getActiveSysIdRoutine() {
+    public SysIdRoutine getActiveSysIdRoutine() {
         switch (sysIdTarget) {
             case ENGLISH:
                 return englishSysId;
