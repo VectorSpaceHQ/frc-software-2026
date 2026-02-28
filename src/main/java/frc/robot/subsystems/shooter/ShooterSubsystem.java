@@ -30,9 +30,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private SysIdRoutine englishSysId = null;
     private SysIdRoutine mainSysId = null;
     private SysIdRoutine feederSysId = null;
+    
 
-    private SysIdTarget sysIdTarget = SysIdTarget.FEEDER;
-
+    private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
+    
     // private final double velocity_MOTOR =
     // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
     // https://www.reca.lc/motors
@@ -53,12 +54,12 @@ public class ShooterSubsystem extends SubsystemBase {
         runningSysId = false;
 
         if (shooterConfigPresent) {
-            english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 0,
+            english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 1.5, 0.20027,
                     0,
-                    0, 0, 0, 0);
-            main_PID = new PID("Bottom", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 0,
-                    0, 0, 0, 0, 0);
-            feeder_PID = new PID("Neo", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 0, 0,
+                    0, 0, 0.018534, 0.00053364);
+            main_PID = new PID("Main", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 1.5, 0.16432,
+                    0.01, 0, 0, 0.019251, 0.016214);
+            feeder_PID = new PID("Feeder", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 1.5, 0, 0,
                     0, 0, 0, 0);
 
             englishSysId = SysId.createRoutine(this, english_PID, "English");
@@ -67,9 +68,9 @@ public class ShooterSubsystem extends SubsystemBase {
             // t_motorInputs = new MotorIOInputs();
             // b_motorInputs = new MotorIOInputs();
 
-            SmartDashboard.putData("Shooter/Top PID", english_PID);
-            SmartDashboard.putData("Shooter/Bottom PID", main_PID);
-            SmartDashboard.putData("Shooter/Neo PID", feeder_PID);
+            SmartDashboard.putData("Shooter/English PID", english_PID);
+            SmartDashboard.putData("Shooter/Main PID", main_PID);
+            SmartDashboard.putData("Shooter/Feeder PID", feeder_PID);
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
@@ -125,7 +126,7 @@ public boolean atSpeed() {
         main_PID.processInputs("Shooter/Main");
         feeder_PID.processInputs("Shooter/Feeder");
 
-        if (!runningSysId & shooterConfig.getIsPresent()) {
+        if (runningSysId == false & shooterConfig.getIsPresent()) {
             english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             main_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);

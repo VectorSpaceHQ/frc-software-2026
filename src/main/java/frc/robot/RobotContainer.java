@@ -67,7 +67,7 @@ public class RobotContainer {
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
-  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
+  private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(false,
       SWERVE_SUBSYSTEM,
       m_driverController,
       OperatorConstants.DEADBAND);
@@ -163,20 +163,19 @@ public class RobotContainer {
 
     // TODO: Replace onchange when class is futher developed (and move to operator
     // controller?)
-    /*
-     * m_operatorController.startShooter().onTrue(
-     * new InstantCommand( () ->
-     * m_ShooterSubsystem.toggleShoot())
-     * 
-     * );
-     * // m_driverController.runIntake().onTrue(
-     * // new InstantCommand( () ->
-     * // m_IntakeSubsystem.toggleIntake())
-     * 
-     * // );
-     */
+    
+      m_operatorController.startShooter().onTrue(
+      new InstantCommand( () ->
+       m_ShooterSubsystem.toggleShoot()) 
+      );
+    //  // m_driverController.runIntake().onTrue(
+    //  * // new InstantCommand( () ->
+    //  * // m_IntakeSubsystem.toggleIntake())
+    //  * 
+    //  * // );
+    //  */
 
-    // NEO (names of controller commands unimportant for this case / temporary)
+    // // NEO (names of controller commands unimportant for this case / temporary)
     m_driverController.runIntake().whileTrue(
         m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
