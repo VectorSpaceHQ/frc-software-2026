@@ -38,4 +38,29 @@ public class SysId {
                                                 }, // Log callback
                                                 subsystem));
         }
+
+        public static SysIdRoutine createRoutine(
+                        SubsystemBase subsystem,
+                        PivotPID pivotPID,
+                        String name) {
+                return new SysIdRoutine(
+                                new SysIdRoutine.Config(
+                                                Volts.of(0.5).per(Units.Second),
+                                                Volts.of(3.5),
+                                                Units.Seconds.of(8),
+                                                (state) -> Logger.recordOutput("SysIdState", state.toString())
+                                ),
+                                new SysIdRoutine.Mechanism(
+                                                voltage -> pivotPID.m_setRawVoltage(voltage.in(Volts)), // Drive callback
+                                                log -> {
+                                                        var inputs = pivotPID.getMotorInputs();
+                                                        log.motor(name)
+                                                                        .voltage(Volts.of(inputs.appliedVoltage))
+                                                                        .angularPosition(Radians.of(inputs.positionRad))
+                                                                        .angularVelocity(RadiansPerSecond
+                                                                                        .of(inputs.velocityRadPerSec))
+                                                                        .current(Amps.of(inputs.currentAmps));
+                                                }, // Log callback
+                                                subsystem));
+        }
 }

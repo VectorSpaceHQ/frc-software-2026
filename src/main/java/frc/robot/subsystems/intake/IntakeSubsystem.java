@@ -4,13 +4,14 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
-
+import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.motor.MotorIOSparkMaxFollower;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.PivotPID;
+import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase implements Sendable {
@@ -18,15 +19,21 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
     private IntakeSubsysConfig IntakeConfig = null;
     private PID intakeRollerPid = null;
     private PivotPID pivotMotorPid = null; // left
+    private SysIdRoutine intakeRollerSysId = null;
+    private SysIdRoutine intakePivotSysId = null;
+
+    private SysIdTarget sysIdTarget = SysIdTarget.ROLLER;
     private boolean Intakestatus = false;
     private boolean lastIntakestatus = false;
+    private boolean runningSysId;
 
     private MotorIOSparkMax pivotMotor = null;
+
     private MotorIOSparkMaxFollower pivotFollower = null;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
-
+        runningSysId = IntakeConstants.RUNNING_SYS_ID;
         if (this.IntakeConfig.getIsPresent()) {
 
             intakeRollerPid = new PID("IntakeRoller", new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId()),
@@ -47,6 +54,8 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
 
             // Zero the pivot encoder on startup
             pivotMotor.zeroPosition();
+            intakeRollerSysId = SysId.createRoutine(this, intakeRollerPid, "English");
+            intakePivotSysId = SysId.createRoutine(this, pivotMotorPid, "Main");
 
             Intakestatus = false;
             lastIntakestatus = false;
@@ -75,6 +84,21 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
         pivotMotorPid.setTargetAngleDeg(angleDeg);
     }
 
+    public SysIdTarget getSysIdTarget() {
+        return sysIdTarget;
+    }
+
+    public SysIdRoutine getActiveSysIdRoutine() {
+        switch (sysIdTarget) {
+            case PIVOT:
+                return intakePivotSysId;
+            case MAIN:
+                return intakeRollerSysId;
+            default:
+                return intakeRollerSysId;
+        }
+    }
+
     public void runPivot() {
         pivotMotorPid.PivotPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
     }
@@ -92,7 +116,7 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
         pivotMotorPid.m_updateInputs();
         intakeRollerPid.m_updateInputs();
 
-        if (this.IntakeConfig.getIsPresent()) {
+        if (runningSysId == false && this.IntakeConfig.getIsPresent()) {
 
             intakeRollerPid.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
 
