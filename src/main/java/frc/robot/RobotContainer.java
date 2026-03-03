@@ -29,7 +29,7 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
+//import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -47,6 +47,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import frc.robot.configuration.Constants.SysIdEnums;
+import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 
 import static edu.wpi.first.units.Units.Volts;
 
