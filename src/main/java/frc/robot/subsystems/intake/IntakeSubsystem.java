@@ -16,7 +16,7 @@ import frc.robot.components.control.PivotPID;
 import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 
-public class IntakeSubsystem extends SubsystemBase implements Sendable {
+public class IntakeSubsystem extends SubsystemBase {
 
     private IntakeSubsysConfig IntakeConfig = null;
     private PID intakeRollerPid = null;
@@ -62,10 +62,11 @@ public class IntakeSubsystem extends SubsystemBase implements Sendable {
             Intakestatus = false;
             lastIntakestatus = false;
 
-            SmartDashboard.putData("Intake", this);
+            SmartDashboard.putData("Intake Roller PID", this.intakeRollerPid);
+            SmartDashboard.putData("Pivot Motors PID", this.pivotMotorPid);
         }
 
-        SmartDashboard.putBoolean("Intake Present", IntakeConfig.getIsPresent());
+        SmartDashboard.putBoolean("Intake Present", this.IntakeConfig.getIsPresent());
     }
 
     public boolean toggleIntake() {

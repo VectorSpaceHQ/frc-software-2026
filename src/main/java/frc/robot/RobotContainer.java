@@ -26,6 +26,7 @@ import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.VisionSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
+import frc.robot.configuration.configs.IndexerSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -33,6 +34,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import swervelib.SwerveInputStream;
@@ -73,15 +75,17 @@ public class RobotContainer {
 
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
+  private final IndexerSubsysConfig IndexerSSConfig = new IndexerSubsysConfig(true, INDEXER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(true, INTAKE_SUBSYSTEM);
   private final VisionSubsysConfig VisionSSConfig = new VisionSubsysConfig(true, VISION_SUBSYSTEM);
   private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
-      SWERVE_SUBSYSTEM,
-      m_driverController,
-      OperatorConstants.DEADBAND);
+                                                                           SWERVE_SUBSYSTEM,
+                                                                           m_driverController,
+                                                                           OperatorConstants.DEADBAND);
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
+  private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem,
       new Pose2d());
