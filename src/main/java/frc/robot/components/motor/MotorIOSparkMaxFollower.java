@@ -17,7 +17,7 @@ public class MotorIOSparkMaxFollower {
 
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.idleMode(IdleMode.kCoast);
-        followerConfig.smartCurrentLimit(20);
+        followerConfig.smartCurrentLimit(30);
         followerConfig.follow(leader, inverted); // Mirrors leader, inverted if opposite direction
 
         follower.configure(

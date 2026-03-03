@@ -191,11 +191,16 @@ public class RobotContainer {
     } else {
 
       m_operatorController.runIntake().onTrue(
-          new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MAX_ANGLE_RAD)
-              .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
+          new InstantCommand(() -> m_IntakeSubsystem.toggleIntake()));
+      // m_operatorController.runIntake().onTrue(
+      // new IntakePivotCommand(m_IntakeSubsystem,
+      // IntakeConstants.PIVOT_MAX_ANGLE_RAD)
+      // .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
 
-      m_operatorController.stopIntake().onTrue(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())
-          .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
+      // m_operatorController.stopIntake().onTrue(new InstantCommand(() ->
+      // m_IntakeSubsystem.toggleIntake())
+      // .andThen(new IntakePivotCommand(m_IntakeSubsystem,
+      // IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
 
       m_operatorController.startShooter().onTrue(
           new InstantCommand(() -> m_ShooterSubsystem.toggleShoot()));

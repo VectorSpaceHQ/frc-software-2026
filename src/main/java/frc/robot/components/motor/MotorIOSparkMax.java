@@ -23,7 +23,7 @@ public class MotorIOSparkMax implements MotorIO {
 
         config.idleMode(IdleMode.kCoast);
 
-        config.smartCurrentLimit(20);
+        config.smartCurrentLimit(30);
 
         motor.configure(
                 config,
