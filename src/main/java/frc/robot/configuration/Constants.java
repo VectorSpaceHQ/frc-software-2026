@@ -74,9 +74,9 @@ public final class Constants {
       FEED_ROLLERS_CANID(15),
       SHOOTER_ENGLISH_MOTOR_CANID(17),
       SHOOTER_MAIN_MOTOR_CANID(18),
-      CLIMBER_CANID(19),
-      PROTO_SHOOTER_TOP_MOTOR_CANID(19),
-      PROTO_SHOOTER_BOTTOM_MOTOR_CANID(20);
+      CLIMBER_CANID(19);
+      // PROTO_SHOOTER_TOP_MOTOR_CANID(19),
+      // PROTO_SHOOTER_BOTTOM_MOTOR_CANID(20);
 
       private int CanID;
 
@@ -160,7 +160,7 @@ public final class Constants {
     public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_COPROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
 
     // Constants for the maximum pose age and ambiguity
-    public static final double MAX_POSE_AGE = 1;
+    public static final double MAX_POSE_AGE = 0.5;
     public static final double MAX_AMBIGUITY = 0.25;
 
     // Constants for the Transformation3d objects for the camera and robot
@@ -169,7 +169,7 @@ public final class Constants {
     public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
 
     public static final double ROTATION_X = Math.toRadians(-90); // 90 degree rotation around the X-axis CCW
-    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 10 degrees upward
+    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 20 degrees upward
     public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
                                                                                                    // Degrees

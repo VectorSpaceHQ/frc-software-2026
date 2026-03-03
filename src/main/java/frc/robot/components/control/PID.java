@@ -87,9 +87,9 @@ public class PID implements Sendable {
         m_motor = m_motorIO;
         this.m_gearRatio = m_gearRatio;
         m_motorInputs = new MotorIOInputs();
-        MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
+        MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS);
+        kv = (1.0 / MAX_RPM_PER_VOLT); // https://www.reca.lc/motors
         this.ks = ks;
-        this.kv = kv;
         this.ka = ka;
         this.kp = kp;
         this.ki = ki;

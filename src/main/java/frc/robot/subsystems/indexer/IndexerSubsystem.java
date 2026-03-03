@@ -21,8 +21,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
          if (this.IndexerConfig.getIsPresent()) {
            
-            // TODO Needs to be tuned
-            IndexerPID = new PID("Indexer" ,new MotorIOSparkMax(this.IndexerConfig.getIndexerId()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            // TODO: Needs to be tuned
+            IndexerPID = new PID("Indexer", new MotorIOSparkMax(this.IndexerConfig.getIndexerId()), 6000, 12,5, 0.25, 0.0015, 0.01, 0, 0, 0);
 
             Indexerstatus = false;
             lastIndexerstatus = false;
@@ -50,6 +50,9 @@ public class IndexerSubsystem extends SubsystemBase {
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (this.IndexerConfig.getIsPresent()) {
+            IndexerPID.m_updateInputs();
+
+        IndexerPID.processInputs("Indexer/Indexer Motor");
             IndexerPID.PIDPeriodic(Indexerstatus && !lastIndexerstatus, Indexerstatus);
         }
     }

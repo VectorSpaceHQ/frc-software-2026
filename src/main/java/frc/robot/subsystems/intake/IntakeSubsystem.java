@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
                     true // inverted
             );
             pivotMotorPid = new PivotPID("PivotMotor", pivotMotor,
-                    IntakeConstants.PIVOT_GEAR_RATIO,
+                    60,
                     IntakeConstants.PIVOT_MIN_ANGLE_RAD,
                     IntakeConstants.PIVOT_MAX_ANGLE_RAD,
                     0, 0, 0, 0, // TODO: Find kS, kG, kV, kA
