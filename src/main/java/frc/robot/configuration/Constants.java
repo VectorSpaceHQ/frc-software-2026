@@ -93,6 +93,7 @@ public final class Constants {
     public enum SubSystemIDEnum {
       SHOOTER_SUBSYSTEM,
       INTAKE_SUBSYSTEM,
+      INDEXER_SUBSYSTEM,
       SWERVE_SUBSYSTEM,
       HOPPER_SUBSYSTEM,
       CLIMBER_SUBSYSTEM,

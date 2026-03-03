@@ -22,6 +22,7 @@ import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
+import frc.robot.configuration.configs.IndexerSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -67,6 +68,7 @@ public class RobotContainer {
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(false, INTAKE_SUBSYSTEM);
+  private final IndexerSubsysConfig IndexerSSConfig = new IndexerSubsysConfig(true, INDEXER_SUBSYSTEM);
   private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
       SWERVE_SUBSYSTEM,
       m_driverController,
