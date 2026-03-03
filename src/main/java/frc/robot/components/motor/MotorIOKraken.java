@@ -34,11 +34,16 @@ public class MotorIOKraken implements MotorIO {
 
     @Override
     public void setVoltage(double volts) {
-        motor.setControl(voltageRequest.withOutput(MathUtil.clamp(volts, -12.0, 12.0 ))); // Applies the voltage
+        motor.setControl(voltageRequest.withOutput(MathUtil.clamp(volts, -12.0, 12.0))); // Applies the voltage
     }
 
     @Override
     public void stop() {
         motor.setControl(neutralRequest); // Stops the motor because no voltage (could be break mode or coast mode)
+    }
+
+    @Override
+    public void zeroPosition() {
+        motor.setPosition(0); // Zero at current position
     }
 }

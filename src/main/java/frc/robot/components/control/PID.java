@@ -12,7 +12,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.components.motor.MotorIO.MotorIOInputs;
 import frc.robot.components.motor.MotorIOInputsAutoLogged;
 import frc.robot.components.motor.MotorIO;
-import frc.robot.components.motor.MotorIOInputsAutoLogged;
+
 import org.littletonrobotics.junction.Logger;
 
 public class PID implements Sendable {
@@ -23,8 +23,10 @@ public class PID implements Sendable {
 
     private String name;
     private double MAX_RPM = 6000.0;
-    private final double MAX_VOLTS = 12.0;
+    private double m_gearRatio = 1.5;
+    private final double MAX_VOLTS = 12.0; // Unused (For reference)
     private final double MAX_RPM_PER_VOLT;
+    
     private PIDController pid;
     private SimpleMotorFeedforward feedforward;
 
@@ -79,10 +81,11 @@ public class PID implements Sendable {
     }
 
     // The constructor we are using:
-    public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS, double ks, double kp, double ki,
+    public PID(String name, MotorIO m_motorIO, double MAX_RPM, double MAX_VOLTS, double m_gearRatio, double ks, double kp, double ki,
             double kd, double kv, double ka) {
         this.name = name;
         m_motor = m_motorIO;
+        this.m_gearRatio = m_gearRatio;
         m_motorInputs = new MotorIOInputs();
         MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
         this.ks = ks;
@@ -124,9 +127,9 @@ public class PID implements Sendable {
     }
 
     public void m_updateInputs() {
-        m_motor.updateInputs(m_motorInputs);
-        motorInputs.positionRad = m_motorInputs.positionRad;
-        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec;
+        m_motor.updateInputs(m_motorInputs); // With flywheel
+        motorInputs.positionRad = m_motorInputs.positionRad / m_gearRatio;
+        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec / m_gearRatio;
         motorInputs.appliedVoltage = m_motorInputs.appliedVoltage;
         motorInputs.currentAmps = m_motorInputs.currentAmps;
         m_realRPM = Units.radiansPerSecondToRotationsPerMinute(m_motorInputs.velocityRadPerSec);
@@ -223,7 +226,6 @@ public class PID implements Sendable {
     }
 
     public void PIDPeriodic(boolean resetStatus, boolean toggleStatus) {
-        this.m_updateInputs();
         if (resetStatus) {
             this.resetPID();
         }

@@ -1,6 +1,5 @@
 package frc.robot.components.motor;
 
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -20,37 +19,34 @@ public class MotorIOSparkMax implements MotorIO {
     private final SparkBaseConfig config = new SparkMaxConfig();
 
     public MotorIOSparkMax(int canID) {
-    motor = new SparkMax(canID, motorType);
+        motor = new SparkMax(canID, motorType);
 
-    config.idleMode(IdleMode.kCoast);
+        config.idleMode(IdleMode.kCoast);
 
-    config.smartCurrentLimit(80);
+        config.smartCurrentLimit(20);
 
-    motor.configure(
-        config,
-        ResetMode.kResetSafeParameters,
-        PersistMode.kNoPersistParameters
-    );
+        motor.configure(
+                config,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kNoPersistParameters);
 
-    absoluteEncoder = motor.getAbsoluteEncoder();
-    relativeEncoder = motor.getEncoder();
-    relativeEncoder.setPosition(absoluteEncoder.getPosition());
-}
-
-
+        absoluteEncoder = motor.getAbsoluteEncoder();
+        relativeEncoder = motor.getEncoder();
+        relativeEncoder.setPosition(absoluteEncoder.getPosition());
+    }
 
     @Override
     public void updateInputs(MotorIOInputs inputs) {
+        // Use absolute encoder position for pivot motors
         inputs.positionRad = relativeEncoder.getPosition() * 2.0 * Math.PI; // Convert from rotations to radians
-
-        inputs.velocityRadPerSec = relativeEncoder.getVelocity() * 2.0 * Math.PI * (1 / 60.0); // Convert from rotations
-                                                                                               // per minute
+        inputs.velocityRadPerSec = relativeEncoder.getVelocity() * 2.0 * Math.PI * (1.0 / 60.0); // Convert from
+                                                                                                 // rotations
+                                                                                                 // per minute
         // to radians per second
 
         inputs.appliedVoltage = motor.getAppliedOutput() * motor.getBusVoltage();
 
         inputs.currentAmps = motor.getOutputCurrent();
-
     }
 
     @Override
@@ -62,4 +58,14 @@ public class MotorIOSparkMax implements MotorIO {
     public void stop() {
         motor.stopMotor(); // Stops the motor because no voltage (could be break mode or coast mode)
     }
+
+    @Override
+    public void zeroPosition() {
+
+    }
+
+    public SparkMax getMotor() {
+        return motor;
+    }
+
 }

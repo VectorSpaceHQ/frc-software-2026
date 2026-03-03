@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import swervelib.SwerveDrive;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -75,7 +77,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveInputStream driveAngularVelocity = null;
 
   private Orientation driveOrientation = Orientation.FIELD;
-  private double speedLimiter = 0.5;
+  private double speedLimiter = 1;
 
   public SwerveSubsystem(SwerveSubsysConfig config, VisionSubsystem visionSubsystem, Pose2d initialPose) {
     this.swerveConfig = config;
@@ -88,6 +90,13 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d());
         zeroGyro();
         resetOdometry();
+
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
+
+        swerveDrive.setHeadingCorrection(false);
+      
+
+        
         // Alternative method if you don't want to supply the conversion factor via JSON
         // files.
         // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
@@ -96,13 +105,15 @@ public class SwerveSubsystem extends SubsystemBase {
         throw new RuntimeException(e);
       }
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> swerveConfig.getController().getY() * -1,
-          () -> swerveConfig.getController().getX() * -1)
+          () -> swerveConfig.getController().getY() * -0.7,
+          () -> swerveConfig.getController().getX() * -0.7)
           .withControllerRotationAxis(swerveConfig.getController()::getTwist)
           .deadband(swerveConfig.getDeadband())
           .scaleTranslation(1)
           .allianceRelativeControl(() -> isFieldOriented())
           .robotRelative(() -> isRobotOriented());
+          
+          
       /**
        * Clone's the angular velocity input stream and converts it to a fieldRelative
        * input stream.
@@ -119,6 +130,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
     SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
+    
 
      RobotConfig PathPlannerConfig;
     //Create robot config object for Pathplanner
@@ -178,6 +190,7 @@ public class SwerveSubsystem extends SubsystemBase {
       var visionMeasurement = visionSubsystem.getLatestVisionMeasurement();
 
         visionMeasurement.ifPresent(measurement -> { // If there is a present vision measurement (estimated robot pose based on vision)
+          SmartDashboard.putBoolean("Vision Measurement Present", true);
             swerveDrive.addVisionMeasurement(
                     measurement.estimatedPose.toPose2d(),
                     measurement.timestampSeconds);
@@ -185,6 +198,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     measurement.estimatedPose.toPose2d());
             Logger.recordOutput("PoseEstimator/VisionTimestamp",
                     measurement.timestampSeconds);
+                    
         });
 
   }
@@ -225,7 +239,7 @@ public class SwerveSubsystem extends SubsystemBase {
     //periodic from pose estimator
     update();
     Pose2d pose = getEstimatedPose();
-    Supplier<Pose2d> currentPose = () -> pose;
+    // Supplier<Pose2d> currentPose = () -> pose;
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
     Logger.recordOutput("PoseEstimator/X", pose.getX());
     Logger.recordOutput("PoseEstimator/Y", pose.getY());

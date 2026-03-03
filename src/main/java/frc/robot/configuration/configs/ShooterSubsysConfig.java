@@ -7,7 +7,7 @@ public class ShooterSubsysConfig extends SubsystemConfig {
     private final int ShooterMainId = SHOOTER_MAIN_MOTOR_CANID.getCanID();
     private final int ShooterEnglishId = SHOOTER_ENGLISH_MOTOR_CANID.getCanID();
 
-    public ShooterSubsysConfig(boolean isPresent,SubSystemIDEnum subSysId) {
+    public ShooterSubsysConfig(boolean isPresent, SubSystemIDEnum subSysId) {
         super(isPresent, subSysId);
 
     }

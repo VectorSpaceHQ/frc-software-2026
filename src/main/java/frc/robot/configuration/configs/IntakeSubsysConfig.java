@@ -3,22 +3,22 @@ import static frc.robot.configuration.Constants.OperatorConstants.MotorCanIDEnum
 import frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum;
 
 public class IntakeSubsysConfig extends SubsystemConfig {
-    private final int IntakeRoller1Id = INTAKE_ROLLERS_1_CANID.getCanID();
-    private final int IntakeRoller2Id = INTAKE_ROLLERS_2_CANID.getCanID();
-    private final int IntakePivotId = INTAKE_PIVOT_CANID.getCanID();
+    private final int IntakeRollerId = INTAKE_ROLLERS_CANID.getCanID();
+    private final int IntakePivotLeftId = INTAKE_PIVOT_LEFT_CANID.getCanID();
+    private final int IntakePivotRightId = INTAKE_PIVOT_RIGHT_CANID.getCanID();
 
     public IntakeSubsysConfig(boolean isPresent,SubSystemIDEnum subSysId) {
         super(isPresent, subSysId);
 
     }
-    public int getIntakeRoller1Id() {
-        return this.IntakeRoller1Id;
+    public int getIntakeRollerId() {
+        return this.IntakeRollerId;
     }
-    public int getIntakeRoller2Id() {
-        return this.IntakeRoller2Id;
+    public int getIntakePivotLeftId() {
+        return this.IntakePivotLeftId;
     }
-    public int getIntakePivotId() {
-        return this.IntakePivotId;
+    public int getIntakePivotRightId() {
+        return this.IntakePivotRightId;
     }
     
 }
