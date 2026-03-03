@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.Constants.ShooterConstants;
+import frc.robot.configuration.Constants.OperatorConstants;
+import frc.robot.configuration.Constants.SysIdEnums;
+import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
@@ -15,13 +18,6 @@ import frc.robot.components.control.SysId;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    public enum SysIdTarget {
-        ENGLISH,
-        MAIN,
-        FEEDER,
-        ROLLER,
-        PIVOT
-    }
 
     private ShooterSubsysConfig shooterConfig = null;
 

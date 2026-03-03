@@ -98,9 +98,22 @@ public final class Constants {
       CLIMBER_SUBSYSTEM,
       VISION_SUBSYSTEM
     }
+
+
   }
 
   public static final double MAX_MOTOR_VOLTS = 12.0;
+
+  public static class SysIdEnums {
+    public enum SysIdTarget {
+      ENGLISH,
+      MAIN,
+      FEEDER,
+      PIVOT,
+      ROLLER
+    }    
+
+  }  
 
   public static class SwerveConstants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
