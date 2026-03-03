@@ -20,6 +20,10 @@ public interface MotorIO {
 
     public default void setVoltage(double volts) {
     }
+    
+    public default void zeroPosition() {
+
+    }
 
     public default void stop() {
     }

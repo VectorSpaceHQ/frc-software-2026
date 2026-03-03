@@ -18,11 +18,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
+import frc.robot.configuration.configs.VisionSubsysConfig;
 
 public class VisionSubsystem extends SubsystemBase {
 
+    // Config file for vision
+    private VisionSubsysConfig visionConfig = null;
     // PhotonVision camera
     private PhotonCamera camera;
 
@@ -48,18 +52,22 @@ public class VisionSubsystem extends SubsystemBase {
     private Transform3d robotToCamera = VisionConstants.cameraToRobot.inverse();
 
     // Vision Subsystem constructor
-    public VisionSubsystem() {
+    public VisionSubsystem(VisionSubsysConfig config) {
+        this.visionConfig = config;
+        if (visionConfig.getIsPresent()) {
+            // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
+            camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
-        // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
-        camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
+            initializeSubsystem();
 
-        initializeSubsystem();
-
-        try {
-            initializeAprilTagFieldLayout();
-        } catch (IOException e) {
-            cameraConnected = false;
+            try {
+                initializeAprilTagFieldLayout();
+            } catch (IOException e) {
+                cameraConnected = false;
+            }
         }
+        SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
+        SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
 
     private void initializeSubsystem() {
@@ -193,11 +201,12 @@ public class VisionSubsystem extends SubsystemBase {
             return;
 
         allUnreadResults = camera.getAllUnreadResults();
-
+        //SmartDashboard.putBoolean("Vision measurement empty", allUnreadResults.isEmpty());
         if (!allUnreadResults.isEmpty()) {
             updateVisionMeasurement();
         } else {
             latestVisionMeasurement = Optional.empty();
+            //System.out.println("Vision measurement is empty");
         }
 
     }

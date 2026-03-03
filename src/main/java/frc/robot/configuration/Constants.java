@@ -54,22 +54,22 @@ public final class Constants {
 
     // motor canid
     public enum MotorCanIDEnum {
-      SWERVE_FRONT_LEFT_X60_CANID(2),
-      SWERVE_FRONT_LEFT_X44_CANID(3),
-      SWERVE_FRONT_RIGHT_X60_CANID(4),
-      SWERVE_FRONT_RIGHT_X44_CANID(5),
+      SWERVE_FRONT_RIGHT_X60_CANID(2),
+      SWERVE_FRONT_RIGHT_X44_CANID(3),
+      SWERVE_FRONT_LEFT_X60_CANID(4),
+      SWERVE_FRONT_LEFT_X44_CANID(5),
       SWERVE_BACK_LEFT_X60_CANID(6),
       SWERVE_BACK_LEFT_X44_CANID(7),
       SWERVE_BACK_RIGHT_X60_CANID(8),
       SWERVE_BACK_RIGHT_X44_CANID(9),
-      SWERVE_FRONT_LEFT_CANCODER_CANID(10),
-      SWERVE_FRONT_RIGHT_CANCODER_CANID(11),
-      SWERVE_BACK_LEFT_CANCODER_CANID(13),
-      SWERVE_BACK_RIGHT_CANCODER_CANID(12),
+      SWERVE_FRONT_RIGHT_CANCODER_CANID(21),
+      SWERVE_FRONT_LEFT_CANCODER_CANID(22),
+      SWERVE_BACK_LEFT_CANCODER_CANID(23),
+      SWERVE_BACK_RIGHT_CANCODER_CANID(24),
       HOPPER_EXTENDER_CANID(10),
-      INTAKE_ROLLERS_1_CANID(11),
-      INTAKE_ROLLERS_2_CANID(12),
-      INTAKE_PIVOT_CANID(13),
+      INTAKE_ROLLERS_CANID(11),
+      INTAKE_PIVOT_LEFT_CANID(12),
+      INTAKE_PIVOT_RIGHT_CANID(13),
       WASHING_MACHINE_INDEXER_CANID(14),
       FEED_ROLLERS_CANID(15),
       SHOOTER_ENGLISH_MOTOR_CANID(17),
@@ -99,17 +99,39 @@ public final class Constants {
       CLIMBER_SUBSYSTEM,
       VISION_SUBSYSTEM
     }
+
+
   }
 
   public static final double MAX_MOTOR_VOLTS = 12.0;
+
+  public static class SysIdEnums {
+    public enum SysIdTarget {
+      ENGLISH,
+      MAIN,
+      FEEDER,
+      PIVOT,
+      ROLLER
+    }    
+
+  }  
 
   public static class SwerveConstants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
   }
 
+  public static class IntakeConstants {
+    public static final double PIVOT_GEAR_RATIO = 60.0; // Needs TBD
+    public static final double PIVOT_MIN_ANGLE_RAD = 0.0; // Needs TBD
+    public static final double PIVOT_MAX_ANGLE_RAD = 0.0; // Needs TBD
+    public static final double PIVOT_TOLERANCE_RAD = 0.05; // Within 0.05 radians of correct value
+    public static final boolean RUNNING_SYS_ID = false;
+  }
+
   public static class ShooterConstants {
     // Within 75 rpm
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
+    public static final boolean RUNNING_SYS_ID = false;
   }
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
@@ -132,23 +154,23 @@ public final class Constants {
   public static class VisionConstants {
     // Constants for the camera name and field layout path
     public static final AprilTagFields FIELD_WELDED_2026 = AprilTagFields.k2026RebuiltWelded;
-    public static final String CAMERA_NAME = "Team10257_Front_CameraX";
+    public static final String CAMERA_NAME = "Front_Camera_Robot2";
 
     // Strategy for processing multiple AprilTags on the coprocessor
     public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_COPROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
 
     // Constants for the maximum pose age and ambiguity
-    public static final double MAX_POSE_AGE = 0.5;
-    public static final double MAX_AMBIGUITY = 0.2;
+    public static final double MAX_POSE_AGE = 1;
+    public static final double MAX_AMBIGUITY = 0.25;
 
     // Constants for the Transformation3d objects for the camera and robot
-    public static final double TRANSLATION_X = 0.275; // Meters forward from the robot center
-    public static final double TRANSLATION_Y = 0.165; // Meters to the left from the robot center
-    public static final double TRANSLATION_Z = 0.075; // Meters above the robot center
+    public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
+    public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
+    public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
 
-    public static final double ROTATION_X = 0.0; // No rotation around the X-axis
-    public static final double ROTATION_Y = Math.toRadians(-10); // Rotate 10 degrees upward
-    public static final double ROTATION_Z = 0.0; // No rotation around the Z-axis
+    public static final double ROTATION_X = Math.toRadians(-90); // 90 degree rotation around the X-axis CCW
+    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 10 degrees upward
+    public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
                                                                                                    // Degrees
 
