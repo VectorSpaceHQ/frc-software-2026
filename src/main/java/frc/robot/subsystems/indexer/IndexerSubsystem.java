@@ -5,13 +5,12 @@ import frc.robot.configuration.configs.IndexerSubsysConfig;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
-public class IndexerSubsystem extends SubsystemBase{
+public class IndexerSubsystem extends SubsystemBase {
     
     private IndexerSubsysConfig IndexerConfig = null;
-    private PID IndexerId = null;
+    private PID IndexerPID = null;
 
     private boolean Indexerstatus = false;
     private boolean lastIndexerstatus = false;
@@ -23,15 +22,15 @@ public class IndexerSubsystem extends SubsystemBase{
          if (this.IndexerConfig.getIsPresent()) {
            
             // TODO Needs to be tuned
-            IndexerId = new PID("PivotMotor" ,new MotorIOSparkMax(this.IndexerConfig.getIndexerId()),6000, 12, 0.25, 0.0015, 0.01, 0);
+            IndexerPID = new PID("Indexer" ,new MotorIOSparkMax(this.IndexerConfig.getIndexerId()),6000, 12, 0.25, 0.0015, 0.01, 0);
 
             Indexerstatus = false;
             lastIndexerstatus = false;
 
-            SmartDashboard.putData("Intake", this);
+            SmartDashboard.putData("Indexer PID", this.IndexerPID);
         }
 
-        SmartDashboard.putBoolean("Indexer Present", IndexerConfig.getIsPresent());
+        SmartDashboard.putBoolean("Indexer Present", this.IndexerConfig.getIsPresent());
     }
 
     public boolean toggleIntake() {
@@ -51,7 +50,7 @@ public class IndexerSubsystem extends SubsystemBase{
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (this.IndexerConfig.getIsPresent()) {
-            IndexerId.PIDPeriodic(Indexerstatus && !lastIndexerstatus, Indexerstatus);
+            IndexerPID.PIDPeriodic(Indexerstatus && !lastIndexerstatus, Indexerstatus);
         }
     }
 
@@ -59,7 +58,7 @@ public class IndexerSubsystem extends SubsystemBase{
     public void initSendable(SendableBuilder builder) {
         System.out.println("Indexer init sendable called");
         builder.setSmartDashboardType("Indexer Controller");
-        IndexerId.initSendable(builder);
+        IndexerPID.initSendable(builder);
     }
     
 }

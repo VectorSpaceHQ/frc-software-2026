@@ -34,6 +34,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import swervelib.SwerveInputStream;
@@ -84,6 +85,7 @@ public class RobotContainer {
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
+  private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem,
       new Pose2d());
