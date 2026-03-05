@@ -16,6 +16,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakePivotCommand;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
@@ -87,8 +88,9 @@ public class RobotContainer {
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, m_visionSubsystem,
-      new Pose2d());
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, 
+                                                                        m_visionSubsystem,
+                                                                        new Pose2d(1, 4, new Rotation2d()));
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
@@ -205,7 +207,7 @@ public class RobotContainer {
           .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
 
       m_operatorController.startShooter().onTrue(
-          new InstantCommand(() -> m_ShooterSubsystem.toggleShoot()));
+          new ShooterCommands(m_ShooterSubsystem));
     }
 
     // m_driverController.toggleOrientation().whileTrue(

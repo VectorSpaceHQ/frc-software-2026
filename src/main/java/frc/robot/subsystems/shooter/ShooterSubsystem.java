@@ -80,6 +80,9 @@ public class ShooterSubsystem extends SubsystemBase {
         return shooterStatus; // Return the new value rather than the opposite
     }
 
+    // private Command setShooter = run(()-> RPM.of(rpm)).ignoringDisable(true);
+    // private Command stopShooter = setVoltage(Volts.of(0)).ignoringDisable(true);
+
     public void setSysIdTarget(SysIdTarget target) {
         sysIdTarget = target;
     }

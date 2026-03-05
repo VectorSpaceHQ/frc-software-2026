@@ -75,6 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedDirectAngle = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
+  Supplier<Pose2d> currentPose;
 
   private Orientation driveOrientation = Orientation.FIELD;
   private double speedLimiter = 1;
@@ -87,11 +88,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
       try {
         swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
-            new Pose2d());
+            new Pose2d(1, 4, new Rotation2d()));
         zeroGyro();
         resetOdometry();
-
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         swerveDrive.setHeadingCorrection(false);
       
@@ -138,7 +138,7 @@ public class SwerveSubsystem extends SubsystemBase {
         PathPlannerConfig = RobotConfig.fromGUISettings();
 
             // Configure AutoBuilder last
-    AutoBuilder.configure(
+        AutoBuilder.configure(
             this::getEstimatedPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -188,7 +188,6 @@ public class SwerveSubsystem extends SubsystemBase {
   //methods from Pose Estimator SS
   public void update() {
       var visionMeasurement = visionSubsystem.getLatestVisionMeasurement();
-
         visionMeasurement.ifPresent(measurement -> { // If there is a present vision measurement (estimated robot pose based on vision)
           SmartDashboard.putBoolean("Vision Measurement Present", true);
             swerveDrive.addVisionMeasurement(
@@ -218,8 +217,7 @@ public class SwerveSubsystem extends SubsystemBase {
     
   // Unused
   public void resetPose() {
-        resetOdometry();
-
+   resetOdometry();
   }  
 
   /**
@@ -239,14 +237,15 @@ public class SwerveSubsystem extends SubsystemBase {
     //periodic from pose estimator
     update();
     Pose2d pose = getEstimatedPose();
-    // Supplier<Pose2d> currentPose = () -> pose;
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
     Logger.recordOutput("PoseEstimator/X", pose.getX());
     Logger.recordOutput("PoseEstimator/Y", pose.getY());
     Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
 
+
     // This method will be called once per scheduler run
   }
+
 
   @Override
   public void simulationPeriodic() {
@@ -298,13 +297,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   // These are for the pose estimator subsystem, which needs to access the
   // kinematics, module positions, and yaw of the swerve drive
-  public SwerveDriveKinematics getKinematics() {
-    return swerveDrive.kinematics;
-  }
-
-  public SwerveModulePosition[] getModulePositions() {
-    return swerveDrive.getModulePositions();
-  }
 
   public Rotation2d getYaw() {
     return swerveDrive.getYaw();
