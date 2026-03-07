@@ -84,7 +84,7 @@ public class XboxControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger stopClimb() {
-        return joystick.rightBumper(); // Toggle (On operator)
+        return joystick.rightStick(); // Toggle (On operator)
     }
 
     // Vision
@@ -115,8 +115,5 @@ public class XboxControllerIfc implements ControllerIfc {
     }
 
     // Put Autos here:
-    // @Override
-    // public Trigger exampleAutoCommand(); {
-    // return joystick.exampleButton(); // Hold or Toggle (TODO)
-    // }
+    
 }
