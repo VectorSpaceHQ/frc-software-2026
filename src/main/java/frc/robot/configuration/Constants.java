@@ -131,7 +131,7 @@ public final class Constants {
   public static class ShooterConstants {
     // Within 75 rpm
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
-    public static final boolean RUNNING_SYS_ID = false;
+    public static final boolean RUNNING_SYS_ID = true;
   }
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers

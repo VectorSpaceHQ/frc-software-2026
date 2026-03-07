@@ -91,7 +91,7 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d(1, 4, new Rotation2d()));
         zeroGyro();
         resetOdometry();
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         swerveDrive.setHeadingCorrection(false);
       
