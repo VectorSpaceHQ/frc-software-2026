@@ -187,13 +187,17 @@ public class VisionSubsystem extends SubsystemBase {
                     .filter(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY)
                     .min((a, b) -> Double.compare(a.getPoseAmbiguity(), b.getPoseAmbiguity()));
             SmartDashboard.putBoolean("Result Has Valid Targets", validTarget.isPresent());
-            if (validTarget.isEmpty())
+
+            if (validTarget.isEmpty()) {
                 continue;
+            }
 
             Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
              SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
-            if (estimatedVisionPose.isEmpty())
+
+            if (estimatedVisionPose.isEmpty()) {
                 continue;
+            }
 
             // Accept measurement
             latestVisionMeasurement = estimatedVisionPose;
