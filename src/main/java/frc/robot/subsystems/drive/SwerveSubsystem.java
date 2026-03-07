@@ -200,31 +200,7 @@ public class SwerveSubsystem extends SubsystemBase {
             measurement.timestampSeconds);
             },
       () -> SmartDashboard.putBoolean("Vision Measurement Present", false));
-    };
-
-    // visionMeasurement.ifPresentOrElse(measurement -> { // If there is a present vision measurement (estimated robot pose based
-    //                                              // on vision)
-    //   SmartDashboard.putBoolean("Vision Measurement Present", true);
-    //   double latency = Timer.getFPGATimestamp() - measurement.timestampSeconds; // For debugging purposes
-    //   Logger.recordOutput("PoseEstimator/TimestampDifference", latency);
-
-    //   if (measurement.timestampSeconds > lastAppliedTimestamp) {
-
-    //     swerveDrive.addVisionMeasurement(
-    //         measurement.estimatedPose.toPose2d(),
-    //         measurement.timestampSeconds);
-
-    //     lastAppliedTimestamp = measurement.timestampSeconds;
-    //   }
-    //   Logger.recordOutput("PoseEstimator/RawVisionPose",
-    //       measurement.estimatedPose.toPose2d());
-    //   Logger.recordOutput("PoseEstimator/VisionTimestamp",
-    //       measurement.timestampSeconds);
-
-    
-    // );
-
-  // }
+    }
 
   public void resetPose(Pose2d newPose) {
     swerveDrive.resetOdometry(newPose);

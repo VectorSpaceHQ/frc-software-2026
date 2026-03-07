@@ -56,7 +56,6 @@ public interface ControllerIfc {
 
   public Trigger runQuasidynamicReverse();
 
-  // Auto
-  // public Trigger exampleAutoCommand();
+  // Put Autos here:
 
 }
