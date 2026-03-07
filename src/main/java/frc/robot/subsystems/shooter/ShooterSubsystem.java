@@ -15,9 +15,7 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
 
-
 public class ShooterSubsystem extends SubsystemBase {
-
 
     private ShooterSubsysConfig shooterConfig = null;
 
@@ -28,7 +26,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private SysIdRoutine mainSysId = null;
     private SysIdRoutine feederSysId = null;
     
-
     private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
     
     // private final double velocity_MOTOR =
@@ -43,7 +40,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean lastShooterStatus;
     private boolean runningSysId;
     
-
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.shooterConfig = config;
         shooterConfigPresent = shooterConfig.getIsPresent();
@@ -51,14 +47,13 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
-
         if (shooterConfigPresent) {
             english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 1.5, 0.20027,
                     0,
                     0, 0, 0.018534, 0.00053364);
             main_PID = new PID("Main", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 1.5, 0.16432,
                     0.01, 0, 0, 0.019251, 0.016214);
-            feeder_PID = new PID("Feeder", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 1.5, 0, 0,
+            feeder_PID = new PID("Feeder", new MotorIOSparkMax(this.shooterConfig.getFeederId(), 20), 5676, 12, 1.5, 0, 0,
                     0, 0, 0, 0);
 
             englishSysId = SysId.createRoutine(this, english_PID, "English");
@@ -75,9 +70,14 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
     }
 
-    public boolean toggleShoot() {
-        shooterStatus = !shooterStatus;
-        return shooterStatus; // Return the new value rather than the opposite
+    public boolean startShooter() {
+        shooterStatus = true;
+        return shooterStatus; 
+    }
+
+    public boolean stopShooter() {
+        shooterStatus = false;
+        return shooterStatus; 
     }
 
     public void setSysIdTarget(SysIdTarget target) {
@@ -110,11 +110,12 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-public boolean atSpeed() {
-    return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-        && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-        && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
-}
+    public boolean atSpeed() {
+        return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+            && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+            && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+    }
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         english_PID.m_updateInputs();
@@ -138,8 +139,7 @@ public boolean atSpeed() {
          * equals
          * shooterStatus initially, !lastShooterStatus does not equal true, meaning that
          * the PID does not reset.
-         * 
-         * Furthermore, this happens every initialization of the shooter becoming true.
+         * * Furthermore, this happens every initialization of the shooter becoming true.
          * If shooterStatus is false, !lastShooterStatus is true; if shooterStatus is
          * true, !lastShooterStatus remains true and resets the PID before becoming
          * false again. This should fix the problem that the integral term is building

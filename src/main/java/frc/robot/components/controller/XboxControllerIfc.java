@@ -5,72 +5,98 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class XboxControllerIfc implements ControllerIfc {
 
-    double swerveX;
-    double swerveY;
-    double rotate;
-    public Trigger shoot;
-    CommandXboxController exampleJoystick;
+    CommandXboxController joystick;
 
     public XboxControllerIfc(int port) {
-
-        exampleJoystick = new CommandXboxController(port);
+        joystick = new CommandXboxController(port);
     }
 
+    // Swerve
+    @Override
     public double getX() {
+        return joystick.getLeftX();
+    }
 
-        return exampleJoystick.getLeftX();
-    };
-
+    @Override
     public double getY() {
-
-        return exampleJoystick.getLeftY();
+        return joystick.getLeftY();
     }
 
+    @Override
     public double getTwist() {
-
-        return exampleJoystick.getRightX();
-
+        return -joystick.getRightX();
     }
 
-    public double controlMotorSpeed() {
-
-        return exampleJoystick.getLeftTriggerAxis();
-    }
-
-    public Trigger runShooter() {
-
-        return exampleJoystick.b();
-    }
-
-    public Trigger runIntake() {
-
-        return exampleJoystick.a();
-    }
-
-    public Trigger stopIntake() {
-
-        return exampleJoystick.y();
-
-    }
-
-    // Button mapping needs to be changed since this has the same binding as
-    // runClimb()
+    @Override
     public Trigger toggleOrientation() {
-
-        return exampleJoystick.rightBumper();
+        return joystick.x();
     }
 
+    // Shooter
+    @Override
+    public Trigger runShooter() {
+        return joystick.leftTrigger();
+    }
+
+    @Override
+    public Trigger stopShooter() {
+        return joystick.rightTrigger();
+    }
+
+    // Intake
+    @Override
+    public Trigger toggleIntakeRollers() {
+        return joystick.a();
+    }
+
+    @Override
+    public Trigger toggleIntakePivot() {
+        return joystick.y();
+    }
+
+    // Indexer
+    @Override
+    public Trigger toggleIndexer() {
+        return joystick.x();
+    }
+
+    // Climb
+    @Override
     public Trigger runClimb() {
-
-        return exampleJoystick.x();
+        return joystick.leftBumper();
     }
 
-    public Trigger startShooter() {
-
-        return exampleJoystick.start();
+    @Override
+    public Trigger stopClimb() {
+        return joystick.rightBumper();
     }
 
+    // Vision
+    @Override
     public Trigger driveToTarget() {
-        return exampleJoystick.leftBumper();
+        return joystick.b();
     }
+
+    // Tuning
+    @Override
+    public Trigger runQuasistatic() {
+        return joystick.a();
+    }
+
+    @Override
+    public Trigger runQuasidynamic() {
+        return joystick.b();
+    }
+
+    @Override
+    public Trigger runQuasistaticReverse() {
+        return joystick.x();
+    }
+
+    @Override
+    public Trigger runQuasidynamicReverse() {
+        return joystick.y();
+    }
+
+    // Put Autos here:
 }

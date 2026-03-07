@@ -5,70 +5,98 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class PS5ControllerIfc implements ControllerIfc {
 
-    double swerveX;
-    double swerveY;
-    double rotate;
-    public Trigger shoot;
-    CommandPS5Controller exampleJoystick;
+    CommandPS5Controller joystick;
 
     public PS5ControllerIfc(int port) {
-
-        exampleJoystick = new CommandPS5Controller(port);
+        joystick = new CommandPS5Controller(port);
     }
 
+    // Swerve
+    @Override
     public double getX() {
+        return joystick.getLeftX();
+    }
 
-        return exampleJoystick.getLeftX();
-    };
-
+    @Override
     public double getY() {
-
-        return exampleJoystick.getLeftY();
+        return joystick.getLeftY();
     }
 
+    @Override
     public double getTwist() {
-
-        return exampleJoystick.getRightX();
+        return joystick.getRightX();
     }
 
-    public double controlMotorSpeed() {
-
-        return exampleJoystick.getL2Axis();
-    }
-
-    public Trigger runShooter() {
-
-        return exampleJoystick.circle();
-    }
-
-    public Trigger runIntake() {
-
-        return exampleJoystick.cross();
-    }
-
-    public Trigger stopIntake() {
-
-        return exampleJoystick.triangle();
-    }
-
-    // Button mapping needs to be changed since this has the same binding as
-    // runClimb()
+    @Override
     public Trigger toggleOrientation() {
-
-        return exampleJoystick.R2();
+        return joystick.square();
     }
 
+    // Shooter
+    @Override
+    public Trigger runShooter() {
+        return joystick.L2();
+    }
+
+    @Override
+    public Trigger stopShooter() {
+        return joystick.R2();
+    }
+
+    // Intake
+    @Override
+    public Trigger toggleIntakeRollers() {
+        return joystick.cross();
+    }
+
+    @Override
+    public Trigger toggleIntakePivot() {
+        return joystick.triangle();
+    }
+
+    // Indexer
+    @Override
+    public Trigger toggleIndexer() {
+        return joystick.square();
+    }
+
+    // Climb
+    @Override
     public Trigger runClimb() {
-
-        return exampleJoystick.square();
+        return joystick.L1();
     }
 
-    public Trigger startShooter() {
-
-        return exampleJoystick.options();
+    @Override
+    public Trigger stopClimb() {
+        return joystick.R1();
     }
 
+    // Vision
+    @Override
     public Trigger driveToTarget() {
-        return exampleJoystick.L2();
+        return joystick.circle();
     }
+
+    // Tuning
+    @Override
+    public Trigger runQuasistatic() {
+        return joystick.cross();
+    }
+
+    @Override
+    public Trigger runQuasidynamic() {
+        return joystick.circle();
+    }
+
+    @Override
+    public Trigger runQuasistaticReverse() {
+        return joystick.square();
+    }
+
+    @Override
+    public Trigger runQuasidynamicReverse() {
+        return joystick.triangle();
+    }
+
+    // Put Autos here:
 }

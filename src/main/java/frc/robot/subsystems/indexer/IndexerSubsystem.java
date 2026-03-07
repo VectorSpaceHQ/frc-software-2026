@@ -21,8 +21,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
          if (this.IndexerConfig.getIsPresent()) {
            
-            // TODO: Needs to be tuned
-            IndexerPID = new PID("Indexer", new MotorIOSparkMax(this.IndexerConfig.getIndexerId()), 6000, 12,5, 0.25, 0.0015, 0.01, 0, 0, 0);
+            IndexerPID = new PID("Indexer", new MotorIOSparkMax(this.IndexerConfig.getIndexerId(), 20), 6000, 12,25, 0.25, 0.005, 0.0005, 0, 0, 0);
 
             Indexerstatus = false;
             lastIndexerstatus = false;
@@ -33,17 +32,17 @@ public class IndexerSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Indexer Present", this.IndexerConfig.getIsPresent());
     }
 
-    public boolean toggleIntake() {
+    public boolean toggleIndexer() {
         Indexerstatus = !Indexerstatus;
         return !Indexerstatus;
     }
 
     // Place status values here
-    public boolean getIntakestatus() {
+    public boolean getIndexerStatus() {
         return Indexerstatus;
     }
 
-    public boolean getLastIntakestatus() {
+    public boolean getLastIndexerStatus() {
         return lastIndexerstatus;
     }
 

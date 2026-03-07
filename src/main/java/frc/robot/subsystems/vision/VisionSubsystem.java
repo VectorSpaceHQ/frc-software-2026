@@ -44,17 +44,20 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Stores most recent valid vision measurement
     private Optional<EstimatedRobotPose> latestVisionMeasurement = Optional.empty();
+    // Stores best visible tag from accepted frame
+    private Optional<Apriltags> bestVisibleTag = Optional.empty();
 
     // Getting All Unread Results
     private List<PhotonPipelineResult> allUnreadResults = new ArrayList<>();
 
     // Distance from the robot to the camera
-    private Transform3d robotToCamera = VisionConstants.cameraToRobot.inverse();
+    private Transform3d robotToCamera = VisionConstants.robotToCamera; // Removed Inverse
 
     // Vision Subsystem constructor
     public VisionSubsystem(VisionSubsysConfig config) {
         this.visionConfig = config;
         if (visionConfig.getIsPresent()) {
+            
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
@@ -111,11 +114,6 @@ public class VisionSubsystem extends SubsystemBase {
                 PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY);
     }
 
-    // Returns the latest valid vision pose measurement
-    public Optional<EstimatedRobotPose> getLatestVisionMeasurement() {
-        return latestVisionMeasurement;
-    }
-
     // Gets the target yaw directly from camera measurement
     public double getTargetYaw(int id) {
 
@@ -157,39 +155,66 @@ public class VisionSubsystem extends SubsystemBase {
     private void updateVisionMeasurement() {
 
         latestVisionMeasurement = Optional.empty();
+        bestVisibleTag = Optional.empty();
 
         for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
 
             var result = allUnreadResults.get(resultsIndex);
-
+            SmartDashboard.putBoolean("Result Has Targets", result.hasTargets());
             if (!result.hasTargets())
                 continue;
 
-            // Reject duplicate timestamps
-            double timestamp = result.getTimestampSeconds();
-            if (timestamp <= lastVisionTimestamp)
-                continue;
-
-            // Target must have acceptable ambiguity
-            boolean hasValidTags = result.getTargets().stream()
-                    .anyMatch(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY);
-
-            if (!hasValidTags)
-                continue;
-
-            Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
-
-            if (estimatedVisionPose.isEmpty())
-                continue;
+                // Reject duplicate timestamps
+            double timestamp = result.getTimestampSeconds();   
+            SmartDashboard.putNumber("Timestamp", timestamp);       
+            if (timestamp <= lastVisionTimestamp) {
+                SmartDashboard.putString("Timestamp", "Too Old");
+                            continue;
+                            
+            }
 
             // For stale poses
             double poseAge = Timer.getFPGATimestamp() - timestamp;
-            if (poseAge > VisionConstants.MAX_POSE_AGE)
+            SmartDashboard.putNumber("Pose Age", poseAge);
+            if (poseAge > VisionConstants.MAX_POSE_AGE) {
+            SmartDashboard.putString("Pose Age", "Too Old");
+                continue;
+            }
+                
+
+            // Select the lowest ambiguity valid target (not boolean anymore)
+            Optional<PhotonTrackedTarget> validTarget = result.getTargets().stream()
+                    .filter(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY)
+                    .min((a, b) -> Double.compare(a.getPoseAmbiguity(), b.getPoseAmbiguity()));
+            SmartDashboard.putBoolean("Result Has Valid Targets", validTarget.isPresent());
+            if (validTarget.isEmpty())
+                continue;
+
+            Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
+             SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
+            if (estimatedVisionPose.isEmpty())
                 continue;
 
             // Accept measurement
             latestVisionMeasurement = estimatedVisionPose;
+           
+            if (latestVisionMeasurement.isPresent()) {
+                SmartDashboard.putString("Vision Measurement", "Present"
+                );
+            } else {
+                SmartDashboard.putString("Vision Measurement",  "Absent");
+            }
+
             lastVisionTimestamp = timestamp;
+
+            int id = validTarget.get().getFiducialId();
+            for (Apriltags tag : Apriltags.values()) {
+                if (tag.getId() == id) {
+                    bestVisibleTag = Optional.of(tag);
+                    break;
+                }
+            }
+
             break;
         }
     }
@@ -201,12 +226,10 @@ public class VisionSubsystem extends SubsystemBase {
             return;
 
         allUnreadResults = camera.getAllUnreadResults();
-        //SmartDashboard.putBoolean("Vision measurement empty", allUnreadResults.isEmpty());
+        // SmartDashboard.putBoolean("Vision measurement empty",
+        // allUnreadResults.isEmpty());
         if (!allUnreadResults.isEmpty()) {
             updateVisionMeasurement();
-        } else {
-            latestVisionMeasurement = Optional.empty();
-            //System.out.println("Vision measurement is empty");
         }
 
     }
@@ -215,21 +238,13 @@ public class VisionSubsystem extends SubsystemBase {
         return layout;
     }
 
-    public Optional<Apriltags> getBestVisibleTag() {
-        if (allUnreadResults.isEmpty())
-            return Optional.empty();
-
-        var latest = allUnreadResults.get(allUnreadResults.size() - 1);
-        if (!latest.hasTargets())
-            return Optional.empty();
-
-        int id = latest.getBestTarget().getFiducialId();
-
-        for (Apriltags tag : Apriltags.values()) {
-            if (tag.getId() == id)
-                return Optional.of(tag);
-        }
-        return Optional.empty();
+    // Returns the latest valid vision pose measurement
+    public Optional<EstimatedRobotPose> getLatestVisionMeasurement() {
+        return latestVisionMeasurement;
     }
 
+    public Optional<Apriltags> getBestVisibleTag() {
+        return bestVisibleTag;
+    }
+    
 }

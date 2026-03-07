@@ -12,12 +12,12 @@ public class MotorIOSparkMaxFollower {
     private final SparkMax follower;
     private final SparkLowLevel.MotorType motorType = SparkLowLevel.MotorType.kBrushless; // Brushless motor
 
-    public MotorIOSparkMaxFollower(int canID, SparkMax leader, boolean inverted) {
+    public MotorIOSparkMaxFollower(int canID, SparkMax leader, boolean inverted, int currentLimit) {
         follower = new SparkMax(canID, motorType);
 
         SparkMaxConfig followerConfig = new SparkMaxConfig();
         followerConfig.idleMode(IdleMode.kCoast);
-        followerConfig.smartCurrentLimit(30);
+        followerConfig.smartCurrentLimit(currentLimit);
         followerConfig.follow(leader, inverted); // Mirrors leader, inverted if opposite direction
 
         follower.configure(

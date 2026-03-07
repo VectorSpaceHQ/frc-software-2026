@@ -100,7 +100,6 @@ public final class Constants {
       VISION_SUBSYSTEM
     }
 
-
   }
 
   public static final double MAX_MOTOR_VOLTS = 12.0;
@@ -112,20 +111,32 @@ public final class Constants {
       FEEDER,
       PIVOT,
       ROLLER
-    }    
+    }
 
-  }  
+  }
 
   public static class SwerveConstants {
     public static final double maxSpeed = Units.feetToMeters(4.5);
   }
 
   public static class IntakeConstants {
-    public static final double PIVOT_GEAR_RATIO = 60.0; // Needs TBD
-    public static final double PIVOT_MIN_ANGLE_RAD = 0.0; // Needs TBD
-    public static final double PIVOT_MAX_ANGLE_RAD = 0.0; // Needs TBD
-    public static final double PIVOT_TOLERANCE_RAD = 0.05; // Within 0.05 radians of correct value
-    public static final boolean RUNNING_SYS_ID = false;
+    public static final double PIVOT_GEAR_RATIO = 60.0; // Unused
+    public static final double PIVOT_MIN_ANGLE_RAD = -1.360; // Unused
+    public static final double PIVOT_MAX_ANGLE_RAD = 0.05; // Unused
+    public static final double PIVOT_TOLERANCE_RAD = 0.1; // Unused
+    public static final boolean RUNNING_SYS_ID = false; // Won't be used
+
+    public enum PivotState {
+      UP(-3.0), // Volts to pivot up (fight against gravity)
+      DOWN(2.0), // Volts to pivot down
+      OFF(0.0);
+
+      public final double voltage;
+
+      PivotState(double voltage) {
+        this.voltage = voltage;
+      }
+    }
   }
 
   public static class ShooterConstants {
@@ -161,7 +172,7 @@ public final class Constants {
 
     // Constants for the maximum pose age and ambiguity
     public static final double MAX_POSE_AGE = 0.5;
-    public static final double MAX_AMBIGUITY = 0.25;
+    public static final double MAX_AMBIGUITY = 0.35;
 
     // Constants for the Transformation3d objects for the camera and robot
     public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
@@ -172,10 +183,11 @@ public final class Constants {
     public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 20 degrees upward
     public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
-                                                                                                   // Degrees
+                                                                                                   // Degrees (to
+                                                                                                   // radians)
 
     // Constants for the distance from the camera to the robot
-    public static final Transform3d cameraToRobot = new Transform3d( // Will have to change before next deploy
+    public static final Transform3d robotToCamera = new Transform3d( // Actually robotToCamera...
         new Translation3d(TRANSLATION_X, TRANSLATION_Y, TRANSLATION_Z),
         new Rotation3d(ROTATION_X, ROTATION_Y, ROTATION_Z));
 

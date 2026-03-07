@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.configuration.Constants.SysIdEnums;
-//import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
+import frc.robot.configuration.Constants.IntakeConstants.PivotState;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.motor.MotorIOSparkMaxFollower;
 import frc.robot.components.control.PID;
@@ -45,23 +45,22 @@ public class IntakeSubsystem extends SubsystemBase {
         runningSysId = IntakeConstants.RUNNING_SYS_ID;
         if (this.IntakeConfig.getIsPresent()) {
 
-            intakeRollerPid = new PID("IntakeRoller", new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId()),
-                    11000.0, 12.0,  1, 0.25, 0.01, 0.0, 0, 0.019098, 0);
+            intakeRollerPid = new PID("IntakeRoller", new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId(), 20),
+                    11000.0, 12.0, 1, 0.25, 0.01, 0.0, 0, 0.019098, 0);
             intakeRollerPid.setM_RPM(100);
 
-            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId());
+            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 20);
             pivotFollower = new MotorIOSparkMaxFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
                     pivotMotor.getMotor(),
-                    true // inverted
-            );
-            pivotMotorPid = new PivotPID("PivotMotor", pivotMotor,
+                    true, // inverted
+                    20);
+            pivotMotorPid = new PivotPID("PivotMotor", pivotMotor, // None of this stuff is really being used
                     60,
                     IntakeConstants.PIVOT_MIN_ANGLE_RAD,
                     IntakeConstants.PIVOT_MAX_ANGLE_RAD,
                     0, 0, 0, 0, // TODO: Find kS, kG, kV, kA
                     0.0015, 0.01, 0); // TODO: Find kP, kI, kD
-
 
             pivotMotor.zeroPosition();
 
@@ -78,9 +77,18 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Intake Present", this.IntakeConfig.getIsPresent());
     }
 
-    public boolean toggleIntake() {
+
+    public void toggleRollers() {
         Intakestatus = !Intakestatus;
-        return Intakestatus;
+    }
+
+    // Toggles the pivot
+    public void togglePivotState() {
+        if (currentPivotState == PivotState.DOWN) {
+            currentPivotState = PivotState.UP;
+        } else {
+            currentPivotState = PivotState.DOWN;
+        }
     }
 
     // Place status values here
@@ -106,9 +114,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private SysIdRoutine getActiveSysIdRoutine() {
         switch (sysIdTarget) {
-            case PIVOT:  return intakePivotSysId;
-            case ROLLER: return intakeRollerSysId;
-            default:     return intakeRollerSysId;
+            case PIVOT:
+                return intakePivotSysId;
+            case ROLLER:
+                return intakeRollerSysId;
+            default:
+                return intakeRollerSysId;
         }
     }
 
@@ -125,7 +136,17 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void runPivot() {
-        pivotMotorPid.PivotPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
+        pivotMotorPid.PivotPeriodic(false, true);
+    }
+
+    private PivotState currentPivotState = PivotState.UP;
+
+    public void setPivotState(PivotState state) {
+        this.currentPivotState = state;
+    }
+
+    public PivotState getPivotState() {
+        return currentPivotState;
     }
 
     public void stopPivot() {
@@ -136,6 +157,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return pivotMotorPid.atPosition(IntakeConstants.PIVOT_TOLERANCE_RAD);
     }
 
+    public void resetPivotPID() {
+        pivotMotorPid.resetPID();
+    }
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         pivotMotorPid.m_updateInputs();
@@ -144,6 +169,9 @@ public class IntakeSubsystem extends SubsystemBase {
         pivotMotorPid.processInputs("Intake/Pivot");
 
         if (!runningSysId && this.IntakeConfig.getIsPresent()) {
+            // Just send the constant voltage of the current state
+            pivotMotor.setVoltage(currentPivotState.voltage);
+
             intakeRollerPid.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
         }
 
@@ -156,6 +184,7 @@ public class IntakeSubsystem extends SubsystemBase {
         builder.setSmartDashboardType("Intake Controller");
         builder.addBooleanProperty("Intake Status", this::getIntakestatus, null);
         builder.addBooleanProperty("Last Intake Status", this::getLastIntakestatus, null);
+
         intakeRollerPid.initSendable(builder);
         pivotMotorPid.initSendable(builder);
     }
