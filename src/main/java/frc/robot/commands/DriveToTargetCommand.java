@@ -258,19 +258,24 @@ public class DriveToTargetCommand extends Command {
 
         @Override
         public boolean isFinished() {
-
+                boolean isFinished = false;
                 if (targetPose == null) {
-                        return tagSearchTimer.hasElapsed(timeout);
+
+                        // When it reaches timeout without a target
+                        isFinished = tagSearchTimer.hasElapsed(timeout);
+
+                        // If we have a target and valid stream
+                } else if (inputStream != null) {
+
+                        // Finish when PIDs reach their goals
+                        isFinished = translationPID.atGoal() && rotationPID.atGoal();
+                } else {
+
+                        isFinished = false;
                 }
 
-                // Avoid stale error values
-                if (inputStream == null) {
-                        return false;
-                }
-                // This would probably suffice instead of calculating and using error/chassis
-                // velocities to determine whether the command should end if we are to be
-                // holding down the button anyway
-                return translationPID.atGoal() && rotationPID.atGoal();
+                return isFinished;
+
         }
 
         @Override
