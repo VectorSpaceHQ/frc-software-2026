@@ -15,9 +15,7 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
 
-
 public class ShooterSubsystem extends SubsystemBase {
-
 
     private ShooterSubsysConfig shooterConfig = null;
 
@@ -27,10 +25,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private SysIdRoutine englishSysId = null;
     private SysIdRoutine mainSysId = null;
     private SysIdRoutine feederSysId = null;
-    
 
     private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
-    
+
     // private final double velocity_MOTOR =
     // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
     // https://www.reca.lc/motors
@@ -42,7 +39,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterStatus;
     private boolean lastShooterStatus;
     private boolean runningSysId;
-    
 
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.shooterConfig = config;
@@ -51,15 +47,48 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
-
         if (shooterConfigPresent) {
-            english_PID = new PID("English", new MotorIOKraken(this.shooterConfig.getShooterEnglishId()), 6000, 12, 1.5, 0.20027,
-                    0,
-                    0, 0, 0.018534, 0.00053364);
-            main_PID = new PID("Main", new MotorIOKraken(this.shooterConfig.getShooterMainId()), 6000, 12, 1.5, 0.16432,
-                    0.01, 0, 0, 0.019251, 0.016214);
-            feeder_PID = new PID("Feeder", new MotorIOSparkMax(this.shooterConfig.getFeederId()), 5676, 12, 1.5, 0, 0,
-                    0, 0, 0, 0);
+            // English Flywheel Mechanism
+            english_PID = new PID(
+                    "English",
+                    new MotorIOKraken(this.shooterConfig.getShooterEnglishId()),
+                    ShooterConstants.ENGLISH_MAX_RPM,
+                    ShooterConstants.MAX_VOLTAGE,
+                    ShooterConstants.GEAR_RATIO,
+                    ShooterConstants.ENGLISH_kS,
+                    ShooterConstants.ENGLISH_kP,
+                    ShooterConstants.ENGLISH_kI,
+                    ShooterConstants.ENGLISH_kD,
+                    ShooterConstants.ENGLISH_kV,
+                    ShooterConstants.ENGLISH_kA);
+
+            // Main Flywheel Mechanism
+            main_PID = new PID(
+                    "Main",
+                    new MotorIOKraken(this.shooterConfig.getShooterMainId()),
+                    ShooterConstants.MAIN_MAX_RPM,
+                    ShooterConstants.MAX_VOLTAGE,
+                    ShooterConstants.GEAR_RATIO,
+                    ShooterConstants.MAIN_kS,
+                    ShooterConstants.MAIN_kP,
+                    ShooterConstants.MAIN_kI,
+                    ShooterConstants.MAIN_kD,
+                    ShooterConstants.MAIN_kV,
+                    ShooterConstants.MAIN_kA);
+
+            // Feeder Flywheel Mechanism
+            feeder_PID = new PID(
+                    "Feeder",
+                    new MotorIOSparkMax(this.shooterConfig.getFeederId(), ShooterConstants.FEEDER_CURRENT_LIMIT),
+                    ShooterConstants.FEEDER_MAX_RPM,
+                    ShooterConstants.MAX_VOLTAGE,
+                    ShooterConstants.GEAR_RATIO,
+                    ShooterConstants.FEEDER_kS,
+                    ShooterConstants.FEEDER_kP,
+                    ShooterConstants.FEEDER_kI,
+                    ShooterConstants.FEEDER_kD,
+                    ShooterConstants.FEEDER_kV,
+                    ShooterConstants.FEEDER_kA);
 
             englishSysId = SysId.createRoutine(this, english_PID, "English");
             mainSysId = SysId.createRoutine(this, main_PID, "Main");
@@ -75,9 +104,21 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
     }
 
-    public boolean toggleShoot() {
+    // Just in case
+    public boolean startShooter() {
+        shooterStatus = true;
+        return shooterStatus;
+    }
+
+    // Just in case
+    public boolean stopShooter() {
+        shooterStatus = false;
+        return shooterStatus;
+    }
+
+    public boolean toggleShooter() {
         shooterStatus = !shooterStatus;
-        return shooterStatus; // Return the new value rather than the opposite
+        return shooterStatus;
     }
 
     public void setSysIdTarget(SysIdTarget target) {
@@ -110,11 +151,12 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-public boolean atSpeed() {
-    return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-        && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-        && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
-}
+    public boolean atSpeed() {
+        return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+                && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+                && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+    }
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         english_PID.m_updateInputs();
@@ -138,8 +180,8 @@ public boolean atSpeed() {
          * equals
          * shooterStatus initially, !lastShooterStatus does not equal true, meaning that
          * the PID does not reset.
-         * 
-         * Furthermore, this happens every initialization of the shooter becoming true.
+         * * Furthermore, this happens every initialization of the shooter becoming
+         * true.
          * If shooterStatus is false, !lastShooterStatus is true; if shooterStatus is
          * true, !lastShooterStatus remains true and resets the PID before becoming
          * false again. This should fix the problem that the integral term is building

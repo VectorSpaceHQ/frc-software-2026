@@ -18,12 +18,12 @@ public class MotorIOSparkMax implements MotorIO {
     private final SparkLowLevel.MotorType motorType = SparkLowLevel.MotorType.kBrushless; // Brushless motor
     private final SparkBaseConfig config = new SparkMaxConfig();
 
-    public MotorIOSparkMax(int canID) {
+    public MotorIOSparkMax(int canID, int currentLimit) {
         motor = new SparkMax(canID, motorType);
 
         config.idleMode(IdleMode.kCoast);
 
-        config.smartCurrentLimit(20);
+        config.smartCurrentLimit(currentLimit);
 
         motor.configure(
                 config,
