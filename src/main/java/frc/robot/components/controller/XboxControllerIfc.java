@@ -5,72 +5,115 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class XboxControllerIfc implements ControllerIfc {
 
-    double swerveX;
-    double swerveY;
-    double rotate;
-    public Trigger shoot;
-    CommandXboxController exampleJoystick;
+    CommandXboxController joystick;
 
+    // Using Xbox Controller (Logitech in this case)
     public XboxControllerIfc(int port) {
-
-        exampleJoystick = new CommandXboxController(port);
+        joystick = new CommandXboxController(port);
     }
 
+    // Swerve
+    @Override
     public double getX() {
+        return joystick.getLeftX(); // Hold Threshold (On driver)
+    }
 
-        return exampleJoystick.getLeftX();
-    };
-
+    @Override
     public double getY() {
-
-        return exampleJoystick.getLeftY();
+        return joystick.getLeftY(); // Hold Threshold (On driver)
     }
 
+    @Override
     public double getTwist() {
-
-        return exampleJoystick.getRightX();
-
+        return -joystick.getRightX(); // Hold Threshold (On driver)
     }
 
-    public double controlMotorSpeed() {
-
-        return exampleJoystick.getLeftTriggerAxis();
-    }
-
-    public Trigger runShooter() {
-
-        return exampleJoystick.b();
-    }
-
-    public Trigger runIntake() {
-
-        return exampleJoystick.a();
-    }
-
-    public Trigger stopIntake() {
-
-        return exampleJoystick.y();
-
-    }
-
-    // Button mapping needs to be changed since this has the same binding as
-    // runClimb()
+    @Override
     public Trigger toggleOrientation() {
-
-        return exampleJoystick.rightBumper();
+        return joystick.rightBumper(); // Toggle (On driver)
     }
 
-    public Trigger runClimb() {
-
-        return exampleJoystick.x();
-    }
-
+    // Shooter
+    @Override
     public Trigger startShooter() {
-
-        return exampleJoystick.start();
+        return joystick.leftTrigger(); // Unused (for now)
     }
 
+    @Override
+    public Trigger stopShooter() {
+        return joystick.rightTrigger(); // Unused (for now)
+    }
+
+    @Override
+    public Trigger toggleShooter() {
+        return joystick.b(); // Toggle (On operator)
+    }
+
+    // Intake
+    @Override
+    public Trigger toggleIntakeRollers() {
+        return joystick.a(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger sendPivotUp() {
+        return joystick.rightBumper(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger sendPivotDown() {
+        return joystick.rightTrigger(); // Toggle (On operator)
+    }
+
+    // Indexer
+    @Override
+    public Trigger toggleIndexer() {
+        return joystick.x(); // Toggle (On operator)
+    }
+
+    // Climb
+    @Override
+    public Trigger runClimbUp() {
+        return joystick.leftBumper(); // Hold or Toggle (On operator)
+    }
+
+    @Override
+    public Trigger runClimbDown() {
+        return joystick.leftTrigger(); // Hold or Toggle (On operator)
+    }
+
+    @Override
+    public Trigger stopClimb() {
+        return joystick.rightStick(); // Toggle (On operator)
+    }
+
+    // Vision
+    @Override
     public Trigger driveToTarget() {
-        return exampleJoystick.leftBumper();
+        return joystick.leftBumper(); // Hold (On driver)
     }
+
+    // Tuning
+    @Override
+    public Trigger runQuasistatic() {
+        return joystick.a(); // Hold (On testing)
+    }
+
+    @Override
+    public Trigger runQuasidynamic() {
+        return joystick.b(); // Hold (On testing)
+    }
+
+    @Override
+    public Trigger runQuasistaticReverse() {
+        return joystick.x(); // Hold (On testing)
+    }
+
+    @Override
+    public Trigger runQuasidynamicReverse() {
+        return joystick.y(); // Hold (On testing)
+    }
+
+    // Put Autos here:
+    
 }

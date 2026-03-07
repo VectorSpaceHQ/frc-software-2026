@@ -15,8 +15,6 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 
 //import frc.robot.commands.ControllerCommand;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakePivotCommand;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.components.motor.MotorIO;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
@@ -74,26 +72,31 @@ public class RobotContainer {
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
 
+  // Only for testing and tuning (such as SysId routines)
+  private final ControllerIfc m_testingController = new XboxControllerIfc(OperatorConstants.controllerPort3);
+
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IndexerSubsysConfig IndexerSSConfig = new IndexerSubsysConfig(true, INDEXER_SUBSYSTEM);
   private final IntakeSubsysConfig IntakeSSConfig = new IntakeSubsysConfig(true, INTAKE_SUBSYSTEM);
   private final VisionSubsysConfig VisionSSConfig = new VisionSubsysConfig(true, VISION_SUBSYSTEM);
   private final SwerveSubsysConfig SwerveSSConfig = new SwerveSubsysConfig(true,
-                                                                           SWERVE_SUBSYSTEM,
-                                                                           m_driverController,
-                                                                           OperatorConstants.DEADBAND);
+      SWERVE_SUBSYSTEM,
+      m_driverController,
+      OperatorConstants.DEADBAND);
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
-  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig, 
-                                                                        m_visionSubsystem,
-                                                                        new Pose2d(1, 4, new Rotation2d()));
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
+      () -> m_visionSubsystem.getLatestVisionMeasurement(), new Pose2d());
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
+
+  // For sys id
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
+  private static final boolean RUNNING_SYS_ID = IntakeConstants.RUNNING_SYS_ID || ShooterConstants.RUNNING_SYS_ID;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -134,97 +137,51 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // new Trigger(m_Shooter::commandShooter)
-    // .onTrue(new ControllerCommand(m_driverController));
-
-    // new Trigger(m_driverController::commandShooter)
-    // .onTrue(new ControllerCommand(m_driverController));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-
-    // TODO: Temporary start motor (Move to operator controller?)
-    // m_driverController.runIntake().onTrue(
-    // new InstantCommand( () ->
-    // m_motor.setVoltage(6.0))
-    // );
-
-    // Temporary stop motor
-    // m_driverController.stopIntake().onTrue(
-    // new InstantCommand( () ->
-    // m_motor.stop())
-    // );
-
-    // TODO: Should this be on the operator controller?
-    /*
-     * m_driverController.runShooter().whileTrue(
-     * new RunCommand( () -> {
-     * double trigger = m_driverController.controlMotorSpeed();
-     * double targetRPM = (trigger * MAX_RPM);
-     * double targetRadsPerSec =
-     * Units.rotationsPerMinuteToRadiansPerSecond(targetRPM);
-     * double volts = feedforward.calculate(targetRadsPerSec);
-     * m_motor.setVoltage(volts);
-     * }).withTimeout(3)
-     * );
-     */
-
-    // TODO: Replace onchange when class is futher developed (and move to operator
-    // controller?)
-
-    // // m_driverController.runIntake().onTrue(
-    // * // new InstantCommand( () ->
-    // * // m_IntakeSubsystem.toggleIntake())
-    // *
-    // * // );
-    // */
-
-    // // NEO (names of controller commands unimportant for this case / temporary)
-    if (ShooterConstants.RUNNING_SYS_ID) {
-      m_driverController.runIntake().whileTrue(
+    // Make sure to check controller interfaces:
+    if (RUNNING_SYS_ID) {
+      m_testingController.runQuasistatic().whileTrue(
           m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      m_driverController.runShooter().whileTrue(
+      m_testingController.runQuasistaticReverse().whileTrue(
           m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-      m_driverController.stopIntake().whileTrue(
+      m_testingController.runQuasidynamic().whileTrue(
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
-      m_driverController.runClimb().whileTrue(
+      m_testingController.runQuasidynamicReverse().whileTrue(
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
     } else {
 
-      m_operatorController.runIntake().onTrue(
-          new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MAX_ANGLE_RAD)
-              .andThen(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())));
+      m_operatorController.sendPivotUp().onTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
-      m_operatorController.stopIntake().onTrue(new InstantCommand(() -> m_IntakeSubsystem.toggleIntake())
-          .andThen(new IntakePivotCommand(m_IntakeSubsystem, IntakeConstants.PIVOT_MIN_ANGLE_RAD)));
+      m_operatorController.sendPivotDown().onTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem));
 
-      m_operatorController.startShooter().onTrue(
-          new ShooterCommands(m_ShooterSubsystem));
+      m_operatorController.toggleIntakeRollers().onTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
+
+      m_operatorController.toggleIndexer().onTrue(
+          new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
+
+      m_operatorController.toggleShooter().onTrue(
+          new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
     }
 
-    // m_driverController.toggleOrientation().whileTrue(
-    // new DriveToTargetCommand(
-    // m_swerveSubsystem,
-    // m_visionSubsystem,
-    // null,
-    // 1.0,
-    // 0.05,
-    // 0.035,
-    // Rotation2d.fromDegrees(0)
-    // ).withTimeout(10)
-    // );
+    m_driverController.driveToTarget().whileTrue(
+        new DriveToTargetCommand(
+            m_swerveSubsystem,
+            m_visionSubsystem,
+            null,
+            1.0,
+            0.05,
+            0.035,
+            Rotation2d.fromDegrees(0)).withTimeout(10));
 
-    // bind the orientation toggle
+    
     m_driverController.toggleOrientation().onTrue(
-        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
   }
 
   /**

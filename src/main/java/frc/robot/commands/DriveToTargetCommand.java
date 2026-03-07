@@ -5,9 +5,9 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -28,33 +28,29 @@ public class DriveToTargetCommand extends Command {
         private final SwerveSubsystem swerve;
         private final VisionSubsystem vision;
 
-        private final LoggedNetworkNumber loggedDistance;
-        private final LoggedNetworkNumber loggedToleranceMeters;
-        private final LoggedNetworkNumber loggedToleranceAngleRadians;
-        private final LoggedNetworkNumber loggedHeadingOffsetDegrees;
-        private final LoggedNetworkNumber loggedTranslationP;
-        private final LoggedNetworkNumber loggedTranslationMaxVel;
-        private final LoggedNetworkNumber loggedTranslationMaxAccel;
-        private final LoggedNetworkNumber loggedRotationP;
-        private final LoggedNetworkNumber loggedRotationMaxVel;
-        private final LoggedNetworkNumber loggedRotationMaxAccel;
+        private LoggedNetworkNumber loggedDistance;
+        private LoggedNetworkNumber loggedToleranceMeters;
+        private LoggedNetworkNumber loggedToleranceAngleRadians;
+        private LoggedNetworkNumber loggedHeadingOffsetDegrees;
+        private LoggedNetworkNumber loggedTranslationP;
+        private LoggedNetworkNumber loggedTranslationMaxVel;
+        private LoggedNetworkNumber loggedTranslationMaxAccel;
+        private LoggedNetworkNumber loggedRotationP;
+        private LoggedNetworkNumber loggedRotationMaxVel;
+        private LoggedNetworkNumber loggedRotationMaxAccel;
 
         private Apriltags tagId;
         private Apriltags activeTag; // for multiple schedules
-        private DoubleSupplier zero;
 
         private SwerveInputStream inputStream;
         private Pose2d targetPose;
-        private Pose2d robotPose;
+
         private Translation2d targetTranslation;
-        private Translation2d targetOffset;
         private Rotation2d targetRotation;
-        private double distanceError;
-        private double rotationError;
 
         // Timeout for command if no tag is seen (for testing?)
-        private final Timer tagSearchTimer = new Timer();
-        private static final double timeout = 2.0;
+        private Timer tagSearchTimer = new Timer();
+        private double timeout = 5.0;
 
         // Not final for tuning purposes
         private ProfiledPIDController translationPID;
@@ -130,13 +126,10 @@ public class DriveToTargetCommand extends Command {
         public void initialize() {
                 // Start at an empty (zeroed) state
                 targetPose = null;
+                targetTranslation = null;
+                targetRotation = null;
                 inputStream = null;
-                robotPose = swerve.getEstimatedPose();
-
-                // error each cycle, so resetting to zero here can cause an initial velocity
-                // spike
-                // (SwerveInputStream calculates translationPID error)
-                rotationPID.reset(robotPose.getRotation().getRadians()); // Reset to current heading rather than zero
+                activeTag = null;
 
                 // Start the tag search timeout so the command doesn't wait forever
                 tagSearchTimer.restart();
@@ -148,13 +141,10 @@ public class DriveToTargetCommand extends Command {
         public void execute() {
                 // Fetch the latest robot pose once per loop so all calculations use the same
                 // value
-                robotPose = swerve.getEstimatedPose();
+                Pose2d robotPose = swerve.getEstimatedPose();
 
                 // Re-apply tolerances and PID values each loop in case values were changed in
                 // dashboard
-
-                // Will have to repeat for integral and derivative gains if we are using those
-                // Proportional gain probably has to be adjusted but that is later
                 translationPID.setTolerance(loggedToleranceMeters.get());
                 rotationPID.setTolerance(loggedToleranceAngleRadians.get());
 
@@ -163,7 +153,6 @@ public class DriveToTargetCommand extends Command {
                                 loggedTranslationMaxVel.get(),
                                 loggedTranslationMaxAccel.get()));
                 rotationPID.setP(loggedRotationP.get());
-
                 rotationPID.setConstraints(new TrapezoidProfile.Constraints(
                                 loggedRotationMaxVel.get(),
                                 loggedRotationMaxAccel.get()));
@@ -172,49 +161,75 @@ public class DriveToTargetCommand extends Command {
                 // tagId is set to null in the constructor in RobotContainer, so basically
                 // if (any tag is visible) or (no tag is visible)
                 if (targetPose == null) {
-                        activeTag = tagId;
                         Optional<Apriltags> seenTag = vision.getBestVisibleTag();
 
-                        if (activeTag == null || activeTag == Apriltags.None) {
-                                // If it is not a part of the Apriltags enum (Constants)
-                                if (seenTag.isEmpty()) {
-                                        return;
-                                }
-                                activeTag = seenTag.get();
+                        // Switch to last seen tag if no tag is currently visible
+                        if (seenTag.isEmpty() && activeTag != null) {
+                                seenTag = Optional.of(activeTag);
                         }
 
-                        // Get the pose of that tag from the 2026 Rebuilt layout (from vision)
-                        Pose2d tagPose = vision.getLayout()
-                                        .getTagPose(activeTag.getId())
-                                        .map(p -> p.toPose2d()) // converts from 3d to 2d pose
-                                        .orElse(null);
+                        // If there was no seen tag but a tagId was provided in the constructor, use its
+                        // field pose instead
+                        if (seenTag.isEmpty() && activeTag == null && tagId != null && tagId != Apriltags.None) {
+                                seenTag = Optional.of(tagId);
+                        }
 
-                        if (tagPose == null) { // If there is no pose of the april tag yet, then continue
+                        // Don't do anything when there was no tag ever visible (or if not a part of the
+                        // enum)
+                        if (seenTag.isEmpty()) {
                                 return;
                         }
 
-                        // Place target point in -x direction (in front of the tag along its normal /
-                        // tag-space).
-                        targetOffset = new Translation2d(-loggedDistance.get(), 0.0)
-                                        .rotateBy(tagPose.getRotation());
+                        // If tag is seen and could be any tag, or there is no tag, or tag seen is same
+                        // as one in command (which is null)
+                        if (tagId == null || tagId == Apriltags.None || tagId == seenTag.get()) {
 
-                        targetTranslation = tagPose.getTranslation().plus(targetOffset); // Translates from
-                                                                                         // tag-relative to
-                                                                                         // field-relative
+                                activeTag = seenTag.get(); // Change seen tag to active tag (see above)
 
-                        // Robot should face the tag (opposite of the tag's heading)
-                        targetRotation = tagPose.getRotation()
-                                        .plus(Rotation2d.fromDegrees(180))
-                                        .plus(Rotation2d.fromDegrees(loggedHeadingOffsetDegrees.get()));
+                                // Get the pose of that tag from the 2026 Rebuilt layout (from vision)
+                                Pose2d tagPose = vision.getLayout()
+                                                .getTagPose(activeTag.getId())
+                                                .map(p -> p.toPose2d()) // converts from 3d to 2d pose
+                                                .orElse(null);
 
-                        targetPose = new Pose2d(targetTranslation, targetRotation); // Create target pose
-                        Logger.recordOutput("DriveToTarget/Status", "Found Tag.");
-                        Logger.recordOutput("DriveToTarget/TargetPose", targetPose);
-                        Logger.recordOutput("DriveToTarget/ActiveTargetTagId", activeTag.getId());
+                                if (tagPose != null) {
 
-                        // Zero out joystick axes to suppress user control so only the PIDs control
-                        // motion
-                        zero = () -> 0.0;
+                                        // Place target point in -x direction (in front of the tag along its normal /
+                                        // tag-space)
+                                        targetTranslation = new Translation2d(-loggedDistance.get(), 0.0)
+                                                        .rotateBy(tagPose.getRotation());
+
+                                        // Robot should face the tag (opposite of the tag's heading)
+                                        targetRotation = tagPose.getRotation()
+                                                        .plus(Rotation2d.fromDegrees(180))
+                                                        .plus(Rotation2d.fromDegrees(loggedHeadingOffsetDegrees.get()));
+
+                                        targetPose = new Pose2d(targetTranslation, targetRotation); // Create target
+                                                                                                    // pose
+
+                                        // Reset PIDs to prevent spikes
+                                        translationPID.reset(
+                                                        robotPose.getTranslation()
+                                                                        .getDistance(targetTranslation));
+
+                                        rotationPID.reset(robotPose.getRotation().getRadians()); // Reset to current
+                                                                                                 // heading rather than
+                                                                                                 // zero?
+
+                                        Logger.recordOutput("DriveToTarget/Status", "Target Locked");
+                                        Logger.recordOutput("DriveToTarget/TargetPose", targetPose);
+                                        Logger.recordOutput("DriveToTarget/ActiveTargetTagId", activeTag.getId());
+                                }
+                        }
+                }
+
+                // Zero out joystick axes to suppress user control so only the PIDs control
+                // motion
+
+                if (targetPose != null && inputStream == null) {
+
+                        DoubleSupplier zero = () -> 0.0;
+
                         inputStream = SwerveInputStream
                                         .of(swerve.getSwerveDrive(), zero, zero)
                                         .withControllerRotationAxis(zero)
@@ -228,57 +243,39 @@ public class DriveToTargetCommand extends Command {
 
                 // Compute chassis speeds to drive towards target pose
                 if (inputStream != null) {
+
                         swerve.getSwerveDrive().drive(inputStream.get());
 
                         // For debugging
-                        Logger.recordOutput("DriveToTarget/RobotPose", robotPose);
-
-                        distanceError = robotPose.getTranslation()
+                        double distanceError = robotPose.getTranslation()
                                         .getDistance(targetPose.getTranslation());
-                        Logger.recordOutput("DriveToTarget/DistanceErrorMeters", distanceError);
 
-                        rotationError = Math.abs(robotPose.getRotation() // Ensure it is positive
-                                        .minus(targetPose.getRotation())
-                                        .getRadians());
-                        Logger.recordOutput("DriveToTarget/RotationErrorRadians", rotationError);
+                        Logger.recordOutput("DriveToTarget/DistanceErrorMeters", distanceError);
+                        Logger.recordOutput("DriveToTarget/RotationErrorRadians",
+                                        Math.abs(rotationPID.getPositionError()));
                 }
         }
 
         @Override
         public boolean isFinished() {
-                // End early if no tag was found within the timeout window
+                boolean isFinished = false;
                 if (targetPose == null) {
-                        if (tagSearchTimer.hasElapsed(timeout)) {
-                                Logger.recordOutput("DriveToTarget/Status", "Tag Search Timed Out :(");
-                                return true;
-                        }
-                        return false;
+
+                        // When it reaches timeout without a target
+                        isFinished = tagSearchTimer.hasElapsed(timeout);
+
+                        // If we have a target and valid stream
+                } else if (inputStream != null) {
+
+                        // Finish when PIDs reach their goals
+                        isFinished = translationPID.atGoal() && rotationPID.atGoal();
+                } else {
+
+                        isFinished = false;
                 }
 
-                // Avoid stale error values
-                if (inputStream == null) {
-                        return false;
-                }
+                return isFinished;
 
-                // Recompute errors fresh from current pose rather than relying on cached values
-                // (not global)
-                Pose2d currentPose = swerve.getEstimatedPose();
-                double currentDistanceError = currentPose.getTranslation()
-                                .getDistance(targetPose.getTranslation());
-                double currentRotationError = Math.abs(currentPose.getRotation()
-                                .minus(targetPose.getRotation())
-                                .getRadians());
-
-                // Check that the robot has slowed down to avoid finishing with remaining
-                // momentum (and crashing into something, also not global)
-                ChassisSpeeds velocity = swerve.getVelocity();
-                double speed = Math.hypot(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond); // Hypotenuse (using
-                                                                                                   // x- and
-                                                                                                   // y-components)
-
-                return currentDistanceError < loggedToleranceMeters.get()
-                                && currentRotationError < loggedToleranceAngleRadians.get()
-                                && speed < 0.1; // Command finishes when robot is close enough and nearly stopped
         }
 
         @Override

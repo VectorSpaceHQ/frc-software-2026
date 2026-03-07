@@ -21,10 +21,11 @@ public class PID implements Sendable {
     private final MotorIO m_motor;
     private final MotorIOInputsAutoLogged motorInputs = new MotorIOInputsAutoLogged();
 
+    // Note: These values will get overwritten by constants values
     private String name;
     private double MAX_RPM = 6000.0;
     private double m_gearRatio = 1.5;
-    private final double MAX_VOLTS = 12.0; // Unused (For reference)
+    private double MAX_VOLTS = 12.0; // Unused (For reference)
     private final double MAX_RPM_PER_VOLT;
     
     private PIDController pid;
@@ -87,9 +88,9 @@ public class PID implements Sendable {
         m_motor = m_motorIO;
         this.m_gearRatio = m_gearRatio;
         m_motorInputs = new MotorIOInputs();
-        MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS); // https://www.reca.lc/motors
+        MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS);
+        kv = (1.0 / MAX_RPM_PER_VOLT); // https://www.reca.lc/motors
         this.ks = ks;
-        this.kv = kv;
         this.ka = ka;
         this.kp = kp;
         this.ki = ki;

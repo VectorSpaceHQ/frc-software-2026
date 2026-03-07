@@ -11,26 +11,51 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public interface ControllerIfc {
 
+  // Swerve
   public double getX();
 
   public double getY();
 
   public double getTwist();
 
-  public Trigger runShooter();
-
-  public Trigger runIntake();
-
-  public Trigger stopIntake();
-
-  public Trigger runClimb();
-
-  public Trigger startShooter();
-
-  public double controlMotorSpeed();
-
   public Trigger toggleOrientation();
 
+  // Shooter
+  public Trigger startShooter();
+
+  public Trigger stopShooter();
+
+  public Trigger toggleShooter();
+
+  // Intake
+  public Trigger toggleIntakeRollers();
+
+  public Trigger sendPivotUp();
+
+  public Trigger sendPivotDown();
+
+  // Indexer
+  public Trigger toggleIndexer();
+
+  // Climb (TODO)
+  public Trigger runClimbUp();
+
+  public Trigger runClimbDown();
+
+  public Trigger stopClimb();
+
+  // Vision
   public Trigger driveToTarget();
+
+  // Tuning
+  public Trigger runQuasistatic();
+
+  public Trigger runQuasidynamic();
+
+  public Trigger runQuasistaticReverse();
+
+  public Trigger runQuasidynamicReverse();
+
+  // Put Autos here:
 
 }

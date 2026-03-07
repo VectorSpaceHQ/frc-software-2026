@@ -11,6 +11,7 @@ import frc.robot.configuration.configs.SwerveSubsysConfig;
 
 import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -20,6 +21,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -41,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -50,12 +53,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
   File directory = new File(Filesystem.getDeployDirectory(), "swerve");
   private SwerveDrive swerveDrive;
-  private final VisionSubsystem visionSubsystem;
+  private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
+
 
   private enum Orientation {
     FIELD(0),
     ROBOT(1);
-  
+
     private int value;
 
     private Orientation(int value) {
@@ -65,8 +69,9 @@ public class SwerveSubsystem extends SubsystemBase {
     public int getValue() {
       return value;
     }
+
     public String textValue() {
-       return this.name();
+      return this.name();
     }
   }
 
@@ -80,9 +85,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private Orientation driveOrientation = Orientation.FIELD;
   private double speedLimiter = 1;
 
-  public SwerveSubsystem(SwerveSubsysConfig config, VisionSubsystem visionSubsystem, Pose2d initialPose) {
+
+  public SwerveSubsystem(SwerveSubsysConfig config, Supplier<Optional<EstimatedRobotPose>> visionMeasurement, Pose2d initialPose) {
     this.swerveConfig = config;
-    this.visionSubsystem = visionSubsystem;
+    this.m_visionMeasurement = visionMeasurement;
 
     if (swerveConfig.getIsPresent()) {
 
@@ -94,9 +100,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         swerveDrive.setHeadingCorrection(false);
-      
 
-        
         // Alternative method if you don't want to supply the conversion factor via JSON
         // files.
         // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
@@ -112,8 +116,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .scaleTranslation(1)
           .allianceRelativeControl(() -> isFieldOriented())
           .robotRelative(() -> isRobotOriented());
-          
-          
+
       /**
        * Clone's the angular velocity input stream and converts it to a fieldRelative
        * input stream.
@@ -125,31 +128,33 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
-      //publish field orientation to smart dashboard
-      
+      // publish field orientation to smart dashboard
 
-    SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
-    SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
-    
+      SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
+      SmartDashboard.putBoolean("Swerve Present", swerveConfig.getIsPresent());
 
-     RobotConfig PathPlannerConfig;
-    //Create robot config object for Pathplanner
-    try{
+      RobotConfig PathPlannerConfig;
+      // Create robot config object for Pathplanner
+      try {
         PathPlannerConfig = RobotConfig.fromGUISettings();
 
-            // Configure AutoBuilder last
+        // Configure AutoBuilder last
         AutoBuilder.configure(
             this::getEstimatedPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotOriented(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+            (speeds, feedforwards) -> driveRobotOriented(speeds), // Method that will drive the robot given ROBOT
+                                                                  // RELATIVE ChassisSpeeds. Also optionally outputs
+                                                                  // individual module feedforwards
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+                                            // holonomic drive trains
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
             ),
             PathPlannerConfig, // The robot configuration
             () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // Boolean supplier that controls when the path will be mirrored for the red
+              // alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
@@ -160,18 +165,19 @@ public class SwerveSubsystem extends SubsystemBase {
               return false;
             },
             this // Reference to this subsystem to set requirements
-    );
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
+        );
+      } catch (Exception e) {
+        // Handle exception as needed
+        e.printStackTrace();
+      }
 
-      //taken from poseEstimator SS
+      // taken from poseEstimator SS
       swerveDrive.resetOdometry(initialPose);
       swerveDrive.setVisionMeasurementStdDevs(VisionConstants.VISION_ST_DEVS);
-    
+
+    }
   }
-}
+
   /**
    * Example command factory method.
    *
@@ -185,40 +191,35 @@ public class SwerveSubsystem extends SubsystemBase {
           /* one-time action goes here */
         });
   }
-  //methods from Pose Estimator SS
-  public void update() {
-      var visionMeasurement = visionSubsystem.getLatestVisionMeasurement();
-        visionMeasurement.ifPresent(measurement -> { // If there is a present vision measurement (estimated robot pose based on vision)
-          SmartDashboard.putBoolean("Vision Measurement Present", true);
-            swerveDrive.addVisionMeasurement(
-                    measurement.estimatedPose.toPose2d(),
-                    measurement.timestampSeconds);
-            Logger.recordOutput("PoseEstimator/RawVisionPose",
-                    measurement.estimatedPose.toPose2d());
-            Logger.recordOutput("PoseEstimator/VisionTimestamp",
-                    measurement.timestampSeconds);
-                    
-        });
 
-  }
+  // methods from Pose Estimator SS
+  public void update() {
+    m_visionMeasurement.get().ifPresentOrElse(measurement -> {
+        swerveDrive.addVisionMeasurement(
+            measurement.estimatedPose.toPose2d(),
+            measurement.timestampSeconds);
+            },
+      () -> SmartDashboard.putBoolean("Vision Measurement Present", false));
+    }
 
   public void resetPose(Pose2d newPose) {
-        swerveDrive.resetOdometry(newPose);
+    swerveDrive.resetOdometry(newPose);
   }
 
   public Pose2d getEstimatedPose() {
-        return swerveDrive.getPose();
+    return swerveDrive.getPose();
   }
-  
-  public SwerveDrive getSwerveDrive() {
-        return swerveDrive;
 
-  }    
-    
+  public SwerveDrive getSwerveDrive() {
+    return swerveDrive;
+
+  }
+
   // Unused
   public void resetPose() {
-   resetOdometry();
-  }  
+    resetOdometry();
+
+  }
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a
@@ -234,7 +235,7 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
-    //periodic from pose estimator
+    // periodic from pose estimator
     update();
     Pose2d pose = getEstimatedPose();
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
@@ -260,6 +261,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public ChassisSpeeds getVelocity() {
     return swerveDrive.getRobotVelocity();
   }
+
   public void stopDrive() {
     swerveDrive.drive(new ChassisSpeeds());
   }
@@ -285,7 +287,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
-  public void driveRobotOriented(ChassisSpeeds velocity){
+  public void driveRobotOriented(ChassisSpeeds velocity) {
     swerveDrive.drive(velocity);
   }
 
