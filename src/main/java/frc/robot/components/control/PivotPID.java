@@ -28,15 +28,16 @@ public class PivotPID implements Sendable {
     private ArmFeedforward feedforward;
 
     // Set PID and feedforward default values
-    private double ks = 0;
-    private double kg = 0;
-    private double kv = 0;
-    private double ka = 0;
+    private double ks = 0; // Static gain (voltage gain to start motor, closed-loop)
+    private double kg = 0; // Gravity gain (voltage gain to make motor raise arm against gravity, closed-loop)
+    private double kv = 0; // Velocity gain (voltage gain to make motor spin at constant velocity, closed-loop)
+    private double ka = 0; // Acceleration gain (voltage gain to make motor spin at constant acceleration, closed-loop)
 
-    private double kp = 0;
-    private double ki = 0;
-    private double kd = 0;
+    private double kp = 0; // Proportional gain (voltage gain based on proportional error to approach setpoint and correct error, current)
+    private double ki = 0; // Integral gain (voltage gain based on integral error to account for past errors accumulated over time, past)
+    private double kd = 0; // Derivative gain (voltage gain based on derivative error to account for potential overshoots or extreme oscillations, future)
 
+    // Max volts integral component can use
     private double lowIntegrationRange = -2.0;
     private double highIntegrationRange = 2.0;
 
