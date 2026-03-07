@@ -51,6 +51,8 @@ public final class Constants {
     public static final int controllerPort1 = 0;
     public static final ControllerEnum controllerType2 = ControllerEnum.FLIGHTSTICK;
     public static final int controllerPort2 = 1;
+    public static final ControllerEnum controllerType3 = ControllerEnum.FLIGHTSTICK;
+    public static final int controllerPort3 = 2;
 
     // motor canid
     public enum MotorCanIDEnum {

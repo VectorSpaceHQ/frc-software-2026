@@ -8,10 +8,22 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     private CommandJoystick joystick;
 
+    // Ignoring joystick keybinds with the exception of swerve because it is unlikely that we would be using this at competition (this is also a lot of buttons)
     public enum ExtendedButtonType {
-        Button3(3), Button4(4), Button5(5), Button6(6),
-        Button7(7), Button8(8), Button9(9), Button10(10),
-        Button11(11), Button12(12), Button13(13);
+        Button3(3),
+        Button4(4),
+        Button5(5),
+        Button6(6),
+        Button7(7),
+        Button8(8),
+        Button9(9),
+        Button10(10),
+        Button11(11),
+        Button12(12),
+        Button13(13),
+        Button14(14),
+        Button15(15),
+        Button16(16);
 
         public final int value;
 
@@ -20,6 +32,7 @@ public class JoystickControllerIfc implements ControllerIfc {
         }
     }
 
+    // Using Joystick Controller
     public JoystickControllerIfc(int port) {
         joystick = new CommandJoystick(port);
     }
@@ -47,7 +60,7 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     // Shooter
     @Override
-    public Trigger runShooter() {
+    public Trigger startShooter() {
         return joystick.trigger();
     }
 
@@ -56,62 +69,80 @@ public class JoystickControllerIfc implements ControllerIfc {
         return joystick.top();
     }
 
+    @Override
+    public Trigger toggleShooter() {
+        return getButton(ExtendedButtonType.Button4);
+    }
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
-        return getButton(ExtendedButtonType.Button4);
+        return getButton(ExtendedButtonType.Button5);
     }
 
     @Override
-    public Trigger toggleIntakePivot() {
-        return getButton(ExtendedButtonType.Button5);
+    public Trigger sendPivotUp() {
+        return getButton(ExtendedButtonType.Button6);
+    }
+
+    @Override
+    public Trigger sendPivotDown() {
+        return getButton(ExtendedButtonType.Button7);
     }
 
     // Indexer
     @Override
     public Trigger toggleIndexer() {
-        return getButton(ExtendedButtonType.Button6);
+        return getButton(ExtendedButtonType.Button8);
     }
 
     // Climb
     @Override
-    public Trigger runClimb() {
-        return getButton(ExtendedButtonType.Button7);
+    public Trigger runClimbUp() {
+        return getButton(ExtendedButtonType.Button9);
+    }
+
+    @Override
+    public Trigger runClimbDown() {
+        return getButton(ExtendedButtonType.Button10);
     }
 
     @Override
     public Trigger stopClimb() {
-        return getButton(ExtendedButtonType.Button8);
+        return getButton(ExtendedButtonType.Button11);
     }
 
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return getButton(ExtendedButtonType.Button9);
+        return getButton(ExtendedButtonType.Button12);
     }
 
     // Tuning
     @Override
     public Trigger runQuasistatic() {
-        return getButton(ExtendedButtonType.Button10);
+        return getButton(ExtendedButtonType.Button13);
     }
 
     @Override
     public Trigger runQuasidynamic() {
-        return getButton(ExtendedButtonType.Button11);
+        return getButton(ExtendedButtonType.Button14);
     }
 
     @Override
     public Trigger runQuasistaticReverse() {
-        return getButton(ExtendedButtonType.Button12);
+        return getButton(ExtendedButtonType.Button15);
     }
 
     @Override
     public Trigger runQuasidynamicReverse() {
-        return getButton(ExtendedButtonType.Button13);
+        return getButton(ExtendedButtonType.Button16);
     }
 
     // Put autos here:
+    // @Override
+    // public Trigger exampleAutoCommand(); {
+    // return joystick.exampleButton(); // Hold or Toggle (TODO)
+    //}
 
     // Helper
     private Trigger getButton(ExtendedButtonType button) {

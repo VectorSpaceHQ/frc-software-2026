@@ -7,6 +7,7 @@ public class PS4ControllerIfc implements ControllerIfc {
 
     CommandPS4Controller joystick;
 
+    // Using PS4 Controller
     public PS4ControllerIfc(int port) {
         joystick = new CommandPS4Controller(port);
     }
@@ -29,74 +30,93 @@ public class PS4ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleOrientation() {
-        return joystick.square();
+        return joystick.R1(); // Toggle (On driver)
     }
 
     // Shooter
     @Override
-    public Trigger runShooter() {
-        return joystick.L2();
+    public Trigger startShooter() {
+        return joystick.L2(); // Unused (for now)
     }
 
     @Override
     public Trigger stopShooter() {
-        return joystick.R2();
+        return joystick.R2(); // Unused (for now)
+    }
+
+    @Override
+    public Trigger toggleShooter() {
+        return joystick.circle(); // Toggle (On operator)
     }
 
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
-        return joystick.cross();
+        return joystick.cross(); // Toggle (On operator)
     }
 
     @Override
-    public Trigger toggleIntakePivot() {
-        return joystick.triangle();
+    public Trigger sendPivotUp() {
+        return joystick.R1(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger sendPivotDown() {
+        return joystick.R2(); // Toggle (On operator)
     }
 
     // Indexer
     @Override
     public Trigger toggleIndexer() {
-        return joystick.square();
+        return joystick.square(); // Toggle (On operator)
     }
 
     // Climb
     @Override
-    public Trigger runClimb() {
-        return joystick.L1();
+    public Trigger runClimbUp() {
+        return joystick.L1(); // Hold or Toggle (On operator)
+    }
+
+    @Override
+    public Trigger runClimbDown() {
+        return joystick.L2(); // Hold or Toggle (On operator)
     }
 
     @Override
     public Trigger stopClimb() {
-        return joystick.R1();
+        return joystick.R1(); // Toggle (On operator)
     }
 
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return joystick.circle();
+        return joystick.L1(); // Hold (On driver)
     }
 
     // Tuning
     @Override
     public Trigger runQuasistatic() {
-        return joystick.cross();
+        return joystick.cross(); // Hold (On testing)
     }
 
     @Override
     public Trigger runQuasidynamic() {
-        return joystick.circle();
+        return joystick.circle();// Hold (On testing)
     }
 
     @Override
     public Trigger runQuasistaticReverse() {
-        return joystick.square();
+        return joystick.square(); // Hold (On testing)
     }
 
     @Override
     public Trigger runQuasidynamicReverse() {
-        return joystick.triangle();
+        return joystick.triangle(); // Hold (On testing)
     }
 
     // Put Autos here:
+    // @Override
+    // public Trigger exampleAutoCommand(); {
+    // return joystick.exampleButton(); // Hold or Toggle (TODO)
+    // }
 }

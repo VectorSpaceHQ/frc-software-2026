@@ -70,14 +70,21 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
     }
 
+    // Just in case
     public boolean startShooter() {
         shooterStatus = true;
         return shooterStatus; 
     }
 
+    // Just in case
     public boolean stopShooter() {
         shooterStatus = false;
         return shooterStatus; 
+    }
+
+    public boolean toggleShooter() {
+        shooterStatus = !shooterStatus;
+        return shooterStatus;
     }
 
     public void setSysIdTarget(SysIdTarget target) {

@@ -7,6 +7,7 @@ public class XboxControllerIfc implements ControllerIfc {
 
     CommandXboxController joystick;
 
+    // Using Xbox Controller (Logitech in this case)
     public XboxControllerIfc(int port) {
         joystick = new CommandXboxController(port);
     }
@@ -14,89 +15,108 @@ public class XboxControllerIfc implements ControllerIfc {
     // Swerve
     @Override
     public double getX() {
-        return joystick.getLeftX();
+        return joystick.getLeftX(); // Hold Threshold (On driver)
     }
 
     @Override
     public double getY() {
-        return joystick.getLeftY();
+        return joystick.getLeftY(); // Hold Threshold (On driver)
     }
 
     @Override
     public double getTwist() {
-        return -joystick.getRightX();
+        return -joystick.getRightX(); // Hold Threshold (On driver)
     }
 
     @Override
     public Trigger toggleOrientation() {
-        return joystick.x();
+        return joystick.rightBumper(); // Toggle (On driver)
     }
 
     // Shooter
     @Override
-    public Trigger runShooter() {
-        return joystick.leftTrigger();
+    public Trigger startShooter() {
+        return joystick.leftTrigger(); // Unused (for now)
     }
 
     @Override
     public Trigger stopShooter() {
-        return joystick.rightTrigger();
+        return joystick.rightTrigger(); // Unused (for now)
+    }
+
+    @Override
+    public Trigger toggleShooter() {
+        return joystick.b(); // Toggle (On operator)
     }
 
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
-        return joystick.a();
+        return joystick.a(); // Toggle (On operator)
     }
 
     @Override
-    public Trigger toggleIntakePivot() {
-        return joystick.y();
+    public Trigger sendPivotUp() {
+        return joystick.rightBumper(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger sendPivotDown() {
+        return joystick.rightTrigger(); // Toggle (On operator)
     }
 
     // Indexer
     @Override
     public Trigger toggleIndexer() {
-        return joystick.x();
+        return joystick.x(); // Toggle (On operator)
     }
 
     // Climb
     @Override
-    public Trigger runClimb() {
-        return joystick.leftBumper();
+    public Trigger runClimbUp() {
+        return joystick.leftBumper(); // Hold or Toggle (On operator)
+    }
+
+    @Override
+    public Trigger runClimbDown() {
+        return joystick.leftTrigger(); // Hold or Toggle (On operator)
     }
 
     @Override
     public Trigger stopClimb() {
-        return joystick.rightBumper();
+        return joystick.rightBumper(); // Toggle (On operator)
     }
 
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return joystick.b();
+        return joystick.leftBumper(); // Hold (On driver)
     }
 
     // Tuning
     @Override
     public Trigger runQuasistatic() {
-        return joystick.a();
+        return joystick.a(); // Hold (On testing)
     }
 
     @Override
     public Trigger runQuasidynamic() {
-        return joystick.b();
+        return joystick.b(); // Hold (On testing)
     }
 
     @Override
     public Trigger runQuasistaticReverse() {
-        return joystick.x();
+        return joystick.x(); // Hold (On testing)
     }
 
     @Override
     public Trigger runQuasidynamicReverse() {
-        return joystick.y();
+        return joystick.y(); // Hold (On testing)
     }
 
     // Put Autos here:
+    // @Override
+    // public Trigger exampleAutoCommand(); {
+    // return joystick.exampleButton(); // Hold or Toggle (TODO)
+    // }
 }

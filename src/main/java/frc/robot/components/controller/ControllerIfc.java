@@ -21,20 +21,26 @@ public interface ControllerIfc {
   public Trigger toggleOrientation();
 
   // Shooter
-  public Trigger runShooter();
+  public Trigger startShooter();
 
   public Trigger stopShooter();
+
+  public Trigger toggleShooter();
 
   // Intake
   public Trigger toggleIntakeRollers();
 
-  public Trigger toggleIntakePivot();
+  public Trigger sendPivotUp();
+
+  public Trigger sendPivotDown();
 
   // Indexer
   public Trigger toggleIndexer();
 
-  // Climb
-  public Trigger runClimb();
+  // Climb (TODO)
+  public Trigger runClimbUp();
+
+  public Trigger runClimbDown();
 
   public Trigger stopClimb();
 

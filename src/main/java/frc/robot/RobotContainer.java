@@ -72,6 +72,9 @@ public class RobotContainer {
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
 
+  // Only for testing and tuning (such as SysId routines)
+  private final ControllerIfc m_testingController = new XboxControllerIfc(OperatorConstants.controllerPort3);
+
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
   private final IndexerSubsysConfig IndexerSSConfig = new IndexerSubsysConfig(true, INDEXER_SUBSYSTEM);
@@ -93,6 +96,7 @@ public class RobotContainer {
 
   // For sys id
   private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
+  private static final boolean RUNNING_SYS_ID = IntakeConstants.RUNNING_SYS_ID || ShooterConstants.RUNNING_SYS_ID;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -133,23 +137,27 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    if (IntakeConstants.RUNNING_SYS_ID) {
-      m_driverController.runQuasistatic().whileTrue(
+    // Make sure to check controller interfaces:
+    if (RUNNING_SYS_ID) {
+      m_testingController.runQuasistatic().whileTrue(
           m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      m_driverController.runQuasistaticReverse().whileTrue(
+      m_testingController.runQuasistaticReverse().whileTrue(
           m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-      m_driverController.runQuasidynamic().whileTrue(
+      m_testingController.runQuasidynamic().whileTrue(
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
-      m_driverController.runQuasidynamicReverse().whileTrue(
+      m_testingController.runQuasidynamicReverse().whileTrue(
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     } else {
 
-      m_operatorController.toggleIntakePivot().onTrue(
-          new InstantCommand(() -> m_IntakeSubsystem.togglePivotState(), m_IntakeSubsystem));
+      m_operatorController.sendPivotUp().onTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
+
+      m_operatorController.sendPivotDown().onTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem));
 
       m_operatorController.toggleIntakeRollers().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
@@ -157,11 +165,8 @@ public class RobotContainer {
       m_operatorController.toggleIndexer().onTrue(
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
 
-      m_operatorController.runShooter().onTrue(
-          new InstantCommand(() -> m_ShooterSubsystem.startShooter(), m_ShooterSubsystem));
-
-      m_operatorController.stopShooter().onTrue(
-          new InstantCommand(() -> m_ShooterSubsystem.stopShooter()));
+      m_operatorController.toggleShooter().onTrue(
+          new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
     }
 
     m_driverController.driveToTarget().whileTrue(
@@ -174,9 +179,9 @@ public class RobotContainer {
             0.035,
             Rotation2d.fromDegrees(0)).withTimeout(10));
 
-    // bind the orientation toggle
+    
     m_driverController.toggleOrientation().onTrue(
-        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
   }
 
   /**
