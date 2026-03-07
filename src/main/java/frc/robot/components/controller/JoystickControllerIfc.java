@@ -139,10 +139,7 @@ public class JoystickControllerIfc implements ControllerIfc {
     }
 
     // Put autos here:
-    // @Override
-    // public Trigger exampleAutoCommand(); {
-    // return joystick.exampleButton(); // Hold or Toggle (TODO)
-    //}
+    
 
     // Helper
     private Trigger getButton(ExtendedButtonType button) {

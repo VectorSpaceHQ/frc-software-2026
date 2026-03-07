@@ -84,7 +84,7 @@ public class PS4ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger stopClimb() {
-        return joystick.R1(); // Toggle (On operator)
+        return joystick.R3(); // Toggle (On operator)
     }
 
     // Vision
@@ -115,8 +115,5 @@ public class PS4ControllerIfc implements ControllerIfc {
     }
 
     // Put Autos here:
-    // @Override
-    // public Trigger exampleAutoCommand(); {
-    // return joystick.exampleButton(); // Hold or Toggle (TODO)
-    // }
+    
 }

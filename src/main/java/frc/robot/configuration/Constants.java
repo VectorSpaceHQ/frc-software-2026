@@ -77,8 +77,6 @@ public final class Constants {
       SHOOTER_ENGLISH_MOTOR_CANID(17),
       SHOOTER_MAIN_MOTOR_CANID(18),
       CLIMBER_CANID(19);
-      // PROTO_SHOOTER_TOP_MOTOR_CANID(19),
-      // PROTO_SHOOTER_BOTTOM_MOTOR_CANID(20);
 
       private int CanID;
 
@@ -122,11 +120,35 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double PIVOT_GEAR_RATIO = 60.0; // Unused
-    public static final double PIVOT_MIN_ANGLE_RAD = -1.360; // Unused
-    public static final double PIVOT_MAX_ANGLE_RAD = 0.05; // Unused
-    public static final double PIVOT_TOLERANCE_RAD = 0.1; // Unused
-    public static final boolean RUNNING_SYS_ID = false; // Won't be used
+    public static final boolean RUNNING_SYS_ID = false;
+    public static final double MAX_VOLTAGE = 12.0;
+
+    // Roller Motor
+    public static final double ROLLER_MAX_RPM = 11000.0;
+    public static final double ROLLER_STARTER_RPM = -5500;
+    public static final double ROLLER_GEAR_RATIO = 1.0;
+    public static final int ROLLER_CURRENT_LIMIT = 20;
+    public static final double ROLLER_kS = 0.25;
+    public static final double ROLLER_kP = 0.01;
+    public static final double ROLLER_kI = 0.0;
+    public static final double ROLLER_kD = 0.0;
+    public static final double ROLLER_kV = 0.019098;
+    public static final double ROLLER_kA = 0.0;
+
+    // Basically everything below here won't be used but whatever (nice to have)
+    // Pivot Motor
+    public static final double PIVOT_GEAR_RATIO = 60.0;
+    public static final double PIVOT_MIN_ANGLE_RAD = -1.360;
+    public static final double PIVOT_MAX_ANGLE_RAD = 0.05;
+    public static final double PIVOT_TOLERANCE_RAD = 0.05;
+    public static final int PIVOT_CURRENT_LIMIT = 20;
+    public static final double PIVOT_kS = 0.0; // TODO: Find kS
+    public static final double PIVOT_kG = 0.0; // TODO: Find kG
+    public static final double PIVOT_kV = 0.0; // TODO: Find kV
+    public static final double PIVOT_kA = 0.0; // TODO: Find kA
+    public static final double PIVOT_kP = 0.0015; // TODO: Find kP
+    public static final double PIVOT_kI = 0.01; // TODO: Find kI
+    public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
       UP(-3.0), // Volts to pivot up (fight against gravity)
@@ -141,10 +163,52 @@ public final class Constants {
     }
   }
 
+  public static class IndexerConstants {
+    public static final double MAX_RPM = 6000;
+    public static final double GEAR_RATIO = 25.0;
+    public static final int INDEXER_CURRENT_LIMIT = 20;
+    public static final double kS = 0.25;
+    public static final double kP = 0.005;
+    public static final double kI = 0.0005;
+    public static final double kD = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+  }
+
   public static class ShooterConstants {
-    // Within 75 rpm
+    // Shared Constants
+    public static final double MAX_VOLTAGE = 12.0;
+    public static final double GEAR_RATIO = 1.5;
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
     public static final boolean RUNNING_SYS_ID = false;
+
+    // English Motor (Kraken X60)
+    public static final double ENGLISH_MAX_RPM = 6000.0;
+    public static final double ENGLISH_kS = 0.20027;
+    public static final double ENGLISH_kP = 0.0;
+    public static final double ENGLISH_kI = 0.0;
+    public static final double ENGLISH_kD = 0.0;
+    public static final double ENGLISH_kV = 0.018534;
+    public static final double ENGLISH_kA = 0.00053364;
+
+    // Main Motor (Kraken X60)
+    public static final double MAIN_MAX_RPM = 6000.0;
+    public static final double MAIN_kS = 0.16432;
+    public static final double MAIN_kP = 0.01;
+    public static final double MAIN_kI = 0.0;
+    public static final double MAIN_kD = 0.0;
+    public static final double MAIN_kV = 0.019251;
+    public static final double MAIN_kA = 0.016214;
+
+    // Feeder Motor (NEO / SparkMax)
+    public static final double FEEDER_MAX_RPM = 5676.0;
+    public static final int FEEDER_CURRENT_LIMIT = 20;
+    public static final double FEEDER_kS = 0.0;
+    public static final double FEEDER_kP = 0.0;
+    public static final double FEEDER_kI = 0.0;
+    public static final double FEEDER_kD = 0.0;
+    public static final double FEEDER_kV = 0.0;
+    public static final double FEEDER_kA = 0.0;
   }
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers

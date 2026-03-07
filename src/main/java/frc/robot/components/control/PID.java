@@ -21,10 +21,11 @@ public class PID implements Sendable {
     private final MotorIO m_motor;
     private final MotorIOInputsAutoLogged motorInputs = new MotorIOInputsAutoLogged();
 
+    // Note: These values will get overwritten by constants values
     private String name;
     private double MAX_RPM = 6000.0;
     private double m_gearRatio = 1.5;
-    private final double MAX_VOLTS = 12.0; // Unused (For reference)
+    private double MAX_VOLTS = 12.0; // Unused (For reference)
     private final double MAX_RPM_PER_VOLT;
     
     private PIDController pid;

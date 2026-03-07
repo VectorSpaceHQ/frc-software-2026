@@ -45,23 +45,42 @@ public class IntakeSubsystem extends SubsystemBase {
         runningSysId = IntakeConstants.RUNNING_SYS_ID;
         if (this.IntakeConfig.getIsPresent()) {
 
-            intakeRollerPid = new PID("IntakeRoller", new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId(), 20),
-                    11000.0, 12.0, 1, 0.25, 0.01, 0.0, 0, 0.019098, 0);
-            intakeRollerPid.setM_RPM(100);
+            // Intake Roller Mechanism
+            intakeRollerPid = new PID(
+                    "IntakeRoller",
+                    new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId(), IntakeConstants.ROLLER_CURRENT_LIMIT),
+                    IntakeConstants.ROLLER_MAX_RPM,
+                    IntakeConstants.MAX_VOLTAGE,
+                    IntakeConstants.ROLLER_GEAR_RATIO,
+                    IntakeConstants.ROLLER_kS,
+                    IntakeConstants.ROLLER_kP,
+                    IntakeConstants.ROLLER_kI,
+                    IntakeConstants.ROLLER_kD,
+                    IntakeConstants.ROLLER_kV,
+                    IntakeConstants.ROLLER_kA);
+            intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
             pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 20);
             pivotFollower = new MotorIOSparkMaxFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
                     pivotMotor.getMotor(),
                     true, // inverted
-                    20);
-            pivotMotorPid = new PivotPID("PivotMotor", pivotMotor, // None of this stuff is really being used
-                    60,
+                    IntakeConstants.PIVOT_CURRENT_LIMIT);
+
+            // Pivot Motor Mechanism
+            pivotMotorPid = new PivotPID(
+                    "PivotMotor",
+                    pivotMotor,
+                    IntakeConstants.PIVOT_GEAR_RATIO,
                     IntakeConstants.PIVOT_MIN_ANGLE_RAD,
                     IntakeConstants.PIVOT_MAX_ANGLE_RAD,
-                    0, 0, 0, 0, // TODO: Find kS, kG, kV, kA
-                    0.0015, 0.01, 0); // TODO: Find kP, kI, kD
-
+                    IntakeConstants.PIVOT_kS,
+                    IntakeConstants.PIVOT_kG,
+                    IntakeConstants.PIVOT_kV,
+                    IntakeConstants.PIVOT_kA,
+                    IntakeConstants.PIVOT_kP,
+                    IntakeConstants.PIVOT_kI,
+                    IntakeConstants.PIVOT_kD);
             pivotMotor.zeroPosition();
 
             intakeRollerSysId = SysId.createRoutine(this, intakeRollerPid, "Roller");
@@ -77,18 +96,18 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Intake Present", this.IntakeConfig.getIsPresent());
     }
 
-
     public void toggleRollers() {
         Intakestatus = !Intakestatus;
     }
 
-    // Toggles the pivot
-    public void togglePivotState() {
-        if (currentPivotState == PivotState.DOWN) {
-            currentPivotState = PivotState.UP;
-        } else {
-            currentPivotState = PivotState.DOWN;
-        }
+    // Toggles the pivot up
+    public void sendPivotUp() {
+        currentPivotState = PivotState.UP;
+    }
+
+    // Toggles the pivot down
+    public void sendPivotDown() {
+        currentPivotState = PivotState.DOWN;
     }
 
     // Place status values here

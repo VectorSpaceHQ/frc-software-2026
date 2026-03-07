@@ -74,6 +74,7 @@ public class PivotPID implements Sendable {
         // Initialize feedforward
         feedforward = new ArmFeedforward(ks, kg, kv, ka);
     }
+    
 public MotorIOInputs getMotorInputs() {
         return m_motorInputs;
     }
