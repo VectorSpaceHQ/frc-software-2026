@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,6 +15,7 @@ import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -39,6 +41,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterStatus;
     private boolean lastShooterStatus;
     private boolean runningSysId;
+
+    final SlewRateLimiter mainRpmSlew;
+    final SlewRateLimiter englishRpmSlew;
+    final SlewRateLimiter intakeRpmSlew;
 
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.shooterConfig = config;
@@ -95,6 +101,10 @@ public class ShooterSubsystem extends SubsystemBase {
             feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
             // t_motorInputs = new MotorIOInputs();
             // b_motorInputs = new MotorIOInputs();
+
+            mainRpmSlew = new SlewRateLimiter(200.0);
+            englishRpmSlew = new SlewRateLimiter(500.0);
+            intakeRpmSlew = new SlewRateLimiter(300.0);
 
             SmartDashboard.putData("Shooter/English PID", english_PID);
             SmartDashboard.putData("Shooter/Main PID", main_PID);
@@ -160,15 +170,72 @@ public class ShooterSubsystem extends SubsystemBase {
                 && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
+    public void setEnglishVelocity(){
+        // Set the english wheel's angular velocity
+    }
+
+    public void setMainVelocity(int target_rpm){
+        // Set the main wheel's angular velocity
+        // use an angular acceleration limit to avoid motor damage
+        mainRpmSlew.reset(main_PID.getM_realRPM());
+        double rampedMainRPM = mainRpmSlew.calculate(target_rpm);
+        main_PID.setM_RPM(rampedMainRPM);
+    }
+
+    public float getLaunchAngle(float main_vel, float english_vel){
+        // given current main wheel velocity and english wheel velocity
+        // return launch angle
+        // This is an empirical formula
+        float launch_angle;
+        return launch_angle;
+    }
+
+    public void setLaunchAngle(float launch_alpha){
+        // given a target launch angle
+        // adjust main and english wheel velocities
+        // this is an empirical formula
+    }
+
+    public void calcLaunchVelocity(float launch_alpha, Pose2d pose){
+        // Return launch velocity vector as a function of pose and current launch angle
+    }
+
+    public float calcLaunchAngle(float launch_v, Pose2d pose){
+        // Return launch angle as a function of pose and current launch velocity
+        float y = 5; // vert distance to hub inlet
+        float d = 0; // horizontal distance from robot shooter to hub center
+
+        float launch_alpha = 1;
+        return launch_alpha;
+    }
+
+    public float calcTrajectory(float launch_v, float launch_alpha){
+        // Projectile motion calculation including air resistance
+        // Returns distance at which ball enters center of hub,
+        float dist; // distance at which ball would enter hub
+        return dist;
+    }
+
+    public void solver(){
+        // get new pose
+        // calculate launch angle
+        // set launch angle
+        // calc launch velocity
+        // set launch velocity
+        // return error between calculated shot distance and current robot distance
+        // iterate until convergence. Nmax = 20.
+    }
+
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
 
-        english_PID.processInputs("Shooter/English");
-        main_PID.processInputs("Shooter/Main");
-        feeder_PID.processInputs("Shooter/Feeder");
+        //english_PID.processInputs("Shooter/English");
+        //main_PID.processInputs("Shooter/Main");
+        //feeder_PID.processInputs("Shooter/Feeder");
 
         if (runningSysId == false & shooterConfig.getIsPresent()) {
             english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
