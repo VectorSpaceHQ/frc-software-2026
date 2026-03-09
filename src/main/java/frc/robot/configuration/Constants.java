@@ -263,50 +263,59 @@ public final class Constants {
     // driverstations. Consistent with 2026 rebuilt fields.
 
     // For reference (and potentially commands)
+    // Note: Location is not only relative to the alliance, but the location of
+    // AprilTags on the hub are with *respect to their current side*
+    // Note: Right side of
     public enum Apriltags {
-      None(-1.0),
-      RedTrenchRightNeutralSide(1.0), // Right
-      RedHubRightBumpNeutralSide(2.0), // Right
-      RedHubRightNeutralSide(3.0), // Front
-      RedHubLeftNeutralSide(4.0), // Front
-      RedHubLeftBumpNeutralSide(5.0), // Left
-      RedTrenchLeftNeutralSide(6.0), // Left
-      RedTrenchLeftAllianceSide(7.0), // Left
-      RedHubLeftBumpAllianceSide(8.0), // Left
-      RedHubLeftAllianceSide(9.0), // Back
-      RedHubRightAllianceSide(10.0), // Back
-      RedHubRightBumpAllianceSide(11.0), // Right
-      RedTrenchRightAllianceSide(12.0), // Right
-      RedOutpostRightSide(13.0), // Closer to wall (alliance side)
-      RedOutpostLeftSide(14.0), // Closer to center (alliance side)
-      RedTowerLeftSide(15.0), // Left (alliance side)
-      RedTowerRightSide(16.0), // Right (alliance side)
+      // In order: Alliance color, element section(s), area zone (ex: 2 is on the red
+      // alliance, on the hub, in the center of the hub, closer to the neutral zone)
+      None(-1),
 
-      BlueTrenchRightNeutralSide(17.0), // Right
-      BlueHubRightBumpNeutralSide(18.0), // Right
-      BlueHubRightNeutralSide(19.0), // Front
-      BlueHubLeftNeutralSide(20.0), // Front
-      BlueHubLeftBumpNeutralSide(21.0), // Left
-      BlueTrenchLeftNeutralSide(22.0), // Left
-      BlueTrenchLeftAllianceSide(23.0), // Left
-      BlueHubLeftBumpAllianceSide(24.0), // Left
-      BlueHubLeftAllianceSide(25.0), // Back
-      BlueHubRightAllianceSide(26.0), // Back
-      BlueHubRightBumpAllianceSide(27.0), // Right
-      BlueTrenchRightAllianceSide(28.0), // Right
-      BlueOutpostRightSide(29.0), // Closer to wall (alliance side)
-      BlueOutpostLeftSide(30.0), // Closer to center (alliance side)
-      BlueTowerLeftSide(31.0), // Left (alliance side)
-      BlueTowerRightSide(32.0);
+      // Red Alliance
+      RedTrenchRightSideInNeutralZone(1), // Right side of Trench, Neutral Zone
+      RedHubRightSideBumpInNeutralZone(2), // Right side of Hub, Bump side, Neutral Zone
+      RedHubRightSideCenterInNeutralZone(3), // Right side of Hub, Center, Neutral Zone
+      RedHubLeftSideCenterInNeutralZone(4), // Left side of Hub, Center, Neutral Zone
+      RedHubLeftSideBumpInNeutralZone(5), // Left side of Hub, Bump side, Neutral Zone
+      RedTrenchLeftSideInNeutralZone(6), // Left side of Trench, Neutral Zone
+      RedTrenchLeftSideInAllianceZone(7), // Left side of Trench, Alliance Zone
+      RedHubLeftSideBumpInAllianceZone(8), // Left side of Hub, Bump side, Alliance Zone
+      RedHubLeftSideCenterInAllianceZone(9), // Left side of Hub, Center, Alliance Zone
+      RedHubRightSideCenterInAllianceZone(10), // Right side of Hub, Center, Alliance Zone
+      RedHubRightSideBumpInAllianceZone(11), // Right side of Hub, Bump side, Alliance Zone
+      RedTrenchRightSideInAllianceZone(12), // Right side of Trench, Alliance Zone
+      RedOutpostRightSideInAllianceZone(13), // Right side of Outpost, Alliance Zone
+      RedOutpostLeftSideInAllianceZone(14), // Left side of Outpost, Alliance Zone
+      RedTowerLeftSideInAllianceZone(15), // Left side of Tower, Alliance Zone
+      RedTowerRightSideInAllianceZone(16), // Right side of Tower, Alliance Zone
+
+      // Blue Alliance
+      BlueTrenchRightSideInNeutralZone(17), // Right side of Trench, Neutral Zone
+      BlueHubRightSideBumpInNeutralZone(18), // Right side of Hub, Bump side, Neutral Zone
+      BlueHubRightSideCenterInNeutralZone(19), // Right side of Hub, Center, Neutral Zone
+      BlueHubLeftSideCenterInNeutralZone(20), // Left side of Hub, Center, Neutral Zone
+      BlueHubLeftSideBumpInNeutralZone(21), // Left side of Hub, Bump side, Neutral Zone
+      BlueTrenchLeftSideInNeutralZone(22), // Left side of Trench, Neutral Zone
+      BlueTrenchLeftSideInAllianceZone(23), // Left side of Trench, Alliance Zone
+      BlueHubLeftSideBumpInAllianceZone(24), // Left side of Hub, Bump side, Alliance Zone
+      BlueHubLeftSideCenterInAllianceZone(25), // Left side of Hub, Center, Alliance Zone
+      BlueHubRightSideCenterInAllianceZone(26), // Right side of Hub, Center, Alliance Zone
+      BlueHubRightSideBumpInAllianceZone(27), // Right side of Hub, Bump side, Alliance Zone
+      BlueTrenchRightSideInAllianceZone(28), // Right side of Trench, Alliance Zone
+      BlueOutpostRightSideInAllianceZone(29), // Right side of Outpost, Alliance Zone
+      BlueOutpostLeftSideInAllianceZone(30), // Left side of Outpost, Alliance Zone
+      BlueTowerLeftSideInAllianceZone(31), // Left side of Tower, Alliance Zone
+      BlueTowerRightSideInAllianceZone(32); // Right side of Tower, Alliance Zone
 
       private int value;
 
-      private Apriltags(double id) {
-        this.value = (int) id;
+      private Apriltags(int id) {
+        this.value = id;
       }
 
       public int getId() {
         return this.value;
+
       }
 
       public Pose2d getPose(AprilTagFieldLayout layout) {
