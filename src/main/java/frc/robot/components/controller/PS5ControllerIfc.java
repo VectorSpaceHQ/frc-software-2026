@@ -30,7 +30,12 @@ public class PS5ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleOrientation() {
-        return joystick.R1(); // Toggle (On driver)
+        return joystick.triangle(); // Toggle (On driver)
+    }
+
+    @Override
+    public Trigger halfSpeedModifier() {
+        return joystick.R1();
     }
 
     // Shooter

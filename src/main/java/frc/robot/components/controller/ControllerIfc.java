@@ -20,6 +20,8 @@ public interface ControllerIfc {
 
   public Trigger toggleOrientation();
 
+  public Trigger halfSpeedModifier();
+
   // Shooter
   public Trigger startShooter();
 

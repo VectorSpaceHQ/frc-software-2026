@@ -30,9 +30,14 @@ public class XboxControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleOrientation() {
-        return joystick.rightBumper(); // Toggle (On driver)
+        return joystick.y(); // Toggle (On driver)
     }
 
+    @Override
+    public Trigger halfSpeedModifier() {
+        return joystick.rightBumper(); // while held (On driver)
+    }
+    
     // Shooter
     @Override
     public Trigger startShooter() {
@@ -90,7 +95,7 @@ public class XboxControllerIfc implements ControllerIfc {
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return joystick.leftBumper(); // Hold (On driver)
+        return joystick.a(); // Hold (On driver)
     }
 
     // Tuning

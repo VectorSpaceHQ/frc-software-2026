@@ -57,7 +57,12 @@ public class JoystickControllerIfc implements ControllerIfc {
     public Trigger toggleOrientation() {
         return getButton(ExtendedButtonType.Button3);
     }
-
+ 
+    @Override
+    public Trigger halfSpeedModifier() {
+        return getButton(ExtendedButtonType.Button8); // while held (On driver)
+    }
+    
     // Shooter
     @Override
     public Trigger startShooter() {
