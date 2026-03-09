@@ -13,7 +13,11 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -58,7 +62,7 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(VisionSubsysConfig config) {
         this.visionConfig = config;
         if (visionConfig.getIsPresent()) {
-            
+
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
@@ -71,22 +75,22 @@ public class VisionSubsystem extends SubsystemBase {
             }
         }
         // Red Hub Center
-    Translation3d redHubCenter = calculateHubCenter(
-        VisionConstants.HUB_TARGET_OFFSET,
-        Apriltags.RedHubRightSideCenterInNeutralZone, // 3
-        Apriltags.RedHubLeftSideCenterInNeutralZone,  // 4
-        Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
-        Apriltags.RedHubRightSideCenterInAllianceZone // 10
-    );
+        Translation3d redHubCenter = calculateHubCenter(
+                VisionConstants.HUB_TARGET_OFFSET,
+                Apriltags.RedHubRightSideCenterInNeutralZone, // 3
+                Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
+                Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
+                Apriltags.RedHubRightSideCenterInAllianceZone // 10
+        );
 
-    // Blue Hub Center
-    Translation3d blueHubCenter = calculateHubCenter(
-        VisionConstants.HUB_TARGET_OFFSET,
-        Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
-        Apriltags.BlueHubLeftSideCenterInNeutralZone,  // 20
-        Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
-        Apriltags.BlueHubRightSideCenterInAllianceZone // 26
-    );
+        // Blue Hub Center
+        Translation3d blueHubCenter = calculateHubCenter(
+                VisionConstants.HUB_TARGET_OFFSET,
+                Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
+                Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
+                Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
+                Apriltags.BlueHubRightSideCenterInAllianceZone // 26
+        );
 
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
@@ -149,7 +153,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         return Double.NaN;
     }
-    
 
     // Gets the straight-line range from camera to tag
     public double getTargetRange(int id) {
@@ -170,18 +173,19 @@ public class VisionSubsystem extends SubsystemBase {
         return Double.NaN;
     }
 
-private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags... tags) {
+    private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags... tags) {
         double sumX = 0.0;
         double sumY = 0.0;
         double sumZ = 0.0;
         int count = 0;
 
+        // Tag pose is optional
         for (Apriltags tag : tags) {
-            var poseOpt = layout.getTagPose(tag.getId());
-            if (poseOpt.isPresent()) {
-                sumX += poseOpt.get().getX();
-                sumY += poseOpt.get().getY();
-                sumZ += poseOpt.get().getZ();
+            var optionalTagPose = layout.getTagPose(tag.getId());
+            if (optionalTagPose.isPresent()) {
+                sumX += optionalTagPose.get().getX();
+                sumY += optionalTagPose.get().getY();
+                sumZ += optionalTagPose.get().getZ();
                 count++;
             }
         }
@@ -189,8 +193,9 @@ private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags..
         Translation3d hubCenter;
 
         if (count == 0) {
-            // Failsafe: If no tags load, default to origin to prevent divide-by-zero crashes
-            hubCenter = new Translation3d(); 
+            // Failsafe: If no tags load, default to origin to prevent divide-by-zero
+            // crashes
+            hubCenter = new Translation3d();
         } else {
             // Find the center using the tags
             Translation3d tagCenter = new Translation3d(sumX / count, sumY / count, sumZ / count);
@@ -198,29 +203,29 @@ private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags..
         }
 
         return hubCenter;
-}
+    }
 
-public Translation3d getTargetHubCenter() {
+    public Translation3d getTargetHubCenter() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        
+
         // Aim at red hub if on red alliance
         if (alliance.isPresent() && alliance.get() == Alliance.Red) {
             return calculateHubCenter(
-                VisionConstants.HUB_TARGET_OFFSET,
-                Apriltags.RedHubRightSideCenterInNeutralZone, // 3
-                Apriltags.RedHubLeftSideCenterInNeutralZone,  // 4
-                Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
-                Apriltags.RedHubRightSideCenterInAllianceZone // 10
+                    VisionConstants.HUB_TARGET_OFFSET,
+                    Apriltags.RedHubRightSideCenterInNeutralZone, // 3
+                    Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
+                    Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
+                    Apriltags.RedHubRightSideCenterInAllianceZone // 10
             );
         }
-        
+
         // Aim at the blue hub
         return calculateHubCenter(
-            VisionConstants.HUB_TARGET_OFFSET,
-            Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
-            Apriltags.BlueHubLeftSideCenterInNeutralZone,  // 20
-            Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
-            Apriltags.BlueHubRightSideCenterInAllianceZone // 26
+                VisionConstants.HUB_TARGET_OFFSET,
+                Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
+                Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
+                Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
+                Apriltags.BlueHubRightSideCenterInAllianceZone // 26
         );
     }
     // Updates the vision measurement (periodic)
@@ -237,23 +242,22 @@ public Translation3d getTargetHubCenter() {
             if (!result.hasTargets())
                 continue;
 
-                // Reject duplicate timestamps
-            double timestamp = result.getTimestampSeconds();   
-            SmartDashboard.putNumber("Timestamp", timestamp);       
+            // Reject duplicate timestamps
+            double timestamp = result.getTimestampSeconds();
+            SmartDashboard.putNumber("Timestamp", timestamp);
             if (timestamp <= lastVisionTimestamp) {
                 SmartDashboard.putString("Timestamp", "Too Old");
-                            continue;
-                            
+                continue;
+
             }
 
             // For stale poses
             double poseAge = Timer.getFPGATimestamp() - timestamp;
             SmartDashboard.putNumber("Pose Age", poseAge);
             if (poseAge > VisionConstants.MAX_POSE_AGE) {
-            SmartDashboard.putString("Pose Age", "Too Old");
+                SmartDashboard.putString("Pose Age", "Too Old");
                 continue;
             }
-                
 
             // Select the lowest ambiguity valid target (not boolean anymore)
             Optional<PhotonTrackedTarget> validTarget = result.getTargets().stream()
@@ -266,7 +270,7 @@ public Translation3d getTargetHubCenter() {
             }
 
             Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
-             SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
+            SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
 
             if (estimatedVisionPose.isEmpty()) {
                 continue;
@@ -274,12 +278,11 @@ public Translation3d getTargetHubCenter() {
 
             // Accept measurement
             latestVisionMeasurement = estimatedVisionPose;
-           
+
             if (latestVisionMeasurement.isPresent()) {
-                SmartDashboard.putString("Vision Measurement", "Present"
-                );
+                SmartDashboard.putString("Vision Measurement", "Present");
             } else {
-                SmartDashboard.putString("Vision Measurement",  "Absent");
+                SmartDashboard.putString("Vision Measurement", "Absent");
             }
 
             lastVisionTimestamp = timestamp;
@@ -324,6 +327,31 @@ public Translation3d getTargetHubCenter() {
         return bestVisibleTag;
     }
 
-    
-    
+    public Rotation2d getHeadingToHub(Pose2d robotPose, Translation3d hubCenter) {
+        Transform2d robotToShooter = new Transform2d( // Using camera constants for now
+                VisionConstants.TRANSLATION_X,
+                VisionConstants.TRANSLATION_Y,
+                new Rotation2d(VisionConstants.ROTATION_Z));
+
+        Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
+        Translation2d targetVector = hubCenter.toTranslation2d().minus(shooterFieldPose.getTranslation());
+
+        return targetVector.getAngle().minus(robotToShooter.getRotation());
+    }
+
+    public double getDistanceToHub(Pose2d robotPose, Translation3d hubCenter) {
+        Transform2d robotToShooter = new Transform2d( // Using Camera constants for now
+                VisionConstants.TRANSLATION_X,
+                VisionConstants.TRANSLATION_Y,
+                new Rotation2d(VisionConstants.ROTATION_Z));
+
+        Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
+
+        Translation3d shooterPosition = new Translation3d(
+                shooterFieldPose.getX(),
+                shooterFieldPose.getY(),
+                VisionConstants.TRANSLATION_Z);
+
+        return shooterPosition.getDistance(hubCenter);
+    }
 }
