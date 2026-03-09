@@ -324,7 +324,7 @@ public final class Constants {
             .orElseThrow(() -> new RuntimeException("Tag not found in layout: " + getId()));
       }
     }
-
+    public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
   }
 
 }

@@ -14,6 +14,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,6 +70,24 @@ public class VisionSubsystem extends SubsystemBase {
                 cameraConnected = false;
             }
         }
+        // Red Hub Center
+    Translation3d redHubCenter = calculateHubCenter(
+        VisionConstants.HUB_TARGET_OFFSET,
+        Apriltags.RedHubRightSideCenterInNeutralZone, // 3
+        Apriltags.RedHubLeftSideCenterInNeutralZone,  // 4
+        Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
+        Apriltags.RedHubRightSideCenterInAllianceZone // 10
+    );
+
+    // Blue Hub Center
+    Translation3d blueHubCenter = calculateHubCenter(
+        VisionConstants.HUB_TARGET_OFFSET,
+        Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
+        Apriltags.BlueHubLeftSideCenterInNeutralZone,  // 20
+        Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
+        Apriltags.BlueHubRightSideCenterInAllianceZone // 26
+    );
+
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
@@ -130,6 +149,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         return Double.NaN;
     }
+    
 
     // Gets the straight-line range from camera to tag
     public double getTargetRange(int id) {
@@ -150,6 +170,59 @@ public class VisionSubsystem extends SubsystemBase {
         return Double.NaN;
     }
 
+private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags... tags) {
+        double sumX = 0.0;
+        double sumY = 0.0;
+        double sumZ = 0.0;
+        int count = 0;
+
+        for (Apriltags tag : tags) {
+            var poseOpt = layout.getTagPose(tag.getId());
+            if (poseOpt.isPresent()) {
+                sumX += poseOpt.get().getX();
+                sumY += poseOpt.get().getY();
+                sumZ += poseOpt.get().getZ();
+                count++;
+            }
+        }
+
+        Translation3d hubCenter;
+
+        if (count == 0) {
+            // Failsafe: If no tags load, default to origin to prevent divide-by-zero crashes
+            hubCenter = new Translation3d(); 
+        } else {
+            // Find the center using the tags
+            Translation3d tagCenter = new Translation3d(sumX / count, sumY / count, sumZ / count);
+            hubCenter = tagCenter.plus(targetOffset); // Add vertical offset
+        }
+
+        return hubCenter;
+}
+
+public Translation3d getTargetHubCenter() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        
+        // Aim at red hub if on red alliance
+        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+            return calculateHubCenter(
+                VisionConstants.HUB_TARGET_OFFSET,
+                Apriltags.RedHubRightSideCenterInNeutralZone, // 3
+                Apriltags.RedHubLeftSideCenterInNeutralZone,  // 4
+                Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
+                Apriltags.RedHubRightSideCenterInAllianceZone // 10
+            );
+        }
+        
+        // Aim at the blue hub
+        return calculateHubCenter(
+            VisionConstants.HUB_TARGET_OFFSET,
+            Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
+            Apriltags.BlueHubLeftSideCenterInNeutralZone,  // 20
+            Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
+            Apriltags.BlueHubRightSideCenterInAllianceZone // 26
+        );
+    }
     // Updates the vision measurement (periodic)
 
     private void updateVisionMeasurement() {
@@ -250,5 +323,7 @@ public class VisionSubsystem extends SubsystemBase {
     public Optional<Apriltags> getBestVisibleTag() {
         return bestVisibleTag;
     }
+
+    
     
 }
