@@ -46,6 +46,47 @@
                 }
               }
             ]
+          },
+          {
+            "title": "imu",
+            "x": 768.0,
+            "y": 768.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "adjusted",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/imu/adjusted",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "raw",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/swerve/imu/raw",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
           }
         ],
         "containers": [
@@ -94,18 +135,6 @@
             "type": "Alerts",
             "properties": {
               "topic": "/SmartDashboard/Swerve Drive",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "IMU",
-            "x": 768.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/SmartDashboard/IMU",
               "period": 0.06
             }
           },
@@ -235,7 +264,7 @@
           {
             "title": "Indexer Present",
             "x": 1792.0,
-            "y": 256.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -247,6 +276,76 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "IntakeRollerReal RPM",
+            "x": 1792.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Intake Roller PID/IntakeRollerReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "IndexerRPM",
+            "x": 1792.0,
+            "y": 640.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Indexer PID/IndexerRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FeederReal RPM",
+            "x": 1536.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Feeder PID/FeederReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "EnglishReal RPM",
+            "x": 1664.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/English PID/EnglishReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "MainReal RPM",
+            "x": 1536.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Main PID/MainReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
@@ -468,7 +567,7 @@
           {
             "title": "Indexer Present",
             "x": 1792.0,
-            "y": 256.0,
+            "y": 512.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Boolean Box",
@@ -497,6 +596,76 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "IntakeRollerReal RPM",
+            "x": 1792.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Intake Roller PID/IntakeRollerReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "MainReal RPM",
+            "x": 1536.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Main PID/MainReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "EnglishReal RPM",
+            "x": 1664.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/English PID/EnglishReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "FeederReal RPM",
+            "x": 1536.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Feeder PID/FeederReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "IndexerRPM",
+            "x": 1792.0,
+            "y": 640.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Indexer PID/IndexerRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
