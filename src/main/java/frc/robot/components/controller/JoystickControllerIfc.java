@@ -78,6 +78,17 @@ public class JoystickControllerIfc implements ControllerIfc {
     public Trigger toggleShooter() {
         return getButton(ExtendedButtonType.Button4);
     }
+
+    @Override
+    public Trigger closeShot() {
+        return getButton(ExtendedButtonType.Button14);
+    }
+
+    @Override
+    public Trigger farShot() {
+        return getButton(ExtendedButtonType.Button12);
+    }
+    
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {

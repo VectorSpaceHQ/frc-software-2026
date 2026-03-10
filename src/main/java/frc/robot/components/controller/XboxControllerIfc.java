@@ -35,7 +35,7 @@ public class XboxControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger halfSpeedModifier() {
-        return joystick.rightBumper(); // while held (On driver)
+        return joystick.leftTrigger(); // while held (On driver)
     }
     
     // Shooter
@@ -51,29 +51,39 @@ public class XboxControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleShooter() {
+        return joystick.rightTrigger(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger closeShot() {
+        return joystick.a(); // Toggle (On operator)
+    }
+    
+    @Override
+    public Trigger farShot() {
         return joystick.b(); // Toggle (On operator)
     }
 
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
-        return joystick.a(); // Toggle (On operator)
+        return joystick.povUp(); // Toggle (On operator)
     }
 
     @Override
     public Trigger sendPivotUp() {
-        return joystick.rightBumper(); // Toggle (On operator)
+        return joystick.leftBumper(); // Toggle (On operator)
     }
 
     @Override
     public Trigger sendPivotDown() {
-        return joystick.rightTrigger(); // Toggle (On operator)
+        return joystick.leftTrigger(); // Toggle (On operator)
     }
 
     // Indexer
     @Override
     public Trigger toggleIndexer() {
-        return joystick.x(); // Toggle (On operator)
+        return joystick.rightBumper(); // Toggle (On operator)
     }
 
     // Climb
@@ -95,7 +105,7 @@ public class XboxControllerIfc implements ControllerIfc {
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return joystick.a(); // Hold (On driver)
+        return joystick.x(); // Hold (On driver)
     }
 
     // Tuning

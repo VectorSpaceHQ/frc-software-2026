@@ -29,6 +29,10 @@ public interface ControllerIfc {
 
   public Trigger toggleShooter();
 
+  public Trigger closeShot();
+
+  public Trigger farShot();
+
   // Intake
   public Trigger toggleIntakeRollers();
 
