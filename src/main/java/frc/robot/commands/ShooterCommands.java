@@ -22,7 +22,7 @@ public class ShooterCommands extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooterSubsystem.toggleShoot();
+    shooterSubsystem.toggleShooter();
 
   }
 
