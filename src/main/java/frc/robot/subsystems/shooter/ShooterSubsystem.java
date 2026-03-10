@@ -193,7 +193,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double rampedEnglishRPM = englishRpmSlew.calculate(target_rpm);
         english_PID.setM_RPM(rampedEnglishRPM);
     }
-
     public void setMainVelocity(double target_rpm){
         // Set the main wheel's angular velocity
         // use an angular acceleration limit to avoid motor damage
@@ -201,25 +200,47 @@ public class ShooterSubsystem extends SubsystemBase {
         double rampedMainRPM = mainRpmSlew.calculate(target_rpm);
         main_PID.setM_RPM(rampedMainRPM);
     }
+    public double getMainVelocity(){
+        // get angular velocity of main wheel in ft/s
+        float d_main = 6; // in
+        double v_main = (main_PID.getM_realRPM() * Math.PI * d_main) / (60 * 12); 
+        return v_main;
+    }
+    public double getEnglishVelocity(){
+        // get angular velocity of main wheel in ft/s
+        float d_english = 4; // in
+        double v_english = (english_PID.getM_realRPM() * Math.PI * d_english) / (60 * 12); 
+        return v_english;
+    }
 
     public void setShooterVelocity(double main_vel, double english_vel){
         setMainVelocity(main_vel);
         setEnglishVelocity(english_vel);
     }
 
-    public double getLaunchAngle(double main_vel, double english_vel){
+    public double getLaunchAngle(){
         // given current main wheel velocity and english wheel velocity
-        // return launch angle
-        // This is an empirical formula, current formula is a guess, needs tuning
-        double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
+        // return launch angle in degrees
+        // angle is set by shooter design
+        double launchAngle = 75; // deg
+        //double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
         return launchAngle;
     }
 
     public double getLaunchVelocity(double main_vel, double english_vel){
         // given current main wheel velocity and english wheel velocity
-        // return launch angle
+        // return launch velocity in ft/s
         // This is an empirical formula, current formula is a guess, needs tuning
-        double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
+        // The assumption is that the ball velocity is the average of the wheel velocities.
+        // It is also assumed that there is a loss factor in transferrign momentum from wheel to ball
+        // and that the english wheel transfers less than the main
+
+        //double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
+
+        double L_main = 0.95; // loss factor
+        double L_english = 0.5; // loss factor
+        double launchVelocity = (L_english * english_vel + L_main * main_vel) / 2;
+
         return launchVelocity;
     }
 
@@ -227,10 +248,10 @@ public class ShooterSubsystem extends SubsystemBase {
         // given a target launch angle
         // adjust main and english wheel velocities
         // this is an empirical formula
-
     }
 
-    public double calcLaunchVelocity(double launch_alpha, Pose2d pose){
+/*     This is without drag. Can be removed.
+        public double calcLaunchVelocity(double launch_alpha, Pose2d pose){
         // Return launch velocity vector as a function of pose and current launch angle
         double launchAngle = launch_alpha;
         double translationX = pose.getX();
@@ -252,7 +273,7 @@ public class ShooterSubsystem extends SubsystemBase {
         launchAngle = Math.atan((initialVelocity * initialVelocity + Math.sqrt(initialVelocity * initialVelocity * initialVelocity * initialVelocity - g * (g * translationX * translationX + 2 * initialVelocity * initialVelocity * translationY))) 
                                 / (g * translationX));
         return launchAngle;
-    }
+    } */
 
     public double calcTrajectory(double launch_v, double launch_alpha){
         // Projectile motion calculation including air resistance
@@ -281,7 +302,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double x_old = 0;
         double ax = 0;
         double ay = 0;
-
+        double s = 0; // acceleration due to spin
 
         for (int i=0; i<50; i++)
         {
@@ -289,7 +310,7 @@ public class ShooterSubsystem extends SubsystemBase {
             v = Math.sqrt(vx * vx + vy * vy);
 
             ax = -D / m * v * vx;
-            ay = -D / m * v * vy - g;
+            ay = -D / m * v * vy - g + s;
             vx = vx_old + ax * dt;
             x = x_old + vx * dt + (0.5 * ax * dt * dt);
             vy = vy_old + ay * dt;
@@ -304,13 +325,12 @@ public class ShooterSubsystem extends SubsystemBase {
             // if ball new y less than old y, falling
             // and if y <= y_hub
             if (y < y_old && y <= y_hub){
-                break;
+                System.out.println("Solver converged");
                 return x;
             }
         }
-        //print(failed to converge);
-        
-        return x;
+        System.out.println("Solver failed to converge");
+        return 99; // failed to converge
     }
 
     public void solver(){
@@ -326,21 +346,20 @@ public class ShooterSubsystem extends SubsystemBase {
                                                     new Rotation2d(Math.toRadians(-90))));
 
         double dist_to_hub = VisionSubsystem.getDistanceToHub(robotPose, hubPose);
-        // calculate launch angle, need if statement for no solution.
-        launchAngle = calcLaunchAngle(getLaunchVelocity(main_PID.getM_realRPM(), english_PID.getM_realRPM()), shooterPose);
-        // set launch angle
-        //setLaunchAngle(launchAngle);
-        // calc launch velocity
-        launchVelocity = calcLaunchVelocity(getLaunchAngle(main_PID.getM_realRPM(), english_PID.getM_realRPM()), shooterPose);
-        // set launch velocity
-        //setShooterVelocity(2500, 2500);
+        launchAngle = getLaunchAngle();
+        launchVelocity = getLaunchVelocity(getMainVelocity(), getEnglishVelocity());
         // return error between calculated shot distance and current robot distance
         // iterate until convergence. Nmax = 20.
-
         double launch_distance = calcTrajectory(launchVelocity, launchAngle);
-        error = launch_distance - dist_to_hub;
+
+        // ---------
+        error = launch_distance - dist_to_hub; // double check these units! Both inches?
+        //
+
         tolerance = 6; // in
-        K = 100; // rpm/ft
+        K = 10; // rpm/in
+        SmartDashboard.putString("Target", "acquiring");
+
         if (error > tolerance){
             //decrease wheel speeds
             setMainVelocity(main_PID.getM_realRPM() - K * error);
@@ -351,10 +370,12 @@ public class ShooterSubsystem extends SubsystemBase {
             setMainVelocity(launchVelocity + K * error);
             setEnglishVelocity(launchVelocity + K * error);
         }
-
+        else{
+            System.out.println("Target locked");
+            SmartDashboard.putString("Target", "locked");
+        }
 
     }
-
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
