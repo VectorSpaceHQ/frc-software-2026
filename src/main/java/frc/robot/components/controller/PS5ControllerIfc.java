@@ -30,7 +30,12 @@ public class PS5ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleOrientation() {
-        return joystick.R1(); // Toggle (On driver)
+        return joystick.triangle(); // Toggle (On driver)
+    }
+
+    @Override
+    public Trigger halfSpeedModifier() {
+        return joystick.R1();
     }
 
     // Shooter
@@ -46,6 +51,16 @@ public class PS5ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleShooter() {
+        return joystick.R1(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger closeShot() {
+        return joystick.cross(); // Toggle (On operator)
+    }
+    
+    @Override
+    public Trigger farShot() {
         return joystick.circle(); // Toggle (On operator)
     }
 
@@ -90,7 +105,7 @@ public class PS5ControllerIfc implements ControllerIfc {
     // Vision
     @Override
     public Trigger driveToTarget() {
-        return joystick.L1(); // Hold (On driver)
+        return joystick.square(); // Hold (On driver)
     }
 
     // Tuning
