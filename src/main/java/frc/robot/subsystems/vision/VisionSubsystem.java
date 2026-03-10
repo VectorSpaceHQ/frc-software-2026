@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
 import frc.robot.configuration.configs.VisionSubsysConfig;
+import org.littletonrobotics.junction.Logger;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -56,7 +57,7 @@ public class VisionSubsystem extends SubsystemBase {
     private List<PhotonPipelineResult> allUnreadResults = new ArrayList<>();
 
     // Distance from the robot to the camera
-    private Transform3d robotToCamera = VisionConstants.robotToCamera; // Removed Inverse
+    private Transform3d robotToCamera = VisionConstants.robotToCamera.inverse(); // Removed Inverse
 
     // Vision Subsystem constructor
     public VisionSubsystem(VisionSubsysConfig config) {
@@ -200,10 +201,12 @@ public class VisionSubsystem extends SubsystemBase {
             // Find the center using the tags
             Translation3d tagCenter = new Translation3d(sumX / count, sumY / count, sumZ / count);
             hubCenter = tagCenter.plus(targetOffset); // Add vertical offset
+            
         }
-
+        Logger.recordOutput("HubCenterCalculations/Hub Center Pose", hubCenter);
         return hubCenter;
     }
+    
 
     public Translation3d getTargetHubCenter() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
