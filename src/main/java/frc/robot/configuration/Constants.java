@@ -160,6 +160,10 @@ public final class Constants {
       PivotState(double voltage) {
         this.voltage = voltage;
       }
+
+      public String textName() {
+        return this.name();
+      }
     }
   }
 
