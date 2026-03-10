@@ -187,19 +187,25 @@ public class ShooterSubsystem extends SubsystemBase {
                 && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
-    public void setEnglishVelocity(double target_rpm){
-        // Set the english wheel's angular velocity
-        englishRpmSlew.reset(english_PID.getM_realRPM());
-        double rampedEnglishRPM = englishRpmSlew.calculate(target_rpm);
-        english_PID.setM_RPM(rampedEnglishRPM);
-    }
-    public void setMainVelocity(double target_rpm){
-        // Set the main wheel's angular velocity
+    public void setMainVelocity(double target_vel){
+        // Set the main wheel's angular velocity in ft/s
         // use an angular acceleration limit to avoid motor damage
+        float d_main = 6; // in
+        double target_rpm = (target_vel * 60 * 12) / (Math.PI * d_main);
         mainRpmSlew.reset(main_PID.getM_realRPM());
         double rampedMainRPM = mainRpmSlew.calculate(target_rpm);
         main_PID.setM_RPM(rampedMainRPM);
     }
+    
+    public void setEnglishVelocity(double target_vel){
+        // Set the english wheel's angular velocity in ft/s
+        float d_english = 4; // in
+        double target_rpm = (target_vel * 60 * 12) / (Math.PI * d_english);
+        englishRpmSlew.reset(english_PID.getM_realRPM());
+        double rampedEnglishRPM = englishRpmSlew.calculate(target_rpm);
+        english_PID.setM_RPM(rampedEnglishRPM);
+    }
+
     public double getMainVelocity(){
         // get angular velocity of main wheel in ft/s
         float d_main = 6; // in
@@ -362,13 +368,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         if (error > tolerance){
             //decrease wheel speeds
-            setMainVelocity(main_PID.getM_realRPM() - K * error);
-            setEnglishVelocity(english_PID.getM_realRPM() - K * error);
+            setMainVelocity(getMainVelocity() - K * error);
+            setEnglishVelocity(getEnglishVelocity() - K * error);
         }
         else if(error < 0 && Math.abs(error) > tolerance){
             // increase wheel speeds
-            setMainVelocity(launchVelocity + K * error);
-            setEnglishVelocity(launchVelocity + K * error);
+            setMainVelocity(getMainVelocity() + K * error);
+            setEnglishVelocity(getEnglishVelocity() + K * error);
         }
         else{
             System.out.println("Target locked");
