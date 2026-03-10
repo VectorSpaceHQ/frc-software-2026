@@ -36,6 +36,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean runningSysId;
 
     private MotorIOSparkMax pivotMotor = null;
+    private PivotState currentPivotState = PivotState.UP;
 
     @SuppressWarnings("unused")
     private MotorIOSparkMaxFollower pivotFollower = null;
@@ -102,12 +103,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Toggles the pivot up
     public void sendPivotUp() {
-        currentPivotState = PivotState.UP;
+        this.currentPivotState = PivotState.UP;
     }
 
     // Toggles the pivot down
     public void sendPivotDown() {
-        currentPivotState = PivotState.DOWN;
+        this.currentPivotState = PivotState.DOWN;
     }
 
     // Place status values here
@@ -158,8 +159,6 @@ public class IntakeSubsystem extends SubsystemBase {
         pivotMotorPid.PivotPeriodic(false, true);
     }
 
-    private PivotState currentPivotState = PivotState.UP;
-
     public void setPivotState(PivotState state) {
         this.currentPivotState = state;
     }
@@ -195,6 +194,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         lastIntakestatus = Intakestatus;
+        SmartDashboard.putString("Pivot Position", this.currentPivotState.textName());
     }
 
     @Override
