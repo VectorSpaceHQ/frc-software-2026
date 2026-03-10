@@ -213,15 +213,15 @@ public final class Constants {
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
 
-    public static final double TRANSLATION_P = 4.0;
+    public static final double TRANSLATION_P = 1.3;
     public static final double TRANSLATION_I = 0.0;
     public static final double TRANSLATION_D = 0.0;
     public static final double TRANSLATION_MAX_VEL = 4.0;
     public static final double TRANSLATION_MAX_ACCEL = 4.0;
 
-    public static final double ROTATION_P = 4.0;
-    public static final double ROTATION_I = 0.0;
-    public static final double ROTATION_D = 0.0;
+    public static final double ROTATION_P = 25.0;
+    public static final double ROTATION_I = 5.0;
+    public static final double ROTATION_D = 0.32;
     public static final double ROTATION_MAX_VEL = 6.0;
     public static final double ROTATION_MAX_ACCEL = 8.0;
 
