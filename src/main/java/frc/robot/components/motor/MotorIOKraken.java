@@ -8,7 +8,7 @@ import edu.wpi.first.math.MathUtil;
 
 public class MotorIOKraken implements MotorIO {
 
-    private final TalonFX motor;
+    public final TalonFX motor;
 
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut neutralRequest = new NeutralOut();
