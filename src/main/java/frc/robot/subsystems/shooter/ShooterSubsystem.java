@@ -63,15 +63,18 @@ public class ShooterSubsystem extends SubsystemBase {
     final SwerveSubsystem mSwerveSubsystem = null;
     final double g = 9.8;
 
-    private final VisionSubsystem visionSubsystem = null;
+    private VisionSubsystem visionSubsystem = null;
     final Translation3d hubPose = new Translation3d();
+    private SwerveSubsystem swerveSubsystem = null;
 
     MotorIOKraken main_motor;
 
 
-    public ShooterSubsystem(ShooterSubsysConfig config) {
+    public ShooterSubsystem(ShooterSubsysConfig config, 
+                VisionSubsystem m_VisionSubsystem, SwerveSubsystem m_SwerveSubsystem) {
         this.shooterConfig = config;
-        //this.visionSubsystem = visionSubsystem;
+        this.visionSubsystem = m_VisionSubsystem;
+        this.swerveSubsystem = m_SwerveSubsystem;
         //this.hubPose = this.visionSubsystem.getTargetHubCenter();
         shooterConfigPresent = shooterConfig.getIsPresent();
         shooterStatus = false;
@@ -330,7 +333,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double s = 0; // acceleration due to spin
 
         if (launch_v < 1){
-            System.out.println("wheels too slow");
+            //System.out.println("wheels too slow");
             return 0;
         }
 
@@ -367,25 +370,25 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("solver status", true);
 
         // get new pose
-        //Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
-        //Translation3d hubPose = this.visionSubsystem.getTargetHubCenter();
+        Pose2d robotPose = this.swerveSubsystem.getEstimatedPose();
+        Translation3d hubPose = this.visionSubsystem.getTargetHubCenter();
         double launchAngle;
         double launchVelocity;
         double error;
         double tolerance;
         double K;
         // translations taken from camera in Constants
-       // Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
-        //                                            new Rotation2d(Math.toRadians(-90))))
-        //double dist_to_hub = this.visionSubsystem.getDistanceToHub(robotPose, hubPose);
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
+                                                    new Rotation2d(Math.toRadians(-90))));
+        double dist_to_hub = this.visionSubsystem.getDistanceToHub(robotPose, hubPose) * 39.37; //inches
         launchAngle = getLaunchAngle();
         launchVelocity = getLaunchVelocity(getMainVelocity(), getEnglishVelocity());
-        // return error between calculated shot distance and current robot distance
-        // iterate until convergence. Nmax = 20.
         double launch_distance = calcTrajectory(launchVelocity, launchAngle);
-        double dist_to_hub = 96;
+        // dist_to_hub = 96;
         // ---------
         error = launch_distance - dist_to_hub; // double check these units! Both inches?
+        System.out.print("dist to hub = ");
+        System.out.println(dist_to_hub);
         //
         tolerance = 6; // in
         K = 10; // rpm/in
@@ -401,7 +404,7 @@ public class ShooterSubsystem extends SubsystemBase {
             System.out.print("increase wheel speed: ");
             System.out.print(getMainVelocity());
             System.out.print(", by ");
-            System.out.println(K * error);
+            System.out.println(-1 * K * error);
             setMainVelocity(getMainVelocity() - K * error);
             setEnglishVelocity(getEnglishVelocity() - K * error);
         }
@@ -429,6 +432,7 @@ public class ShooterSubsystem extends SubsystemBase {
             feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             this.startShooter();
             solver();
+        
         }
 
         /*
