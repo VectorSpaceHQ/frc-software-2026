@@ -30,6 +30,7 @@ import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
+
 public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterSubsysConfig shooterConfig = null;
@@ -55,20 +56,25 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean lastShooterStatus;
     private boolean runningSysId;
 
-    final SlewRateLimiter mainRpmSlew;
-    final SlewRateLimiter englishRpmSlew;
-    final SlewRateLimiter intakeRpmSlew;
+    final SlewRateLimiter mainRpmSlew = new SlewRateLimiter(200.0);
+    final SlewRateLimiter englishRpmSlew = new SlewRateLimiter(500.0);
+    final SlewRateLimiter intakeRpmSlew = new SlewRateLimiter(300.0);
 
-    final SwerveSubsystem mSwerveSubsystem;
+    final SwerveSubsystem mSwerveSubsystem = null;
     final double g = 9.8;
-    final Translation3d hubPose = VisionSubsystem.getTargetHubCenter();
+
+    private final VisionSubsystem visionSubsystem = null;
+    final Translation3d hubPose = new Translation3d();
 
     public ShooterSubsystem(ShooterSubsysConfig config) {
         this.shooterConfig = config;
+        //this.visionSubsystem = visionSubsystem;
+        //this.hubPose = this.visionSubsystem.getTargetHubCenter();
         shooterConfigPresent = shooterConfig.getIsPresent();
         shooterStatus = false;
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
+        
 
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
@@ -118,10 +124,6 @@ public class ShooterSubsystem extends SubsystemBase {
             feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
             // t_motorInputs = new MotorIOInputs();
             // b_motorInputs = new MotorIOInputs();
-
-            mainRpmSlew = new SlewRateLimiter(200.0);
-            englishRpmSlew = new SlewRateLimiter(500.0);
-            intakeRpmSlew = new SlewRateLimiter(300.0);
 
             SmartDashboard.putData("Shooter/English PID", english_PID);
             SmartDashboard.putData("Shooter/Main PID", main_PID);
@@ -342,6 +344,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void solver(){
         // get new pose
         Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
+        Translation3d hubPose = this.visionSubsystem.getTargetHubCenter();
         double launchAngle;
         double launchVelocity;
         double error;
@@ -350,8 +353,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // translations taken from camera in Constants
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
                                                     new Rotation2d(Math.toRadians(-90))));
-
-        double dist_to_hub = VisionSubsystem.getDistanceToHub(robotPose, hubPose);
+        
+        double dist_to_hub = this.visionSubsystem.getDistanceToHub(robotPose, hubPose);
         launchAngle = getLaunchAngle();
         launchVelocity = getLaunchVelocity(getMainVelocity(), getEnglishVelocity());
         // return error between calculated shot distance and current robot distance
