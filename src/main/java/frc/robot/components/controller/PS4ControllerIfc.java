@@ -93,6 +93,11 @@ public class PS4ControllerIfc implements ControllerIfc {
         return joystick.L1(); // Hold (On driver)
     }
 
+    @Override
+    public Trigger aimTowardsHub() {
+        return joystick.L2(); // Hold (On driver)
+    }
+
     // Tuning
     @Override
     public Trigger runQuasistatic() {

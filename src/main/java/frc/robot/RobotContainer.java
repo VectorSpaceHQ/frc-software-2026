@@ -6,6 +6,7 @@ package frc.robot;
 
 // import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
+import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
@@ -178,6 +179,10 @@ public class RobotContainer {
             0.05,
             0.035,
             Rotation2d.fromDegrees(0)).withTimeout(10));
+
+    m_driverController.aimTowardsHub().whileTrue(
+        new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)
+    );
 
     
     m_driverController.toggleOrientation().onTrue(
