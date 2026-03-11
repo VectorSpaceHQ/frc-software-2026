@@ -38,6 +38,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     // AprilTag layout for the 2026 field
     private AprilTagFieldLayout layout;
+    private Translation3d redHubCenter;
+    private Translation3d blueHubCenter;
 
     // Pose estimator used ONLY to generate vision measurements
 
@@ -57,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
     private List<PhotonPipelineResult> allUnreadResults = new ArrayList<>();
 
     // Distance from the robot to the camera
-    private Transform3d robotToCamera = VisionConstants.robotToCamera.inverse(); // Removed Inverse
+    private Transform3d robotToCamera = VisionConstants.robotToCamera.inverse();
 
     // Vision Subsystem constructor
     public VisionSubsystem(VisionSubsysConfig config) {
@@ -76,7 +78,7 @@ public class VisionSubsystem extends SubsystemBase {
             }
         }
         // Red Hub Center
-        Translation3d redHubCenter = calculateHubCenter(
+        redHubCenter = calculateHubCenter(
                 VisionConstants.HUB_TARGET_OFFSET,
                 Apriltags.RedHubRightSideCenterInNeutralZone, // 3
                 Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
@@ -85,7 +87,7 @@ public class VisionSubsystem extends SubsystemBase {
         );
 
         // Blue Hub Center
-        Translation3d blueHubCenter = calculateHubCenter(
+        blueHubCenter = calculateHubCenter(
                 VisionConstants.HUB_TARGET_OFFSET,
                 Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
                 Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
@@ -201,36 +203,33 @@ public class VisionSubsystem extends SubsystemBase {
             // Find the center using the tags
             Translation3d tagCenter = new Translation3d(sumX / count, sumY / count, sumZ / count);
             hubCenter = tagCenter.plus(targetOffset); // Add vertical offset
-            
+
         }
         Logger.recordOutput("HubCenterCalculations/Hub Center Pose", hubCenter);
         return hubCenter;
     }
-    
 
     public Translation3d getTargetHubCenter() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
+        Translation3d targetHubCenter = null;
 
-        // Aim at red hub if on red alliance
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-            return calculateHubCenter(
-                    VisionConstants.HUB_TARGET_OFFSET,
-                    Apriltags.RedHubRightSideCenterInNeutralZone, // 3
-                    Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
-                    Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
-                    Apriltags.RedHubRightSideCenterInAllianceZone // 10
-            );
+        // Aim at appropriate hub
+        if (alliance.isPresent()) {
+
+            if (alliance.get() == Alliance.Red) {
+                targetHubCenter = redHubCenter;
+            }
+            if (alliance.get() == Alliance.Blue) {
+                targetHubCenter = blueHubCenter;
+            }
+            else {
+                SmartDashboard.putString("HubCenterCalculations/Target Hub Center", "Absent");
+            }
+            
         }
-
-        // Aim at the blue hub
-        return calculateHubCenter(
-                VisionConstants.HUB_TARGET_OFFSET,
-                Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
-                Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
-                Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
-                Apriltags.BlueHubRightSideCenterInAllianceZone // 26
-        );
+            return targetHubCenter;
     }
+
     // Updates the vision measurement (periodic)
 
     private void updateVisionMeasurement() {
@@ -337,6 +336,8 @@ public class VisionSubsystem extends SubsystemBase {
                 new Rotation2d(VisionConstants.ROTATION_Z));
 
         Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
+
+        // Should force the robot to look right
         Translation2d targetVector = hubCenter.toTranslation2d().minus(shooterFieldPose.getTranslation());
 
         return targetVector.getAngle().minus(robotToShooter.getRotation());
@@ -350,11 +351,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
 
-        Translation3d shooterPosition = new Translation3d(
-                shooterFieldPose.getX(),
-                shooterFieldPose.getY(),
-                VisionConstants.TRANSLATION_Z);
-
-        return shooterPosition.getDistance(hubCenter);
+        return shooterFieldPose.getTranslation().getDistance(hubCenter.toTranslation2d());
     }
 }
