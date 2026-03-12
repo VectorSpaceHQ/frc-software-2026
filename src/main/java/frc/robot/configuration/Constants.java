@@ -12,6 +12,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -329,6 +330,7 @@ public final class Constants {
       }
     }
     public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
+    public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
   }
 
 }

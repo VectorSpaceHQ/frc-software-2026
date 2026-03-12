@@ -90,7 +90,7 @@ public class RobotContainer {
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
       () -> m_visionSubsystem.getLatestVisionMeasurement(), new Pose2d());
-private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_visionSubsystem, m_swerveSubsystem);
+private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
 
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
