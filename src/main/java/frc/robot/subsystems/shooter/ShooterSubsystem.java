@@ -17,6 +17,7 @@ import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -76,9 +77,9 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
-        mainRpmSlew = new SlewRateLimiter(200.0);
-        englishRpmSlew = new SlewRateLimiter(500.0);
-        intakeRpmSlew = new SlewRateLimiter(300.0);        
+        mainRpmSlew = new SlewRateLimiter(400.0);
+        englishRpmSlew = new SlewRateLimiter(1000.0);
+        intakeRpmSlew = new SlewRateLimiter(500.0);        
 
         RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
             if (DriverStation.getAlliance().isPresent()) {
@@ -202,23 +203,27 @@ public class ShooterSubsystem extends SubsystemBase {
                 && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
-    public void setMainVelocity(double target_vel){
+    public void setMainVelocity(double target_wheel_vel){
         // Set the main wheel's angular velocity in ft/s
         // use an angular acceleration limit to avoid motor damage
         float d_main = 6; // in
-        double target_rpm = (target_vel * 60 * 12) / (Math.PI * d_main);
+        double gear_ratio = 1.0;
+        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
         //mainRpmSlew.reset(main_PID.getM_realRPM());
-        double rampedMainRPM = mainRpmSlew.calculate(target_rpm);
-        main_PID.setM_RPM(rampedMainRPM);
+        double rampedMainRPM = mainRpmSlew.calculate(target_motor_rpm);
+        main_PID.setM_RPM(rampedMainRPM);  
+        SmartDashboard.putNumber("target main rpm", rampedMainRPM);
     }
     
-    public void setEnglishVelocity(double target_vel){
+    public void setEnglishVelocity(double target_wheel_vel){
         // Set the english wheel's angular velocity in ft/s
         float d_english = 4; // in
-        double target_rpm = (target_vel * 60 * 12) / (Math.PI * d_english);
+        double gear_ratio = 0.75;
+        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
         //englishRpmSlew.reset(english_PID.getM_realRPM());
-        double rampedEnglishRPM = englishRpmSlew.calculate(target_rpm);
+        double rampedEnglishRPM = englishRpmSlew.calculate(target_motor_rpm);
         english_PID.setM_RPM(rampedEnglishRPM);
+        SmartDashboard.putNumber("target english rpm", rampedEnglishRPM);
     }
 
     public double getMainVelocity(){
@@ -244,7 +249,7 @@ public class ShooterSubsystem extends SubsystemBase {
         float d_english = 4; // in
         double gear_ratio = 0.75;
         double motor_rpm = english_PID.getM_realRPM();
-        double wheel_rpm = motor_rpm;
+        double wheel_rpm = motor_rpm * gear_ratio;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
         return v_english;
     }
@@ -264,7 +269,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getLaunchVelocity(){
         // given current main wheel velocity and english wheel velocity
-        // return launch angle
+        // return launch velocity in ft/s
+
         // This is an empirical formula, current formula is a guess, needs tuning
         // The assumption is that the ball velocity is the average of the wheel velocities.
         // It is also assumed that there is a loss factor in transferrign momentum from wheel to ball
@@ -280,55 +286,24 @@ public class ShooterSubsystem extends SubsystemBase {
         return launchVelocity;
     }
 
-    public void setLaunchAngle(Double launch_alpha){
-        // given a target launch angle
-        // adjust main and english wheel velocities
-        // this is an empirical formula
-
-    }
-
-    public double calcLaunchVelocity(double launch_alpha, double targetDistance){
-        // Return launch velocity vector as a function of pose and current launch angle
-        double launchAngle = launch_alpha;
-        double shotDistance = targetDistance; //how far we want to shoot horizontally
-        double hubHeight = Constants.VisionConstants.HUB_TARGET_OFFSET.getZ(); //get height offset from top of hub
-        double initialVelocity;
-        initialVelocity = (shotDistance * Math.sqrt(g)) 
-                            / Math.sqrt(2 * Math.cos(launchAngle) * Math.cos(launchAngle) * (shotDistance * Math.tan(launchAngle) - hubHeight));
-        return initialVelocity;
-    }
-
-    public double calcLaunchAngle(double launchVelocity, double targetDistance){
-        // Return launch angle as a function of pose and current launch velocity
-        
-        // Distances from hub to robot. Need to translate shooter pose to account for orientation and placement on robot
-        double shotDistance = targetDistance;
-        double hubHeight = Constants.VisionConstants.HUB_TARGET_OFFSET.getZ(); //get height offset from top of hub
-        double initialVelocity = launchVelocity;
-        double launchAngle;
-        launchAngle = Math.atan((initialVelocity * initialVelocity + Math.sqrt(initialVelocity * initialVelocity * initialVelocity * initialVelocity - g * (g * shotDistance * shotDistance + 2 * initialVelocity * initialVelocity * hubHeight))) 
-                                / (g * shotDistance));
-        return launchAngle;
-    }
-
     public double calcTrajectory(double launch_v, double launch_alpha){
         // Projectile motion calculation including air resistance
         // Returns distance at which ball enters center of hub,
-        //units are in, lb, and s
-        double dist; // distance at which ball would enter hub
-        double rho = 0.075 / 1728; // lb/in^3 0.075/12^3
+        //units are ft, lb, and s
+        // returns distance in meters
+        double dist_in_meters; // distance at which ball would enter hub
+        double rho = 0.075; // lb/ft^3
         double C = 0.6;
-        double A = Math.PI * (5.9 / 2) * (5.9 / 2); // in^2
+        double A = Math.PI * (5.9 / 12 / 2) * (5.9 / 12 / 2); // ft^2
         double D = (rho * C * A) /2;
         double m = 0.5; // lb
-        double g = 32.2 * 12; // in/s2
-        double y_hub = 60; // in
-
+        double g = 32.2; // ft/s2
+        double y_hub = 60 / 12; // ft
         double dt = 0.1; // sec
 
-        double vx = launch_v * Math.cos(launch_alpha);
+        double vx = launch_v * Math.cos(Math.toRadians(launch_alpha));
         double x = 0;
-        double vy = launch_v * Math.sin(launch_alpha);
+        double vy = launch_v * Math.sin(Math.toRadians(launch_alpha));
         double y = 0;
         double t = 0;
         double v = Math.sqrt(vx * vx + vy * vy);
@@ -367,7 +342,8 @@ public class ShooterSubsystem extends SubsystemBase {
             // and if y <= y_hub
             if (y < y_old && y <= y_hub){
                 System.out.println("Solver converged");
-                return x;
+                dist_in_meters = x * 0.3048;
+                return dist_in_meters; // return in meters
             }
         }
         System.out.println("Solver failed to converge");
@@ -394,6 +370,9 @@ public class ShooterSubsystem extends SubsystemBase {
         error = launch_distance - distanceToHub;
         tolerance = 0.1524; // meters
         K = 30.48; // rpm/m
+        SmartDashboard.putNumber("launch distance", launch_distance);
+        SmartDashboard.putNumber("distance to hub", distanceToHub);
+        SmartDashboard.putNumber("Shooter Error", error);
         if (error > tolerance){
             //decrease wheel speeds
             setMainVelocity(getMainVelocity() - K * error);
@@ -412,7 +391,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     }
-
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
