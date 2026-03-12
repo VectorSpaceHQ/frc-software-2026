@@ -105,11 +105,15 @@ public class PID implements Sendable {
         return m_motorInputs;
     }
 
+    public double getRawMotorRPM() {
+        return Units.radiansPerSecondToRotationsPerMinute(m_motorInputs.velocityRadPerSec);
+    }
+
     public double calculate() {
         double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
         m_volts = MathUtil.clamp(
                 feedforward.calculate(target)
-                        + pid.calculate(m_motorInputs.velocityRadPerSec, target),
+                        + pid.calculate(motorInputs.velocityRadPerSec, target),
                 -12.0,
                 12.0);
         return m_volts;
@@ -133,7 +137,8 @@ public class PID implements Sendable {
         motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec / m_gearRatio;
         motorInputs.appliedVoltage = m_motorInputs.appliedVoltage;
         motorInputs.currentAmps = m_motorInputs.currentAmps;
-        m_realRPM = Units.radiansPerSecondToRotationsPerMinute(m_motorInputs.velocityRadPerSec);
+        
+        m_realRPM = Units.radiansPerSecondToRotationsPerMinute(motorInputs.velocityRadPerSec);
         // System.out.println(
         // "Pos: " + m_motorInputs.positionRad +
         // " Vel: " + m_motorInputs.velocityRadPerSec +
@@ -259,6 +264,7 @@ public class PID implements Sendable {
         builder.addDoubleProperty(name + "RPM", this::getM_RPM, this::setM_RPM);
         builder.addDoubleProperty(name + "Volts", this::getM_volts, null);
         builder.addDoubleProperty(name + "Real RPM", this::getM_realRPM, null);
+        builder.addDoubleProperty(name + "Raw RPM", this::getRawMotorRPM, null);
         builder.addDoubleProperty(name + "Motor Error", this::getError, null);
         builder.addDoubleProperty(name + "Motor Integrated Error", this::getIntegralError, null);
         builder.addDoubleProperty(name + "kP", this::getkP, this::setkP);

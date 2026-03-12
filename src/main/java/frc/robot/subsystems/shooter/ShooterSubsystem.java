@@ -216,9 +216,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getMainVelocity(){
         // get angular velocity of main wheel in ft/s
         float d_main = 6; // in
-        double gear_ratio = 1.5;
         double motor_rpm = main_motor.motor.getVelocity().getValueAsDouble();
-        double wheel_rpm = motor_rpm * gear_ratio;
+        double wheel_rpm = motor_rpm;
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // We need actual rpm, not PID calculated rpm
         //double v_main = (main_PID.getM_realRPM() * Math.PI * d_main) / (60 * 12); 
@@ -230,9 +229,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getEnglishVelocity(){
         // get angular velocity of main wheel in ft/s
         float d_english = 4; // in
-        double gear_ratio = 1.5;
         double motor_rpm = english_PID.getM_realRPM();
-        double wheel_rpm = motor_rpm * gear_ratio;
+        double wheel_rpm = motor_rpm;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
         return v_english;
     }
