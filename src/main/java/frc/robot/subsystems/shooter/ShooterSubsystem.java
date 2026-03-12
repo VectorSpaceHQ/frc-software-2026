@@ -244,7 +244,7 @@ public class ShooterSubsystem extends SubsystemBase {
         float d_english = 4; // in
         double gear_ratio = 0.75;
         double motor_rpm = english_PID.getM_realRPM();
-        double wheel_rpm = motor_rpm * gear_ratio;
+        double wheel_rpm = motor_rpm;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
         return v_english;
     }
