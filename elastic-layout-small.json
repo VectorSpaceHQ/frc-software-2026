@@ -1,6 +1,6 @@
 {
   "version": 1.0,
-  "grid_size": 128,
+  "grid_size": 96,
   "tabs": [
     {
       "name": "Teleoperated",
@@ -8,10 +8,10 @@
         "layouts": [
           {
             "title": "BatterySim",
-            "x": 512.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 576.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -48,52 +48,11 @@
             ]
           },
           {
-            "title": "imu",
-            "x": 768.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "adjusted",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/swerve/imu/adjusted",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "raw",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/swerve/imu/raw",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
             "title": "PoseEstimator",
-            "x": 256.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 288.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -146,9 +105,9 @@
           {
             "title": "DriveToTarget",
             "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -300,10 +259,10 @@
         "containers": [
           {
             "title": "Field",
-            "x": 512.0,
+            "x": 576.0,
             "y": 0.0,
-            "width": 1024.0,
-            "height": 512.0,
+            "width": 576.0,
+            "height": 288.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -321,10 +280,10 @@
           },
           {
             "title": "swerve",
-            "x": 1024.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "YAGSL Swerve Drive",
             "properties": {
               "topic": "/SmartDashboard/swerve",
@@ -335,23 +294,11 @@
             }
           },
           {
-            "title": "Swerve Drive",
-            "x": 768.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/SmartDashboard/Swerve Drive",
-              "period": 0.06
-            }
-          },
-          {
             "title": "Alerts",
-            "x": 512.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 1248.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "Alerts",
             "properties": {
               "topic": "/SmartDashboard/Alerts",
@@ -360,10 +307,10 @@
           },
           {
             "title": "FMSInfo",
-            "x": 1536.0,
-            "y": 0.0,
+            "x": 864.0,
+            "y": 288.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 192.0,
             "type": "FMSInfo",
             "properties": {
               "topic": "/FMSInfo",
@@ -372,10 +319,10 @@
           },
           {
             "title": "Shooter Present",
-            "x": 1536.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 288.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Shooter Present",
@@ -389,10 +336,10 @@
           },
           {
             "title": "Intake Present",
-            "x": 1792.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Intake Present",
@@ -406,10 +353,10 @@
           },
           {
             "title": "Swerve Orientation",
-            "x": 1280.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 0.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Swerve Orientation",
@@ -420,10 +367,10 @@
           },
           {
             "title": "Swerve Present",
-            "x": 1280.0,
-            "y": 640.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 0.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Swerve Present",
@@ -438,9 +385,9 @@
           {
             "title": "Camera Present",
             "x": 384.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Camera Present",
@@ -454,10 +401,10 @@
           },
           {
             "title": "Vision Present",
-            "x": 128.0,
+            "x": 384.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Vision Present",
@@ -471,10 +418,10 @@
           },
           {
             "title": "Indexer Present",
-            "x": 1792.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 192.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Indexer Present",
@@ -488,10 +435,10 @@
           },
           {
             "title": "IntakeRollerReal RPM",
-            "x": 1792.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Intake Roller PID/IntakeRollerReal RPM",
@@ -502,10 +449,10 @@
           },
           {
             "title": "IndexerRPM",
-            "x": 1792.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 192.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Indexer PID/IndexerRPM",
@@ -516,10 +463,10 @@
           },
           {
             "title": "FeederReal RPM",
-            "x": 1536.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 192.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Shooter/Feeder PID/FeederReal RPM",
@@ -530,10 +477,10 @@
           },
           {
             "title": "EnglishReal RPM",
-            "x": 1664.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 288.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Shooter/English PID/EnglishReal RPM",
@@ -544,10 +491,10 @@
           },
           {
             "title": "MainReal RPM",
-            "x": 1536.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 288.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Shooter/Main PID/MainReal RPM",
@@ -558,10 +505,10 @@
           },
           {
             "title": "Pivot Position",
-            "x": 1792.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Pivot Position",
@@ -579,10 +526,10 @@
         "layouts": [
           {
             "title": "BatterySim",
-            "x": 512.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 576.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -620,10 +567,10 @@
           },
           {
             "title": "PoseEstimator",
-            "x": 256.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 288.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -676,9 +623,9 @@
           {
             "title": "DriveToTarget",
             "x": 0.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -825,56 +772,15 @@
                 }
               }
             ]
-          },
-          {
-            "title": "imu",
-            "x": 768.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "adjusted",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/swerve/imu/adjusted",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "raw",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/SmartDashboard/swerve/imu/raw",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
           }
         ],
         "containers": [
           {
             "title": "Field",
-            "x": 512.0,
+            "x": 576.0,
             "y": 0.0,
-            "width": 1024.0,
-            "height": 512.0,
+            "width": 576.0,
+            "height": 288.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -891,35 +797,11 @@
             }
           },
           {
-            "title": "Alerts",
-            "x": 512.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/SmartDashboard/Alerts",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "Swerve Drive",
-            "x": 768.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/SmartDashboard/Swerve Drive",
-              "period": 0.06
-            }
-          },
-          {
             "title": "swerve",
-            "x": 1024.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 288.0,
+            "height": 288.0,
             "type": "YAGSL Swerve Drive",
             "properties": {
               "topic": "/SmartDashboard/swerve",
@@ -930,11 +812,23 @@
             }
           },
           {
+            "title": "Alerts",
+            "x": 1248.0,
+            "y": 288.0,
+            "width": 288.0,
+            "height": 288.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
             "title": "FMSInfo",
-            "x": 1536.0,
-            "y": 0.0,
+            "x": 864.0,
+            "y": 288.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 192.0,
             "type": "FMSInfo",
             "properties": {
               "topic": "/FMSInfo",
@@ -943,10 +837,10 @@
           },
           {
             "title": "Shooter Present",
-            "x": 1536.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 288.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Shooter Present",
@@ -960,10 +854,10 @@
           },
           {
             "title": "Intake Present",
-            "x": 1792.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Intake Present",
@@ -977,10 +871,10 @@
           },
           {
             "title": "Swerve Orientation",
-            "x": 1280.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 0.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Swerve Orientation",
@@ -990,62 +884,11 @@
             }
           },
           {
-            "title": "Vision Present",
-            "x": 128.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Vision Present",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Camera Present",
-            "x": 384.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Camera Present",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Indexer Present",
-            "x": 1792.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Indexer Present",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "Swerve Present",
-            "x": 1280.0,
-            "y": 640.0,
-            "width": 256.0,
-            "height": 128.0,
+            "x": 0.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/Swerve Present",
@@ -1058,11 +901,62 @@
             }
           },
           {
+            "title": "Camera Present",
+            "x": 384.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Camera Present",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Vision Present",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision Present",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Indexer Present",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Indexer Present",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
             "title": "IntakeRollerReal RPM",
-            "x": 1792.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Intake Roller PID/IntakeRollerReal RPM",
@@ -1072,53 +966,11 @@
             }
           },
           {
-            "title": "MainReal RPM",
-            "x": 1536.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Shooter/Main PID/MainReal RPM",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "EnglishReal RPM",
-            "x": 1664.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Shooter/English PID/EnglishReal RPM",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "FeederReal RPM",
-            "x": 1536.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Shooter/Feeder PID/FeederReal RPM",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "IndexerRPM",
-            "x": 1792.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 192.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Indexer PID/IndexerRPM",
@@ -1128,11 +980,53 @@
             }
           },
           {
+            "title": "FeederReal RPM",
+            "x": 192.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Feeder PID/FeederReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "EnglishReal RPM",
+            "x": 288.0,
+            "y": 192.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/English PID/EnglishReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "MainReal RPM",
+            "x": 288.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/Main PID/MainReal RPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
             "title": "Pivot Position",
-            "x": 1792.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 96.0,
+            "y": 96.0,
+            "width": 96.0,
+            "height": 96.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Pivot Position",

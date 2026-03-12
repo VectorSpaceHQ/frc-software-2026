@@ -91,6 +91,7 @@ public class VisionSubsystem extends SubsystemBase {
                 Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
                 Apriltags.BlueHubRightSideCenterInAllianceZone // 26
         );
+        
 
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);

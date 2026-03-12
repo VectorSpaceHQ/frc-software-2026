@@ -195,6 +195,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // methods from Pose Estimator SS
   public void update() {
     m_visionMeasurement.get().ifPresentOrElse(measurement -> {
+        SmartDashboard.putBoolean("Vision Measurement Present", true);
         swerveDrive.addVisionMeasurement(
             measurement.estimatedPose.toPose2d(),
             measurement.timestampSeconds);

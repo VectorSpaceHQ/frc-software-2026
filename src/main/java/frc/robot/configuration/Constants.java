@@ -12,6 +12,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -160,6 +161,10 @@ public final class Constants {
       PivotState(double voltage) {
         this.voltage = voltage;
       }
+
+      public String textName() {
+        return this.name();
+      }
     }
   }
 
@@ -213,15 +218,15 @@ public final class Constants {
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
 
-    public static final double TRANSLATION_P = 4.0;
+    public static final double TRANSLATION_P = 1.3;
     public static final double TRANSLATION_I = 0.0;
     public static final double TRANSLATION_D = 0.0;
     public static final double TRANSLATION_MAX_VEL = 4.0;
     public static final double TRANSLATION_MAX_ACCEL = 4.0;
 
-    public static final double ROTATION_P = 4.0;
-    public static final double ROTATION_I = 0.0;
-    public static final double ROTATION_D = 0.0;
+    public static final double ROTATION_P = 25.0;
+    public static final double ROTATION_I = 5.0;
+    public static final double ROTATION_D = 0.32;
     public static final double ROTATION_MAX_VEL = 6.0;
     public static final double ROTATION_MAX_ACCEL = 8.0;
 
@@ -325,6 +330,7 @@ public final class Constants {
       }
     }
     public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
+    public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
   }
 
 }

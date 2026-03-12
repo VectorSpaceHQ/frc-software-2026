@@ -60,6 +60,10 @@ public class IndexerSubsystem extends SubsystemBase {
         return lastIndexerstatus;
     }
 
+    public void setIndexerRPM(double RPM){
+        IndexerPID.setM_RPM(RPM); //set the RPM of the Indexer
+    }
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (this.IndexerConfig.getIsPresent()) {

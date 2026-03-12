@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import java.lang.Math;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,13 +16,17 @@ import swervelib.SwerveDrive;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.Constants.ShooterConstants;
+import frc.robot.configuration.Constants;
 import frc.robot.configuration.Constants.OperatorConstants;
 import frc.robot.configuration.Constants.SysIdEnums;
 import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
@@ -29,7 +34,6 @@ import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -56,28 +60,33 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean lastShooterStatus;
     private boolean runningSysId;
 
-    final SlewRateLimiter mainRpmSlew = new SlewRateLimiter(200.0);
-    final SlewRateLimiter englishRpmSlew = new SlewRateLimiter(500.0);
-    final SlewRateLimiter intakeRpmSlew = new SlewRateLimiter(300.0);
+    final SlewRateLimiter mainRpmSlew;
+    final SlewRateLimiter englishRpmSlew;
+    final SlewRateLimiter intakeRpmSlew;
 
-    final SwerveSubsystem mSwerveSubsystem = null;
+    final SwerveSubsystem mSwerveSubsystem;
     final double g = 9.8;
+    private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
 
-    private final VisionSubsystem visionSubsystem = null;
-    final Translation3d hubPose = new Translation3d();
-
-    MotorIOKraken main_motor;
-
-
-    public ShooterSubsystem(ShooterSubsysConfig config) {
+    public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
+        this.mSwerveSubsystem = swerveSubsystem;
         this.shooterConfig = config;
-        //this.visionSubsystem = visionSubsystem;
-        //this.hubPose = this.visionSubsystem.getTargetHubCenter();
         shooterConfigPresent = shooterConfig.getIsPresent();
         shooterStatus = false;
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
-        
+
+        mainRpmSlew = new SlewRateLimiter(200.0);
+        englishRpmSlew = new SlewRateLimiter(500.0);
+        intakeRpmSlew = new SlewRateLimiter(300.0);        
+
+        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
+            if (DriverStation.getAlliance().isPresent()) {
+                if (DriverStation.getAlliance().get() == Alliance.Red) {
+                    goalPosition = FlippingUtil.flipFieldPose(goalPosition);
+                }
+            }
+        }));        
 
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
@@ -95,10 +104,9 @@ public class ShooterSubsystem extends SubsystemBase {
                     ShooterConstants.ENGLISH_kA);
 
             // Main Flywheel Mechanism
-            main_motor = new MotorIOKraken(this.shooterConfig.getShooterMainId());
             main_PID = new PID(
                     "Main",
-                    main_motor,
+                    new MotorIOKraken(this.shooterConfig.getShooterMainId()),
                     ShooterConstants.MAIN_MAX_RPM,
                     ShooterConstants.MAX_VOLTAGE,
                     ShooterConstants.GEAR_RATIO,
@@ -132,7 +140,6 @@ public class ShooterSubsystem extends SubsystemBase {
             SmartDashboard.putData("Shooter/English PID", english_PID);
             SmartDashboard.putData("Shooter/Main PID", main_PID);
             SmartDashboard.putData("Shooter/Feeder PID", feeder_PID);
-            SmartDashboard.putNumber("Main RPM", main_motor.motor.getVelocity().getValueAsDouble());
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
@@ -223,7 +230,6 @@ public class ShooterSubsystem extends SubsystemBase {
         //double v_main = (main_PID.getM_realRPM() * Math.PI * d_main) / (60 * 12); 
         double v_main = (wheel_rpm * Math.PI * d_main) / (12); 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         return v_main;
     }
     public double getEnglishVelocity(){
@@ -240,18 +246,17 @@ public class ShooterSubsystem extends SubsystemBase {
         setEnglishVelocity(english_vel);
     }
 
-    public double getLaunchAngle(){
+    public double getLaunchAngle(double main_vel, double english_vel){
         // given current main wheel velocity and english wheel velocity
-        // return launch angle in degrees
-        // angle is set by shooter design
-        double launchAngle = 75; // deg
-        //double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
+        // return launch angle
+        // This is an empirical formula, current formula is a guess, needs tuning
+        double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
         return launchAngle;
     }
 
     public double getLaunchVelocity(double main_vel, double english_vel){
         // given current main wheel velocity and english wheel velocity
-        // return launch velocity in ft/s
+        // return launch angle
         // This is an empirical formula, current formula is a guess, needs tuning
         // The assumption is that the ball velocity is the average of the wheel velocities.
         // It is also assumed that there is a loss factor in transferrign momentum from wheel to ball
@@ -270,38 +275,37 @@ public class ShooterSubsystem extends SubsystemBase {
         // given a target launch angle
         // adjust main and english wheel velocities
         // this is an empirical formula
+
     }
 
-/*     This is without drag. Can be removed.
-        public double calcLaunchVelocity(double launch_alpha, Pose2d pose){
+    public double calcLaunchVelocity(double launch_alpha, double targetDistance){
         // Return launch velocity vector as a function of pose and current launch angle
         double launchAngle = launch_alpha;
-        double translationX = pose.getX();
-        double translationY = pose.getY();
+        double shotDistance = targetDistance; //how far we want to shoot horizontally
+        double hubHeight = Constants.VisionConstants.HUB_TARGET_OFFSET.getZ(); //get height offset from top of hub
         double initialVelocity;
-        initialVelocity = (translationX * Math.sqrt(g)) 
-                            / Math.sqrt(2 * Math.cos(launchAngle) * Math.cos(launchAngle) * (translationX * Math.tan(launchAngle) - translationY));
+        initialVelocity = (shotDistance * Math.sqrt(g)) 
+                            / Math.sqrt(2 * Math.cos(launchAngle) * Math.cos(launchAngle) * (shotDistance * Math.tan(launchAngle) - hubHeight));
         return initialVelocity;
     }
 
-    public double calcLaunchAngle(Double launchVelocity, Pose2d pose){
+    public double calcLaunchAngle(double launchVelocity, double targetDistance){
         // Return launch angle as a function of pose and current launch velocity
         
         // Distances from hub to robot. Need to translate shooter pose to account for orientation and placement on robot
-        double translationX = pose.getX();
-        double translationY = pose.getY();
+        double shotDistance = targetDistance;
+        double hubHeight = Constants.VisionConstants.HUB_TARGET_OFFSET.getZ(); //get height offset from top of hub
         double initialVelocity = launchVelocity;
         double launchAngle;
-        launchAngle = Math.atan((initialVelocity * initialVelocity + Math.sqrt(initialVelocity * initialVelocity * initialVelocity * initialVelocity - g * (g * translationX * translationX + 2 * initialVelocity * initialVelocity * translationY))) 
-                                / (g * translationX));
+        launchAngle = Math.atan((initialVelocity * initialVelocity + Math.sqrt(initialVelocity * initialVelocity * initialVelocity * initialVelocity - g * (g * shotDistance * shotDistance + 2 * initialVelocity * initialVelocity * hubHeight))) 
+                                / (g * shotDistance));
         return launchAngle;
-    } */
+    }
 
     public double calcTrajectory(double launch_v, double launch_alpha){
         // Projectile motion calculation including air resistance
         // Returns distance at which ball enters center of hub,
         //units are in, lb, and s
-
         double dist; // distance at which ball would enter hub
         double rho = 0.075 / 1728; // lb/in^3 0.075/12^3
         double C = 0.6;
@@ -328,7 +332,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double s = 0; // acceleration due to spin
 
         if (launch_v < 1){
-            System.out.println("wheels too slow");
+            //System.out.println("wheels too slow");
             return 0;
         }
 
@@ -362,57 +366,50 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void solver(){
-        SmartDashboard.putBoolean("solver status", true);
-
         // get new pose
-        //Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
-        //Translation3d hubPose = this.visionSubsystem.getTargetHubCenter();
+        Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
         double launchAngle;
         double launchVelocity;
         double error;
         double tolerance;
         double K;
         // translations taken from camera in Constants
-       // Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
-        //                                            new Rotation2d(Math.toRadians(-90))))
-        //double dist_to_hub = this.visionSubsystem.getDistanceToHub(robotPose, hubPose);
-        launchAngle = getLaunchAngle();
-        launchVelocity = getLaunchVelocity(getMainVelocity(), getEnglishVelocity());
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
+                                                    new Rotation2d(Math.toRadians(-90))));
+        
+        Pose2d shooterToHub = shooterPose.transformBy(new Transform2d(new Translation2d(-goalPosition.getX(), -goalPosition.getY()), 
+                                                    new Rotation2d()));
+        double distanceToHub = Math.sqrt(shooterPose.getX() * shooterPose.getX() + shooterPose.getY() * shooterPose.getY());
+        // calculate launch angle, need if statement for no solution.
+        // launchAngle = calcLaunchAngle(getLaunchVelocity(main_PID.getM_realRPM(), english_PID.getM_realRPM()), shooterPose);
+        launchAngle = 75; //degrees, temporary value for comp 1
+        //find necessary launch velocity w/ angle
+        launchVelocity = calcLaunchVelocity(launchAngle, distanceToHub);
         // return error between calculated shot distance and current robot distance
         // iterate until convergence. Nmax = 20.
-        double launch_distance = calcTrajectory(launchVelocity, launchAngle);
-        double dist_to_hub = 96;
-        // ---------
-        error = launch_distance - dist_to_hub; // double check these units! Both inches?
-        //
-        tolerance = 6; // in
-        K = 10; // rpm/in
-        SmartDashboard.putString("Target", "acquiring");
 
+        double launch_distance = calcTrajectory(launchVelocity, launchAngle);
+        error = launch_distance - distanceToHub;
+        tolerance = 0.1524; // meters
+        K = 30.48; // rpm/m
         if (error > tolerance){
             //decrease wheel speeds
-            setMainVelocity(getMainVelocity() - K * error);
-            setEnglishVelocity(getEnglishVelocity() - K * error);
+            setMainVelocity(main_PID.getM_realRPM() - K * error);
+            setEnglishVelocity(english_PID.getM_realRPM() - K * error);
         }
         else if(error < 0 && Math.abs(error) > tolerance){
             // increase wheel speeds
-            System.out.print("increase wheel speed: ");
-            System.out.print(getMainVelocity());
-            System.out.print(", by ");
-            System.out.println(K * error);
-            setMainVelocity(getMainVelocity() - K * error);
-            setEnglishVelocity(getEnglishVelocity() - K * error);
+            setMainVelocity(launchVelocity + K * error);
+            setEnglishVelocity(launchVelocity + K * error);
         }
-        else{
-            System.out.print("Target locked at RPM = ");
-            System.out.println(getMainVelocity());
-            SmartDashboard.putString("Target", "locked");
-        }
+
 
     }
 
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
+        solver();
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
@@ -425,8 +422,6 @@ public class ShooterSubsystem extends SubsystemBase {
             english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             main_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            this.startShooter();
-            solver();
         }
 
         /*
@@ -463,6 +458,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        System.out.println("Shooter init sendable called");
         builder.setSmartDashboardType("Shooter Controller");
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
