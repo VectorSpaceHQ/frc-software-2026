@@ -104,6 +104,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     ShooterConstants.ENGLISH_kA);
 
             // Main Flywheel Mechanism
+            //main_motor = new MotorIOKraken(this.)
             main_PID = new PID(
                     "Main",
                     new MotorIOKraken(this.shooterConfig.getShooterMainId()),
@@ -223,7 +224,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getMainVelocity(){
         // get angular velocity of main wheel in ft/s
         float d_main = 6; // in
-        double gear_ratio = 1.5;
+        double gear_ratio = 1.0;
         double motor_rpm = main_PID.getM_realRPM();
         double wheel_rpm = motor_rpm * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the 
         // PID constructor, which is being used to calculate rpm separately. You would either need to remove its implementation
@@ -241,7 +242,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getEnglishVelocity(){
         // get angular velocity of main wheel in ft/s
         float d_english = 4; // in
-        double gear_ratio = 1.5;
+        double gear_ratio = 0.75;
         double motor_rpm = english_PID.getM_realRPM();
         double wheel_rpm = motor_rpm * gear_ratio;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
@@ -261,7 +262,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return launchAngle;
     }
 
-    public double getLaunchVelocity(double main_vel, double english_vel){
+    public double getLaunchVelocity(){
         // given current main wheel velocity and english wheel velocity
         // return launch angle
         // This is an empirical formula, current formula is a guess, needs tuning
@@ -270,7 +271,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // and that the english wheel transfers less than the main
 
         //double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
-
+        double english_vel = getEnglishVelocity();
+        double main_vel = getMainVelocity();
         double L_main = 0.95; // loss factor
         double L_english = 0.5; // loss factor
         double launchVelocity = (L_english * english_vel + L_main * main_vel) / 2;
@@ -383,31 +385,29 @@ public class ShooterSubsystem extends SubsystemBase {
         // translations taken from camera in Constants
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
                                                     new Rotation2d(Math.toRadians(-90))));
-        
         Pose2d shooterToHub = shooterPose.transformBy(new Transform2d(new Translation2d(-goalPosition.getX(), -goalPosition.getY()), 
                                                     new Rotation2d()));
         double distanceToHub = Math.sqrt(shooterPose.getX() * shooterPose.getX() + shooterPose.getY() * shooterPose.getY());
-        // calculate launch angle, need if statement for no solution.
-        // launchAngle = calcLaunchAngle(getLaunchVelocity(main_PID.getM_realRPM(), english_PID.getM_realRPM()), shooterPose);
         launchAngle = 75; //degrees, temporary value for comp 1
-        //find necessary launch velocity w/ angle
-        launchVelocity = calcLaunchVelocity(launchAngle, distanceToHub);
-        // return error between calculated shot distance and current robot distance
-        // iterate until convergence. Nmax = 20.
-
+        launchVelocity = getLaunchVelocity();
         double launch_distance = calcTrajectory(launchVelocity, launchAngle);
         error = launch_distance - distanceToHub;
         tolerance = 0.1524; // meters
         K = 30.48; // rpm/m
         if (error > tolerance){
             //decrease wheel speeds
-            setMainVelocity(main_PID.getM_realRPM() - K * error);
-            setEnglishVelocity(english_PID.getM_realRPM() - K * error);
+            setMainVelocity(getMainVelocity() - K * error);
+            setEnglishVelocity(getEnglishVelocity() - K * error);
+            SmartDashboard.putString("Target", "too close");
         }
         else if(error < 0 && Math.abs(error) > tolerance){
             // increase wheel speeds
-            setMainVelocity(launchVelocity + K * error);
-            setEnglishVelocity(launchVelocity + K * error);
+            setMainVelocity(getMainVelocity() - K * error);
+            setEnglishVelocity(getEnglishVelocity() - K * error);
+            SmartDashboard.putString("Target", "too far");
+        }
+        else{
+            SmartDashboard.putString("Target", "locked");
         }
 
 
