@@ -83,7 +83,6 @@ public class SwerveSubsystem extends SubsystemBase {
   Supplier<Pose2d> currentPose;
 
   private Orientation driveOrientation = Orientation.FIELD;
-  private double speedLimiter = 1;
 
 
   public SwerveSubsystem(SwerveSubsysConfig config, Supplier<Optional<EstimatedRobotPose>> visionMeasurement, Pose2d initialPose) {
@@ -93,10 +92,9 @@ public class SwerveSubsystem extends SubsystemBase {
     if (swerveConfig.getIsPresent()) {
 
       try {
-        swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed * speedLimiter,
-            new Pose2d(1, 4, new Rotation2d()));
+        swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed,
+                                                                    new Pose2d(1, 4, new Rotation2d()));
         zeroGyro();
-        resetOdometry();
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
 
         swerveDrive.setHeadingCorrection(false);
@@ -148,8 +146,8 @@ public class SwerveSubsystem extends SubsystemBase {
                                                                   // individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                             // holonomic drive trains
-                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                new PIDConstants(1.3, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(25.0, 5.0, 0.32) // Rotation PID constants
             ),
             PathPlannerConfig, // The robot configuration
             () -> {
@@ -219,19 +217,8 @@ public class SwerveSubsystem extends SubsystemBase {
   // Unused
   public void resetPose() {
     resetOdometry();
-
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a
-   * digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
 
   @Override
   public void periodic() {
@@ -327,6 +314,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void resetOdometry() {
     swerveDrive.resetOdometry(new Pose2d());
+  }
+
+  public void setMaximumSpeed(double speedMultiplier) {
+    swerveDrive.setMaximumAllowableSpeeds(Constants.SwerveConstants.maxSpeed * speedMultiplier, swerveDrive.getMaximumChassisAngularVelocity());
   }
 
   public void orientationToggle() {
