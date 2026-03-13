@@ -56,6 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // private final ControllerIfc m_driverController;
     // private final ControllerIfc m_operatorController;
 
+    private boolean useSolver = false;
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
@@ -96,7 +97,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     new MotorIOKraken(this.shooterConfig.getShooterEnglishId()),
                     ShooterConstants.ENGLISH_MAX_RPM,
                     ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.GEAR_RATIO,
+                    0.75,
                     ShooterConstants.ENGLISH_kS,
                     ShooterConstants.ENGLISH_kP,
                     ShooterConstants.ENGLISH_kI,
@@ -111,7 +112,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     new MotorIOKraken(this.shooterConfig.getShooterMainId()),
                     ShooterConstants.MAIN_MAX_RPM,
                     ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.GEAR_RATIO,
+                    1,
                     ShooterConstants.MAIN_kS,
                     ShooterConstants.MAIN_kP,
                     ShooterConstants.MAIN_kI,
@@ -125,7 +126,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     new MotorIOSparkMax(this.shooterConfig.getFeederId(), ShooterConstants.FEEDER_CURRENT_LIMIT),
                     ShooterConstants.FEEDER_MAX_RPM,
                     ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.GEAR_RATIO,
+                    0.67,
                     ShooterConstants.FEEDER_kS,
                     ShooterConstants.FEEDER_kP,
                     ShooterConstants.FEEDER_kI,
@@ -147,6 +148,14 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
     }
 
+    public void enableSolver (boolean enable) {
+        this.useSolver = enable;
+    }
+
+    public boolean solverEnabled() {
+        return useSolver;
+    }
+
     // Just in case
     public boolean startShooter() {
         shooterStatus = true;
@@ -163,6 +172,24 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterStatus = !shooterStatus;
         return shooterStatus;
     }
+
+    public void setCloseShot() {
+        english_PID.setM_RPM(-1250);
+        main_PID.setM_RPM(-750);
+        feeder_PID.setM_RPM(1700);
+    }
+
+    public void setFarShot() {
+        english_PID.setM_RPM(-2750);
+        main_PID.setM_RPM(-1750);
+        feeder_PID.setM_RPM(1700);
+    }
+
+    public void setAutoShot() {
+        english_PID.setM_RPM(-2500);
+        main_PID.setM_RPM(-1250);
+        feeder_PID.setM_RPM(1700);
+    }    
 
     // private Command setShooter = run(()-> RPM.of(rpm)).ignoringDisable(true);
     // private Command stopShooter = setVoltage(Volts.of(0)).ignoringDisable(true);
@@ -394,7 +421,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
+        if (solverEnabled() == true) {
         solver();
+        }
+
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
@@ -448,7 +478,7 @@ public class ShooterSubsystem extends SubsystemBase {
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
         builder.addBooleanProperty("At speed", this::atSpeed, null);
-
+        builder.addBooleanProperty("Using Solver", this::solverEnabled, null);
         super.initSendable(builder);
         english_PID.initSendable(builder);
         main_PID.initSendable(builder);

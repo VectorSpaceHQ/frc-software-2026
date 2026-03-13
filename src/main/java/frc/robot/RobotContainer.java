@@ -168,6 +168,12 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
 
       m_operatorController.toggleShooter().onTrue(
           new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
+        m_operatorController.closeShot().onTrue(
+            new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
+                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+            m_operatorController.farShot().onTrue(
+            new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
+                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
     }
 
     m_driverController.driveToTarget().whileTrue(

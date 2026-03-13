@@ -133,10 +133,10 @@ public class PID implements Sendable {
 
     public void m_updateInputs() {
         m_motor.updateInputs(m_motorInputs); // With flywheel
-        motorInputs.positionRad = m_motorInputs.positionRad / m_gearRatio;
-        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec / m_gearRatio;
+        motorInputs.positionRad = m_motorInputs.positionRad * m_gearRatio;
+        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec * m_gearRatio;
         motorInputs.appliedVoltage = m_motorInputs.appliedVoltage;
-        motorInputs.currentAmps = m_motorInputs.currentAmps;
+        motorInputs.currentAmps = motorInputs.currentAmps;
         
         m_realRPM = Units.radiansPerSecondToRotationsPerMinute(motorInputs.velocityRadPerSec);
         // System.out.println(

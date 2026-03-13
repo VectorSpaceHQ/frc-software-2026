@@ -170,8 +170,8 @@ public final class Constants {
 
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
-    public static final double GEAR_RATIO = 25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 20;
+    public static final double GEAR_RATIO = 1/25.0;
+    public static final int INDEXER_CURRENT_LIMIT = 40;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;
@@ -207,9 +207,9 @@ public final class Constants {
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
-    public static final int FEEDER_CURRENT_LIMIT = 20;
+    public static final int FEEDER_CURRENT_LIMIT = 40;
     public static final double FEEDER_kS = 0.0;
-    public static final double FEEDER_kP = 0.0;
+    public static final double FEEDER_kP = 0.01;
     public static final double FEEDER_kI = 0.0;
     public static final double FEEDER_kD = 0.0;
     public static final double FEEDER_kV = 0.0;
@@ -250,9 +250,9 @@ public final class Constants {
     public static final double TRANSLATION_Y = -0.3302; // Meters to the left from the robot center
     public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
 
-    public static final double ROTATION_X = Math.toRadians(-90); // 90 degree rotation around the X-axis CCW
-    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 20 degrees upward
-    public static final double ROTATION_Z = Math.toRadians(-90); // 90 degree rotation around the Z-axis CW
+    public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
+    public static final double ROTATION_Y = Math.toRadians(0); // Rotate 20 degrees upward
+    public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
                                                                                                    // Degrees (to
                                                                                                    // radians)
