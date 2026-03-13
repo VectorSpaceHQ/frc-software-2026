@@ -233,8 +233,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void updateVisionMeasurement() {
 
-        latestVisionMeasurement = Optional.empty();
-        bestVisibleTag = Optional.empty();
+        // latestVisionMeasurement = Optional.empty();
+        // bestVisibleTag = Optional.empty();
 
         for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
 
