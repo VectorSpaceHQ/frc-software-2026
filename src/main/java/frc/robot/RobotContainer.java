@@ -186,11 +186,11 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
             0.035,
             Rotation2d.fromDegrees(0)).withTimeout(10));
 
-    // m_driverController.halfSpeedModifier().onTrue(
-    //         new InstantCommand(() -> m_swerveSubsystem.setMaximumSpeed(0.5), m_swerveSubsystem)
-    //     ).onFalse(
-    //         new InstantCommand(() -> m_swerveSubsystem.setMaximumSpeed(1), m_swerveSubsystem)
-    //     );            
+    m_driverController.halfSpeedModifier().onTrue(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.35), m_swerveSubsystem)
+        ).onFalse(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.7), m_swerveSubsystem)
+        );            
 
     
     m_driverController.toggleOrientation().onTrue(

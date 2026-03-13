@@ -81,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedDirectAngle = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
-  Supplier<Pose2d> currentPose;
+  private double translationMultiplier = 0.7;
 
   private Orientation driveOrientation = Orientation.FIELD;
 
@@ -108,8 +108,8 @@ public class SwerveSubsystem extends SubsystemBase {
         throw new RuntimeException(e);
       }
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> swerveConfig.getController().getY() * -0.7,
-          () -> swerveConfig.getController().getX() * -0.7)
+          () -> -swerveConfig.getController().getY() * translationMultiplier,
+          () -> -swerveConfig.getController().getX() * translationMultiplier)
           .withControllerRotationAxis(swerveConfig.getController()::getTwist)
           .deadband(swerveConfig.getDeadband())
           .scaleTranslation(1)
@@ -318,8 +318,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(new Pose2d());
   }
 
-  public void setMaximumSpeed(double speedMultiplier) {
-    swerveDrive.setMaximumAllowableSpeeds(Constants.SwerveConstants.maxSpeed * speedMultiplier, swerveDrive.getMaximumChassisAngularVelocity());
+  public void setTranslationMultiplier(double speedMultiplier) {
+    translationMultiplier = speedMultiplier;
   }
 
   public void orientationToggle() {
