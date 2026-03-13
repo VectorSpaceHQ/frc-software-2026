@@ -22,6 +22,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -54,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
   File directory = new File(Filesystem.getDeployDirectory(), "swerve");
   private SwerveDrive swerveDrive;
   private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
-
+  private Field2d m_field = new Field2d();
 
   private enum Orientation {
     FIELD(0),
@@ -173,6 +174,7 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.resetOdometry(initialPose);
       swerveDrive.setVisionMeasurementStdDevs(VisionConstants.VISION_ST_DEVS);
 
+      SmartDashboard.putData("Field", m_field);
     }
   }
 
@@ -231,7 +233,7 @@ public class SwerveSubsystem extends SubsystemBase {
     Logger.recordOutput("PoseEstimator/Y", pose.getY());
     Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
 
-
+    m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
   }
 
