@@ -12,6 +12,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -160,13 +161,17 @@ public final class Constants {
       PivotState(double voltage) {
         this.voltage = voltage;
       }
+
+      public String textName() {
+        return this.name();
+      }
     }
   }
 
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
-    public static final double GEAR_RATIO = 25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 20;
+    public static final double GEAR_RATIO = 1/25.0;
+    public static final int INDEXER_CURRENT_LIMIT = 40;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;
@@ -202,9 +207,9 @@ public final class Constants {
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
-    public static final int FEEDER_CURRENT_LIMIT = 20;
+    public static final int FEEDER_CURRENT_LIMIT = 40;
     public static final double FEEDER_kS = 0.0;
-    public static final double FEEDER_kP = 0.0;
+    public static final double FEEDER_kP = 0.01;
     public static final double FEEDER_kI = 0.0;
     public static final double FEEDER_kD = 0.0;
     public static final double FEEDER_kV = 0.0;
@@ -213,17 +218,17 @@ public final class Constants {
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
 
-    public static final double TRANSLATION_P = 4.0;
+    public static final double TRANSLATION_P = 1.3;
     public static final double TRANSLATION_I = 0.0;
     public static final double TRANSLATION_D = 0.0;
     public static final double TRANSLATION_MAX_VEL = 4.0;
     public static final double TRANSLATION_MAX_ACCEL = 4.0;
 
-    public static final double ROTATION_P = 1;
-    public static final double ROTATION_I = 0;
-    public static final double ROTATION_D = 0.1;
-    public static final double ROTATION_MAX_VEL = 1.5;
-    public static final double ROTATION_MAX_ACCEL = 2;
+    public static final double ROTATION_P = 25.0;
+    public static final double ROTATION_I = 5.0;
+    public static final double ROTATION_D = 0.32;
+    public static final double ROTATION_MAX_VEL = 6.0;
+    public static final double ROTATION_MAX_ACCEL = 8.0;
 
   }
 
@@ -245,9 +250,9 @@ public final class Constants {
     public static final double TRANSLATION_Y = -0.3302; // Meters to the left from the robot center
     public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
 
-    public static final double ROTATION_X = Math.toRadians(-90); // 90 degree rotation around the X-axis CCW
-    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 20 degrees upward
-    public static final double ROTATION_Z = Math.toRadians(-90); // 90 degree rotation around the Z-axis CCW
+    public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
+    public static final double ROTATION_Y = Math.toRadians(15); // Rotate 20 degrees cw
+    public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
                                                                                                    // Degrees (to
                                                                                                    // radians)
@@ -325,6 +330,7 @@ public final class Constants {
       }
     }
     public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
+    public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
   }
 
 }

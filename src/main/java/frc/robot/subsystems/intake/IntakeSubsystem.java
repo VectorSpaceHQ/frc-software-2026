@@ -9,6 +9,7 @@ import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.configuration.Constants.SysIdEnums;
 import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.Constants.IntakeConstants.PivotState;
+import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.motor.MotorIOSparkMaxFollower;
 import frc.robot.components.control.PID;
@@ -16,6 +17,8 @@ import frc.robot.components.control.PivotPID;
 import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.components.motor.MotorIOKraken;
+
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -26,6 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private IntakeSubsysConfig IntakeConfig = null;
     private PID intakeRollerPid = null;
+    private MotorIOKraken intakeRollerMotor;
     private PivotPID pivotMotorPid = null; // left
     private SysIdRoutine intakeRollerSysId = null;
     private SysIdRoutine intakePivotSysId = null;
@@ -36,6 +40,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean runningSysId;
 
     private MotorIOSparkMax pivotMotor = null;
+    private PivotState currentPivotState = PivotState.UP;
 
     @SuppressWarnings("unused")
     private MotorIOSparkMaxFollower pivotFollower = null;
@@ -46,9 +51,12 @@ public class IntakeSubsystem extends SubsystemBase {
         if (this.IntakeConfig.getIsPresent()) {
 
             // Intake Roller Mechanism
+            //feel free to move this into your custom class but there need to be current limits.
+            
+            intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId());
             intakeRollerPid = new PID(
                     "IntakeRoller",
-                    new MotorIOSparkMax(this.IntakeConfig.getIntakeRollerId(), IntakeConstants.ROLLER_CURRENT_LIMIT),
+                    intakeRollerMotor, // how to set current limit??
                     IntakeConstants.ROLLER_MAX_RPM,
                     IntakeConstants.MAX_VOLTAGE,
                     IntakeConstants.ROLLER_GEAR_RATIO,
@@ -102,12 +110,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Toggles the pivot up
     public void sendPivotUp() {
-        currentPivotState = PivotState.UP;
+        this.currentPivotState = PivotState.UP;
     }
 
     // Toggles the pivot down
     public void sendPivotDown() {
-        currentPivotState = PivotState.DOWN;
+        this.currentPivotState = PivotState.DOWN;
     }
 
     // Place status values here
@@ -158,8 +166,6 @@ public class IntakeSubsystem extends SubsystemBase {
         pivotMotorPid.PivotPeriodic(false, true);
     }
 
-    private PivotState currentPivotState = PivotState.UP;
-
     public void setPivotState(PivotState state) {
         this.currentPivotState = state;
     }
@@ -195,6 +201,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         lastIntakestatus = Intakestatus;
+        SmartDashboard.putString("Pivot Position", this.currentPivotState.textName());
     }
 
     @Override

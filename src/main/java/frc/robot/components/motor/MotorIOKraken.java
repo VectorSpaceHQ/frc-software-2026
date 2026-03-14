@@ -2,20 +2,32 @@ package frc.robot.components.motor;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 
 import edu.wpi.first.math.MathUtil;
 
 public class MotorIOKraken implements MotorIO {
 
-    private final TalonFX motor;
+    public final TalonFX motor;
+    private TalonFXConfiguration talonFXConfig = new TalonFXConfiguration();
+
 
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut neutralRequest = new NeutralOut();
 
     public MotorIOKraken(int canID) {
         motor = new TalonFX(canID);
+        
+    talonFXConfig.CurrentLimits.StatorCurrentLimit = 80;
+    talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimit = 60;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    motor.getConfigurator().apply(talonFXConfig);
+    
     }
+    
 
     @Override
     public void updateInputs(MotorIOInputs inputs) {

@@ -86,12 +86,13 @@ public class RobotContainer {
       m_driverController,
       OperatorConstants.DEADBAND);
 
-  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig);
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem(IntakeSSConfig);
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
       () -> m_visionSubsystem.getLatestVisionMeasurement(), new Pose2d());
+private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
+
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
 
@@ -168,6 +169,12 @@ public class RobotContainer {
 
       m_operatorController.toggleShooter().onTrue(
           new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
+        m_operatorController.closeShot().onTrue(
+            new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
+                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+            m_operatorController.farShot().onTrue(
+            new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
+                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
     }
 
     m_driverController.driveToTarget().whileTrue(
@@ -183,6 +190,12 @@ public class RobotContainer {
     m_driverController.aimTowardsHub().whileTrue(
         new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)
     );
+    
+    m_driverController.halfSpeedModifier().onTrue(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6), m_swerveSubsystem)
+        ).onFalse(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(1), m_swerveSubsystem)
+        );            
 
     
     m_driverController.toggleOrientation().onTrue(

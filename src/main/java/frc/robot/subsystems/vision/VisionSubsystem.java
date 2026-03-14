@@ -94,6 +94,7 @@ public class VisionSubsystem extends SubsystemBase {
                 Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
                 Apriltags.BlueHubRightSideCenterInAllianceZone // 26
         );
+        
 
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
@@ -234,8 +235,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void updateVisionMeasurement() {
 
-        latestVisionMeasurement = Optional.empty();
-        bestVisibleTag = Optional.empty();
+        // latestVisionMeasurement = Optional.empty();
+        // bestVisibleTag = Optional.empty();
 
         for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
 

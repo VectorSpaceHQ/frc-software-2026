@@ -44,6 +44,7 @@ public class IndexerSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Indexer Present", this.IndexerConfig.getIsPresent());
+        IndexerPID.setM_RPM(2500);
     }
 
     public boolean toggleIndexer() {
@@ -58,6 +59,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public boolean getLastIndexerStatus() {
         return lastIndexerstatus;
+    }
+
+    public void setIndexerRPM(double RPM){
+        IndexerPID.setM_RPM(RPM); //set the RPM of the Indexer
     }
 
     @Override

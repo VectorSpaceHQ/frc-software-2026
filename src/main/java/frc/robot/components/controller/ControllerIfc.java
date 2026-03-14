@@ -20,12 +20,18 @@ public interface ControllerIfc {
 
   public Trigger toggleOrientation();
 
+  public Trigger halfSpeedModifier();
+
   // Shooter
   public Trigger startShooter();
 
   public Trigger stopShooter();
 
   public Trigger toggleShooter();
+
+  public Trigger closeShot();
+
+  public Trigger farShot();
 
   // Intake
   public Trigger toggleIntakeRollers();
