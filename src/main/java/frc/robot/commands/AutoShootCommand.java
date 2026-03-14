@@ -1,7 +1,5 @@
-
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -10,42 +8,51 @@ public class AutoShootCommand extends Command {
   private final ShooterSubsystem shooterSubsystem;
   private final IndexerSubsystem indexerSubsystem;
 
-  public AutoShootCommand(ShooterSubsystem Shooter, IndexerSubsystem Indexer) {
-    this.shooterSubsystem = Shooter;
-    this.indexerSubsystem = Indexer;
+  public AutoShootCommand(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+    this.shooterSubsystem = shooter;
+    this.indexerSubsystem = indexer;
     addRequirements(shooterSubsystem, indexerSubsystem);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(shooterSubsystem.getShooterStatus() == false){
-      shooterSubsystem.toggleShooter(); //enable shooter if disabled
+    // Turn indexer and shooter on
+    if (!shooterSubsystem.getShooterStatus()) {
+      shooterSubsystem.toggleShooter();
     }
-    if(indexerSubsystem.getIndexerStatus() == false){
-      indexerSubsystem.toggleIndexer(); //enable indexer if disabled
-      indexerSubsystem.setIndexerRPM(100); //set indexer RPM
+    if (!indexerSubsystem.getIndexerStatus()) {
+      indexerSubsystem.toggleIndexer();
     }
-    
+
+    // Set speeds
+    shooterSubsystem.setCloseShot();
+    indexerSubsystem.setIndexerRPM(2500); 
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooterSubsystem.setEnglishVelocity(0);
-    shooterSubsystem.setMainVelocity(0);
-
+    // Do I keep this here?
+    shooterSubsystem.setCloseShot();
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-//    shooterSubsystem.stopPivot();
+  // Turn shooter and indexer off
+    if (shooterSubsystem.getShooterStatus()) {
+      shooterSubsystem.toggleShooter();
+    }
+    if (indexerSubsystem.getIndexerStatus()) {
+      indexerSubsystem.toggleIndexer();
+    }
+
+    // Set shooter rpms to zero
+    shooterSubsystem.zeroRPM();
+    indexerSubsystem.setIndexerRPM(0);
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // Stay running until 15 seconds of auto ends
     return false;
   }
 }
