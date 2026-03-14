@@ -178,19 +178,19 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setCloseShot() {
         english_PID.setM_RPM(-1250);
         main_PID.setM_RPM(-750);
-        feeder_PID.setM_RPM(-1700);
+        feeder_PID.setM_RPM(1700);
     }
 
     public void setFarShot() {
         english_PID.setM_RPM(-2750);
         main_PID.setM_RPM(-1750);
-        feeder_PID.setM_RPM(-1700);
+        feeder_PID.setM_RPM(1700);
     }
 
     // public void setAutoShot() {
-    //     english_PID.setM_RPM(-2500);
-    //     main_PID.setM_RPM(-1250);
-    //     feeder_PID.setM_RPM(1700);
+    //     english_PID.setM_RPM(-2750);
+    //     main_PID.setM_RPM(-1750);
+    //     feeder_PID.setM_RPM(-1700);
     // }    
 
     // private Command setShooter = run(()-> RPM.of(rpm)).ignoringDisable(true);
@@ -428,7 +428,7 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (solverEnabled() == true) {
-        solver();
+        //solver();
         }
 
         english_PID.m_updateInputs();

@@ -5,7 +5,7 @@
 package frc.robot;
 
 // import frc.robot.commands.Autos;
-import frc.robot.commands.DriveToTargetCommand;
+// import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
@@ -180,22 +180,25 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
             m_operatorController.farShot().onTrue(
             new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
                 new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+            // m_operatorController.autoShot().onTrue(
+            // new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
+            //     new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));                
     }
 
-    m_driverController.driveToTarget().whileTrue(
-        new DriveToTargetCommand(
-            m_swerveSubsystem,
-            m_visionSubsystem,
-            null,
-            1.0,
-            0.05,
-            0.035,
-            Rotation2d.fromDegrees(0)).withTimeout(10));
+    // m_driverController.driveToTarget().whileTrue(
+    //     new DriveToTargetCommand(
+    //         m_swerveSubsystem,
+    //         m_visionSubsystem,
+    //         null,
+    //         1.0,
+    //         0.05,
+    //         0.035,
+    //         Rotation2d.fromDegrees(0)).withTimeout(10));
 
     m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.35), m_swerveSubsystem)
         ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(1), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.7), m_swerveSubsystem)
         );            
 
     
