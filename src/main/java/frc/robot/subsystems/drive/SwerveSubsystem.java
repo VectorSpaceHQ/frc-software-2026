@@ -81,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedDirectAngle = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
-  private double translationMultiplier = 0.7;
+  private double translationMultiplier = 1;
 
   private Orientation driveOrientation = Orientation.FIELD;
 
@@ -108,8 +108,8 @@ public class SwerveSubsystem extends SubsystemBase {
         throw new RuntimeException(e);
       }
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> -swerveConfig.getController().getY() * translationMultiplier,
-          () -> -swerveConfig.getController().getX() * translationMultiplier)
+          () -> (-swerveConfig.getController().getY() * translationMultiplier),
+          () -> (-swerveConfig.getController().getX() * translationMultiplier))
           .withControllerRotationAxis(swerveConfig.getController()::getTwist)
           .deadband(swerveConfig.getDeadband())
           .scaleTranslation(1)

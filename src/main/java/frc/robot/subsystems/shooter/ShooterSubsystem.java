@@ -69,6 +69,8 @@ public class ShooterSubsystem extends SubsystemBase {
     final SwerveSubsystem mSwerveSubsystem;
     final double g = 9.8;
     private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    private double solverMainVelocity = 0;
+    private double solverEnglishVelocity = 0;
 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
@@ -300,7 +302,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // This is an empirical formula, current formula is a guess, needs tuning
         // The assumption is that the ball velocity is the average of the wheel velocities.
-        // It is also assumed that there is a loss factor in transferrign momentum from wheel to ball
+        // It is also assumed that there is a loss factor in transferring momentum from wheel to ball
         // and that the english wheel transfers less than the main
 
         //double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
@@ -323,6 +325,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double C = 0.6;
         double A = Math.PI * (5.9 / 12 / 2) * (5.9 / 12 / 2); // ft^2
         double D = (rho * C * A) /2;
+        D = 0.004271829698103934;
         double m = 0.5; // lb
         double g = 32.2; // ft/s2
         double y_hub = 60 / 12; // ft
@@ -388,22 +391,25 @@ public class ShooterSubsystem extends SubsystemBase {
         // translations taken from camera in Constants
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, -0.3302), 
                                                     new Rotation2d(Math.toRadians(-90))));
+        // Gives pose of the hub relative to the shooter location
         Pose2d shooterToHub = shooterPose.transformBy(new Transform2d(new Translation2d(-goalPosition.getX(), -goalPosition.getY()), 
-                                                    new Rotation2d()));
-        double distanceToHub = Math.sqrt(shooterPose.getX() * shooterPose.getX() + shooterPose.getY() * shooterPose.getY());
+                                                     new Rotation2d()));
+        double distanceToHub = Math.sqrt(shooterToHub.getX() * shooterToHub.getX() + shooterToHub.getY() * shooterToHub.getY());
         launchAngle = 75; //degrees, temporary value for comp 1
-        launchVelocity = getLaunchVelocity();
-        double launch_distance = calcTrajectory(launchVelocity, launchAngle);
+        launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
+        double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning
         error = launch_distance - distanceToHub;
         tolerance = 0.1524; // meters
-        K = 30.48; // rpm/m
+        K = 30.48; // rpm/m, NEEDS TUNING
         SmartDashboard.putNumber("launch distance", launch_distance);
         SmartDashboard.putNumber("distance to hub", distanceToHub);
         SmartDashboard.putNumber("Shooter Error", error);
         if (error > tolerance){
             //decrease wheel speeds
-            setMainVelocity(getMainVelocity() - K * error);
-            setEnglishVelocity(getEnglishVelocity() - K * error);
+            //setMainVelocity(getMainVelocity() - K * error); //this adds ft/s and rpm, needs to be changed
+            solverMainVelocity = getMainVelocity() - K * error;
+            //setEnglishVelocity(getEnglishVelocity() - K * error);
+            solverMainVelocity = getEnglishVelocity() - K * error;
             SmartDashboard.putString("Target", "too close");
         }
         else if(error < 0 && Math.abs(error) > tolerance){
