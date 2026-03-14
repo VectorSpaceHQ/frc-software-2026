@@ -89,7 +89,8 @@ public class RobotContainer {
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
-      () -> m_visionSubsystem.getLatestVisionMeasurement(), new Pose2d());
+                                                                        () -> m_visionSubsystem.getLatestVisionMeasurement(), 
+                                                                        new Pose2d(1, 4, new Rotation2d())); //change this value to modify our initial pose
 private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
 
   // auto command chooser
