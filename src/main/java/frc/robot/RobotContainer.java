@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
+import frc.robot.commands.AutoShootCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
@@ -92,7 +92,7 @@ public class RobotContainer {
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
                                                                         () -> m_visionSubsystem.getLatestVisionMeasurement(), 
-                                                                        new Pose2d(1, 4, new Rotation2d())); //change this value to modify our initial pose
+                                                                        new Pose2d(3.5, 4, new Rotation2d())); //change this value to modify our initial pose
 private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
 
   // auto command chooser
@@ -112,7 +112,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
     // NamedCommands.registerCommand("exampleCommand",
     // exampleSubsystem.exampleCommand());
     // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
-
+NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
     // Configure the trigger bindings
     configureBindings();
 
@@ -180,10 +180,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
             m_operatorController.farShot().onTrue(
             new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
                 new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
-            // m_operatorController.autoShot().onTrue(
-            // new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
-            //     new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));                
-    }
+   }
 
     // m_driverController.driveToTarget().whileTrue(
     //     new DriveToTargetCommand(

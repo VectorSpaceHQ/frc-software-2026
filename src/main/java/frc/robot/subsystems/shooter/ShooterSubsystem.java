@@ -187,6 +187,12 @@ public class ShooterSubsystem extends SubsystemBase {
         feeder_PID.setM_RPM(1700);
     }
 
+    public void zeroRPM() {
+        english_PID.setM_RPM(0);
+        main_PID.setM_RPM(0);
+        feeder_PID.setM_RPM(0);
+    }
+
     // public void setAutoShot() {
     //     english_PID.setM_RPM(-2750);
     //     main_PID.setM_RPM(-1750);
