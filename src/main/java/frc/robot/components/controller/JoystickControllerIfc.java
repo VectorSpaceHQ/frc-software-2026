@@ -54,6 +54,11 @@ public class JoystickControllerIfc implements ControllerIfc {
     }
 
     @Override
+    public double getTwistY() {
+        return joystick.getZ();
+    }
+
+    @Override
     public Trigger toggleOrientation() {
         return getButton(ExtendedButtonType.Button3);
     }

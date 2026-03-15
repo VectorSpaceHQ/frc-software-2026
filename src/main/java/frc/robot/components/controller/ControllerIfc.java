@@ -18,6 +18,8 @@ public interface ControllerIfc {
 
   public double getTwist();
 
+  public double getTwistY();
+
   public Trigger toggleOrientation();
 
   public Trigger halfSpeedModifier();

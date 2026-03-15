@@ -29,6 +29,11 @@ public class PS4ControllerIfc implements ControllerIfc {
     }
 
     @Override
+    public double getTwistY() {
+        return joystick.getRightY();
+    }
+
+    @Override
     public Trigger toggleOrientation() {
         return joystick.triangle(); // Toggle (On driver)
     }
