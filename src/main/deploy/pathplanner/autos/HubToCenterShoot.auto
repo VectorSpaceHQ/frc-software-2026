@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Move Backright"
+            "pathName": "HubToCenter"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Auto Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 15.0
           }
         }
       ]
