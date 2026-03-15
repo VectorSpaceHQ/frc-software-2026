@@ -57,7 +57,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrive swerveDrive;
   private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
   private Field2d m_field = new Field2d();
-  private double driveInversion = 1;
+  private double driveInversion = -1;
 
   private enum Orientation {
     FIELD(0),
@@ -114,7 +114,7 @@ public class SwerveSubsystem extends SubsystemBase {
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
         () -> (swerveConfig.getController().getY() * 0.7 * driveInversion),
         () -> (swerveConfig.getController().getX() * 0.7 * driveInversion))
-        .withControllerRotationAxis( ()-> Math.pow(swerveConfig.getController().getTwist(), speedScaling))
+        .withControllerRotationAxis( () -> Math.pow(swerveConfig.getController().getTwist(), 1.3))
         .deadband(swerveConfig.getDeadband())
         .scaleTranslation(1)
         .allianceRelativeControl(() -> isFieldOriented())
@@ -251,12 +251,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
       } else if(alliance.get() == Alliance.Red){
         // Red
-        driveInversion = 1;
+        driveInversion = -1;
         // Check if diff
 
       }else{
         // Blue
-        driveInversion = -1;
+        driveInversion = 1;
         // Check if diff    
       }
 
