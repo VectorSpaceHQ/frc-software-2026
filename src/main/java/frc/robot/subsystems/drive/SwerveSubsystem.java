@@ -83,6 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
+  private double robotRelativeInversion = 1;
   private Orientation driveOrientation = Orientation.FIELD;
 
 
@@ -110,8 +111,8 @@ public class SwerveSubsystem extends SubsystemBase {
       var redAlliance = DriverStation.getAlliance();
       if(redAlliance.isPresent()){
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-        () -> (Math.pow(swerveConfig.getController().getY(), speedScaling)),
-        () -> (Math.pow(swerveConfig.getController().getX(), speedScaling)))
+        () -> (Math.pow(swerveConfig.getController().getY(), speedScaling) * robotRelativeInversion),
+        () -> (Math.pow(swerveConfig.getController().getX(), speedScaling) * robotRelativeInversion))
         .withControllerRotationAxis( ()-> Math.pow(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
         .scaleTranslation(1)
@@ -119,8 +120,8 @@ public class SwerveSubsystem extends SubsystemBase {
         .robotRelative(() -> isRobotOriented());
       } else{
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> (-1 * Math.pow(swerveConfig.getController().getY(), speedScaling)),
-          () -> (-1 * Math.pow(swerveConfig.getController().getX(), speedScaling)))
+          () -> (-1 * Math.pow(swerveConfig.getController().getY(), speedScaling) * robotRelativeInversion),
+          () -> (-1 * Math.pow(swerveConfig.getController().getX(), speedScaling) * robotRelativeInversion))
           .withControllerRotationAxis( ()-> Math.pow(swerveConfig.getController().getTwist(), speedScaling))
           .deadband(swerveConfig.getDeadband())
           .scaleTranslation(1)
@@ -307,6 +308,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isFieldOriented() {
     if (driveOrientation == Orientation.FIELD) {
+      robotRelativeInversion = 1;
       return true;
     } else {
       return false;
@@ -315,6 +317,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isRobotOriented() {
     if (driveOrientation == Orientation.ROBOT) {
+      robotRelativeInversion = -1;
       return true;
     } else {
       return false;
