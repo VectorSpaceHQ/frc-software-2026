@@ -26,6 +26,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "ToCenterShoot",
   "choreoAuto": false
 }
