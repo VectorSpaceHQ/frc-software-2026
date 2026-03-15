@@ -57,6 +57,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrive swerveDrive;
   private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
   private Field2d m_field = new Field2d();
+  private double driveInversion = 1;
 
   private enum Orientation {
     FIELD(0),
@@ -108,26 +109,17 @@ public class SwerveSubsystem extends SubsystemBase {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-      var redAlliance = DriverStation.getAlliance();
-      if(redAlliance.isPresent()){
+
+
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-        () -> (Math.pow(swerveConfig.getController().getY(), speedScaling) * robotRelativeInversion),
-        () -> (Math.pow(swerveConfig.getController().getX(), speedScaling) * robotRelativeInversion))
+        () -> (swerveConfig.getController().getY() * 0.7 * driveInversion),
+        () -> (swerveConfig.getController().getX() * 0.7 * driveInversion))
         .withControllerRotationAxis( ()-> Math.pow(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
         .scaleTranslation(1)
         .allianceRelativeControl(() -> isFieldOriented())
         .robotRelative(() -> isRobotOriented());
-      } else{
-      driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> (-1 * Math.pow(swerveConfig.getController().getY(), speedScaling) * robotRelativeInversion),
-          () -> (-1 * Math.pow(swerveConfig.getController().getX(), speedScaling) * robotRelativeInversion))
-          .withControllerRotationAxis( ()-> Math.pow(swerveConfig.getController().getTwist(), speedScaling))
-          .deadband(swerveConfig.getDeadband())
-          .scaleTranslation(1)
-          .allianceRelativeControl(() -> isFieldOriented())
-          .robotRelative(() -> isRobotOriented());
-      }
+
       /**
        * Clone's the angular velocity input stream and converts it to a fieldRelative
        * input stream.
@@ -247,7 +239,30 @@ public class SwerveSubsystem extends SubsystemBase {
 
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
-  }
+
+
+    var alliance = DriverStation.getAlliance();
+    if(alliance.isPresent()){
+
+      // If our alliance exists
+      if(isRobotOriented()){
+        //if we're robot relative
+        driveInversion = -1;
+
+      } else if(alliance.get() == Alliance.Red){
+        // Red
+        driveInversion = 1;
+        // Check if diff
+
+      }else{
+        // Blue
+        driveInversion = -1;
+        // Check if diff    
+      }
+
+    }
+  } 
+
 
 
   @Override
