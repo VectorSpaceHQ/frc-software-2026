@@ -113,8 +113,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-        () -> inputScaling(swerveConfig.getController().getY(), speedScaling) * driveInversion,
-        () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * driveInversion)
+        () -> inputScaling(swerveConfig.getController().getY(), speedScaling) * -1,
+        () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * -1)
         .withControllerRotationAxis( () -> inputScaling(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
         .scaleTranslation(1)
@@ -240,28 +240,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
-
-
-    var alliance = DriverStation.getAlliance();
-    if(isRobotOriented()){
-        //if we're robot relative
-        driveInversion = -1;
-      } else if(alliance.isPresent()){
-          if(alliance.get() == Alliance.Red){
-            // Red
-            driveInversion = 1;
-            // Check if diff
-            allianceColor = "Red";
-            
-          } else{
-              // Blue
-              driveInversion = -1;
-              // Check if diff    
-              allianceColor = "Blue";
-            }
-          SmartDashboard.putString("Swerve Orientation", allianceColor);
-        }
-
   } 
 
 
