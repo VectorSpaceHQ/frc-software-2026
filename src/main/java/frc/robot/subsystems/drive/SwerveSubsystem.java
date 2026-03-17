@@ -128,7 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
       driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getTwist,
           swerveConfig.getController()::getTwistY)
           .headingWhile(true);
-
+        
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
