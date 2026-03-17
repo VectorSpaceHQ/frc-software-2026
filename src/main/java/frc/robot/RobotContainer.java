@@ -3,9 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
+import frc.robot.commands.AutoShootCommand;
 // import frc.robot.commands.Autos;
-import frc.robot.commands.DriveToTargetCommand;
+// import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
@@ -45,6 +45,8 @@ import frc.robot.components.controller.XboxControllerIfc;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -89,7 +91,8 @@ public class RobotContainer {
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
-      () -> m_visionSubsystem.getLatestVisionMeasurement(), new Pose2d());
+                                                                        () -> m_visionSubsystem.getLatestVisionMeasurement(), 
+                                                                        new Pose2d(3.5, 4, new Rotation2d())); //change this value to modify our initial pose
 private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
 
   // auto command chooser
@@ -109,7 +112,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
     // NamedCommands.registerCommand("exampleCommand",
     // exampleSubsystem.exampleCommand());
     // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
-
+    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
     // Configure the trigger bindings
     configureBindings();
 
@@ -158,7 +161,10 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
       m_operatorController.sendPivotDown().onTrue(
-          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem));
+        new SequentialCommandGroup(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem).withTimeout(1.25),
+          new WaitCommand(0.5),
+          new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt(), m_IntakeSubsystem)));
 
       m_operatorController.toggleIntakeRollers().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
@@ -178,20 +184,20 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
         new RunCommand(() -> m_ShooterSubsystem.solver(), m_ShooterSubsystem));
     }
 
-    m_driverController.driveToTarget().whileTrue(
-        new DriveToTargetCommand(
-            m_swerveSubsystem,
-            m_visionSubsystem,
-            null,
-            1.0,
-            0.05,
-            0.035,
-            Rotation2d.fromDegrees(0)).withTimeout(10));
+    // m_driverController.driveToTarget().whileTrue(
+    //     new DriveToTargetCommand(
+    //         m_swerveSubsystem,
+    //         m_visionSubsystem,
+    //         null,
+    //         1.0,
+    //         0.05,
+    //         0.035,
+    //         Rotation2d.fromDegrees(0)).withTimeout(10));
 
     m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.35), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(2), m_swerveSubsystem)
         ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.7), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3), m_swerveSubsystem)
         );            
 
     

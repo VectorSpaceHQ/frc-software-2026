@@ -181,10 +181,16 @@ public class ShooterSubsystem extends SubsystemBase {
         getEnglishVelocity();        
     }
 
+    public void zeroRPM() {
+        english_PID.setM_RPM(0);
+        main_PID.setM_RPM(0);
+        feeder_PID.setM_RPM(0);
+    }
+
     // public void setAutoShot() {
-    //     english_PID.setM_RPM(-2500);
-    //     main_PID.setM_RPM(-1250);
-    //     feeder_PID.setM_RPM(1700);
+    //     english_PID.setM_RPM(-2750);
+    //     main_PID.setM_RPM(-1750);
+    //     feeder_PID.setM_RPM(-1700);
     // }    
 
     // private Command setShooter = run(()-> RPM.of(rpm)).ignoringDisable(true);
@@ -302,7 +308,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // This is an empirical formula, current formula is a guess, needs tuning
         // The assumption is that the ball velocity is the average of the wheel velocities.
-        // It is also assumed that there is a loss factor in transferrign momentum from wheel to ball
+        // It is also assumed that there is a loss factor in transferring momentum from wheel to ball
         // and that the english wheel transfers less than the main
 
         //double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
@@ -325,6 +331,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double C = 0.6;
         double A = Math.PI * Math.pow(5.9 / 24, 2); // ft^2
         double D = (rho * C * A) /2;
+        D = 0.004271829698103934;
         double m = 0.5; // lb
         double g = 32.2; // ft/s2
         double y_hub = 60 / 12; // ft
@@ -400,11 +407,11 @@ public class ShooterSubsystem extends SubsystemBase {
                                                     new Rotation2d(Math.toRadians(90))));
         double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
         launchAngle = 75; //degrees, temporary value for comp 1
-        launchVelocity = getLaunchVelocity();
-        double launch_distance = calcTrajectory(launchVelocity, launchAngle);
+        launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
+        double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning
         error = launch_distance - distanceToHub;
         tolerance = 0.1524; // meters
-        K = 30.48; // rpm/m
+        K = 30.48; // rpm/m, NEEDS TUNING
         SmartDashboard.putNumber("launch distance", launch_distance);
         SmartDashboard.putNumber("distance to hub", distanceToHub);
         SmartDashboard.putNumber("Shooter Error", error);

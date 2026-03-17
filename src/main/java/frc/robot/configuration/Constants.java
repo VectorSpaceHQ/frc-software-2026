@@ -152,8 +152,8 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-3.0), // Volts to pivot up (fight against gravity)
-      DOWN(2.0), // Volts to pivot down
+      UP(-2.5), // Volts to pivot up (fight against gravity)
+      DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
       public final double voltage;
@@ -248,7 +248,7 @@ public final class Constants {
     // Constants for the Transformation3d objects for the camera and robot
     public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
     public static final double TRANSLATION_Y = -0.3302; // Meters to the left from the robot center
-    public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
+    public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 
     public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
     public static final double ROTATION_Y = Math.toRadians(15); // Rotate 20 degrees cw

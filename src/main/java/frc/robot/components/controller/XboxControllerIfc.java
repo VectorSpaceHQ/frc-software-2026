@@ -29,6 +29,11 @@ public class XboxControllerIfc implements ControllerIfc {
     }
 
     @Override
+    public double getTwistY(){
+        return -joystick.getRightY();
+    }
+
+    @Override
     public Trigger toggleOrientation() {
         return joystick.y(); // Toggle (On driver)
     }

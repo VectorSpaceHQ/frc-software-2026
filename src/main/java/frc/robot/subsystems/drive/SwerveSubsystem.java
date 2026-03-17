@@ -12,6 +12,7 @@ import frc.robot.configuration.configs.SwerveSubsysConfig;
 import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,6 +23,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
@@ -81,8 +83,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedDirectAngle = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
-  private double translationMultiplier = 0.7;
-
+  private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
+  private double driveInversion = -1;
+  private String allianceColor;
   private Orientation driveOrientation = Orientation.FIELD;
 
 
@@ -107,24 +110,26 @@ public class SwerveSubsystem extends SubsystemBase {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+
+
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-          () -> -swerveConfig.getController().getY() * translationMultiplier,
-          () -> -swerveConfig.getController().getX() * translationMultiplier)
-          .withControllerRotationAxis(swerveConfig.getController()::getTwist)
-          .deadband(swerveConfig.getDeadband())
-          .scaleTranslation(1)
-          .allianceRelativeControl(() -> isFieldOriented())
-          .robotRelative(() -> isRobotOriented());
+        () -> inputScaling(swerveConfig.getController().getY(), speedScaling) * driveInversion,
+        () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * driveInversion)
+        .withControllerRotationAxis( () -> inputScaling(swerveConfig.getController().getTwist(), speedScaling))
+        .deadband(swerveConfig.getDeadband())
+        .scaleTranslation(1)
+        .allianceRelativeControl(() -> isFieldOriented())
+        .robotRelative(() -> isRobotOriented());
 
       /**
        * Clone's the angular velocity input stream and converts it to a fieldRelative
        * input stream.
        */
-      driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getX,
-          swerveConfig.getController()::getY)
+      driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getTwist,
+          swerveConfig.getController()::getTwistY)
           .headingWhile(true);
-
-      driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
+        
+      driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
       // publish field orientation to smart dashboard
@@ -229,13 +234,39 @@ public class SwerveSubsystem extends SubsystemBase {
     update();
     Pose2d pose = getEstimatedPose();
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
-    Logger.recordOutput("PoseEstimator/X", pose.getX());
-    Logger.recordOutput("PoseEstimator/Y", pose.getY());
-    Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
+    // Logger.recordOutput("PoseEstimator/X", pose.getX());
+    // Logger.recordOutput("PoseEstimator/Y", pose.getY());
+    // Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
 
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
-  }
+
+
+    var alliance = DriverStation.getAlliance();
+    SmartDashboard.putString("Swerve Orientation", allianceColor);
+    if(isRobotOriented()){
+        //if we're robot relative
+        driveInversion = -1;
+
+      } else if(alliance.isPresent()){ 
+          if(alliance.get() == Alliance.Red){
+            // Red
+            driveInversion = -1;
+            // Check if diff
+            allianceColor = "Red";
+            
+          } else{
+              // Blue
+              driveInversion = 1;
+              // Check if diff    
+              allianceColor = "Blue";
+            }
+
+
+    }
+
+  } 
+
 
 
   @Override
@@ -318,8 +349,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(new Pose2d());
   }
 
-  public void setTranslationMultiplier(double speedMultiplier) {
-    translationMultiplier = speedMultiplier;
+  public void setSpeedScaling(double speedMultiplier) {
+    speedScaling = speedMultiplier;
   }
 
   public void orientationToggle() {
@@ -327,6 +358,16 @@ public class SwerveSubsystem extends SubsystemBase {
       driveOrientation = Orientation.ROBOT;
     } else {
       driveOrientation = Orientation.FIELD;
+    }
+  }
+
+  public double inputScaling(double controllerAnalog, double exponent){
+    if(controllerAnalog >= 0){
+      //if the controller input is greater than or equal to 0
+      return Math.pow(controllerAnalog, exponent);
+    } else {
+      //if the controller input is negative, take the power of the absolute value and negate it.
+      return -1 * Math.pow(Math.abs(controllerAnalog), exponent);
     }
   }
 }
