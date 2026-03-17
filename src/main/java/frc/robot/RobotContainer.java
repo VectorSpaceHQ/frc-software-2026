@@ -153,7 +153,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     } else {
-
+        //intake commands
       m_operatorController.sendPivotUp().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
@@ -165,15 +165,17 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
 
       m_operatorController.toggleIndexer().onTrue(
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
-
-      m_operatorController.toggleShooter().onTrue(
+    //shooter commands
+    m_operatorController.toggleShooter().onTrue(
           new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
-        m_operatorController.closeShot().onTrue(
-            new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
-                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
-            m_operatorController.farShot().onTrue(
-            new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
-                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.closeShot().onTrue(
+        new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
+            new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.farShot().onTrue(
+        new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
+        new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.autoShot().onTrue(
+        new RunCommand(() -> m_ShooterSubsystem.solver(), m_ShooterSubsystem));
     }
 
     m_driverController.driveToTarget().whileTrue(
