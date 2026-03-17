@@ -243,27 +243,24 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
     var alliance = DriverStation.getAlliance();
-    SmartDashboard.putString("Swerve Orientation", allianceColor);
     if(isRobotOriented()){
         //if we're robot relative
         driveInversion = -1;
-
-      } else if(alliance.isPresent()){ 
+      } else if(alliance.isPresent()){
           if(alliance.get() == Alliance.Red){
             // Red
-            driveInversion = -1;
+            driveInversion = 1;
             // Check if diff
             allianceColor = "Red";
             
           } else{
               // Blue
-              driveInversion = 1;
+              driveInversion = -1;
               // Check if diff    
               allianceColor = "Blue";
             }
-
-
-    }
+          SmartDashboard.putString("Swerve Orientation", allianceColor);
+        }
 
   } 
 
