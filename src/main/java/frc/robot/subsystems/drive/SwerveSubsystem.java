@@ -12,6 +12,7 @@ import frc.robot.configuration.configs.SwerveSubsysConfig;
 import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -57,7 +58,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrive swerveDrive;
   private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
   private Field2d m_field = new Field2d();
-  private double driveInversion = -1;
 
   private enum Orientation {
     FIELD(0),
@@ -84,7 +84,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
-  private double robotRelativeInversion = 1;
+  private double driveInversion = -1;
+  private String allianceColor;
   private Orientation driveOrientation = Orientation.FIELD;
 
 
@@ -112,9 +113,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
       driveAngularVelocity = SwerveInputStream.of(swerveDrive,
-        () -> (swerveConfig.getController().getY() * 0.7 * driveInversion),
-        () -> (swerveConfig.getController().getX() * 0.7 * driveInversion))
-        .withControllerRotationAxis( () -> Math.pow(swerveConfig.getController().getTwist(), 1.3))
+        () -> inputScaling(swerveConfig.getController().getY(), speedScaling) * driveInversion,
+        () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * driveInversion)
+        .withControllerRotationAxis( () -> inputScaling(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
         .scaleTranslation(1)
         .allianceRelativeControl(() -> isFieldOriented())
@@ -242,25 +243,28 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
     var alliance = DriverStation.getAlliance();
-    if(alliance.isPresent()){
-
-      // If our alliance exists
-      if(isRobotOriented()){
+    SmartDashboard.putString("Swerve Orientation", allianceColor);
+    if(isRobotOriented()){
         //if we're robot relative
         driveInversion = -1;
 
-      } else if(alliance.get() == Alliance.Red){
-        // Red
-        driveInversion = -1;
-        // Check if diff
+      } else if(alliance.isPresent()){ 
+          if(alliance.get() == Alliance.Red){
+            // Red
+            driveInversion = -1;
+            // Check if diff
+            allianceColor = "Red";
+            
+          } else{
+              // Blue
+              driveInversion = 1;
+              // Check if diff    
+              allianceColor = "Blue";
+            }
 
-      }else{
-        // Blue
-        driveInversion = 1;
-        // Check if diff    
-      }
 
     }
+
   } 
 
 
@@ -323,7 +327,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isFieldOriented() {
     if (driveOrientation == Orientation.FIELD) {
-      robotRelativeInversion = 1;
       return true;
     } else {
       return false;
@@ -332,7 +335,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isRobotOriented() {
     if (driveOrientation == Orientation.ROBOT) {
-      robotRelativeInversion = -1;
       return true;
     } else {
       return false;
@@ -356,6 +358,16 @@ public class SwerveSubsystem extends SubsystemBase {
       driveOrientation = Orientation.ROBOT;
     } else {
       driveOrientation = Orientation.FIELD;
+    }
+  }
+
+  public double inputScaling(double controllerAnalog, double exponent){
+    if(controllerAnalog >= 0){
+      //if the controller input is greater than or equal to 0
+      return Math.pow(controllerAnalog, exponent);
+    } else {
+      //if the controller input is negative, take the power of the absolute value and negate it.
+      return -1 * Math.pow(Math.abs(controllerAnalog), exponent);
     }
   }
 }
