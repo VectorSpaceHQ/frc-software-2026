@@ -64,6 +64,11 @@ public class XboxControllerIfc implements ControllerIfc {
         return joystick.b(); // Toggle (On operator)
     }
 
+    @Override
+    public Trigger autoShot() {
+        return joystick.x(); // Toggle (On operator)
+    }
+
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {

@@ -33,6 +33,8 @@ public interface ControllerIfc {
 
   public Trigger farShot();
 
+  public Trigger autoShot();
+
   // Intake
   public Trigger toggleIntakeRollers();
 

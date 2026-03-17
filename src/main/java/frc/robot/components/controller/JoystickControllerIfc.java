@@ -88,6 +88,11 @@ public class JoystickControllerIfc implements ControllerIfc {
     public Trigger farShot() {
         return getButton(ExtendedButtonType.Button12);
     }
+
+    @Override
+    public Trigger autoShot() {
+        return getButton(ExtendedButtonType.Button16);
+    }
     
     // Intake
     @Override

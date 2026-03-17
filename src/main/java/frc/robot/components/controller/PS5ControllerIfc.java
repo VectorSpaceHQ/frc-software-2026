@@ -64,6 +64,11 @@ public class PS5ControllerIfc implements ControllerIfc {
         return joystick.circle(); // Toggle (On operator)
     }
 
+    @Override
+    public Trigger autoShot() {
+        return joystick.square(); // Toggle (On operator)
+    }
+
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
