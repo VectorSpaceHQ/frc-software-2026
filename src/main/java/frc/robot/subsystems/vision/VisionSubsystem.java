@@ -74,24 +74,6 @@ public class VisionSubsystem extends SubsystemBase {
                 cameraConnected = false;
             }
         }
-        // Red Hub Center
-        Translation3d redHubCenter = calculateHubCenter(
-                VisionConstants.HUB_TARGET_OFFSET,
-                Apriltags.RedHubRightSideCenterInNeutralZone, // 3
-                Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
-                Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
-                Apriltags.RedHubRightSideCenterInAllianceZone // 10
-        );
-
-        // Blue Hub Center
-        Translation3d blueHubCenter = calculateHubCenter(
-                VisionConstants.HUB_TARGET_OFFSET,
-                Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
-                Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
-                Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
-                Apriltags.BlueHubRightSideCenterInAllianceZone // 26
-        );
-        
 
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
@@ -233,9 +215,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void updateVisionMeasurement() {
 
-        // latestVisionMeasurement = Optional.empty();
-        // bestVisibleTag = Optional.empty();
-
         for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
 
             var result = allUnreadResults.get(resultsIndex);
@@ -307,8 +286,7 @@ public class VisionSubsystem extends SubsystemBase {
             return;
 
         allUnreadResults = camera.getAllUnreadResults();
-        // SmartDashboard.putBoolean("Vision measurement empty",
-        // allUnreadResults.isEmpty());
+        
         if (!allUnreadResults.isEmpty()) {
             updateVisionMeasurement();
         }
