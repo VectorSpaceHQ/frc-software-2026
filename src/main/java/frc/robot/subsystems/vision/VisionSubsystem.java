@@ -156,61 +156,6 @@ public class VisionSubsystem extends SubsystemBase {
         return Double.NaN;
     }
 
-    private Translation3d calculateHubCenter(Translation3d targetOffset, Apriltags... tags) {
-        double sumX = 0.0;
-        double sumY = 0.0;
-        double sumZ = 0.0;
-        int count = 0;
-
-        // Tag pose is optional
-        for (Apriltags tag : tags) {
-            var optionalTagPose = layout.getTagPose(tag.getId());
-            if (optionalTagPose.isPresent()) {
-                sumX += optionalTagPose.get().getX();
-                sumY += optionalTagPose.get().getY();
-                sumZ += optionalTagPose.get().getZ();
-                count++;
-            }
-        }
-
-        Translation3d hubCenter;
-
-        if (count == 0) {
-            // Failsafe: If no tags load, default to origin to prevent divide-by-zero
-            // crashes
-            hubCenter = new Translation3d();
-        } else {
-            // Find the center using the tags
-            Translation3d tagCenter = new Translation3d(sumX / count, sumY / count, sumZ / count);
-            hubCenter = tagCenter.plus(targetOffset); // Add vertical offset
-        }
-
-        return hubCenter;
-    }
-
-    public Translation3d getTargetHubCenter() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-
-        // Aim at red hub if on red alliance
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-            return calculateHubCenter(
-                    VisionConstants.HUB_TARGET_OFFSET,
-                    Apriltags.RedHubRightSideCenterInNeutralZone, // 3
-                    Apriltags.RedHubLeftSideCenterInNeutralZone, // 4
-                    Apriltags.RedHubLeftSideCenterInAllianceZone, // 9
-                    Apriltags.RedHubRightSideCenterInAllianceZone // 10
-            );
-        }
-
-        // Aim at the blue hub
-        return calculateHubCenter(
-                VisionConstants.HUB_TARGET_OFFSET,
-                Apriltags.BlueHubRightSideCenterInNeutralZone, // 19
-                Apriltags.BlueHubLeftSideCenterInNeutralZone, // 20
-                Apriltags.BlueHubLeftSideCenterInAllianceZone, // 25
-                Apriltags.BlueHubRightSideCenterInAllianceZone // 26
-        );
-    }
     // Updates the vision measurement (periodic)
 
     private void updateVisionMeasurement() {
