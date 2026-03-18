@@ -440,9 +440,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Red) {
-                goalPosition = redHubPosition;
+                goalPosition = ShooterConstants.redHubCenter;
             } else {
-                goalPosition = blueGoalPosition;
+                goalPosition = ShooterConstants.blueHubCenter;
             }
         }
         english_PID.m_updateInputs();
