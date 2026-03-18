@@ -44,7 +44,7 @@ public class IndexerSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Indexer Present", this.IndexerConfig.getIsPresent());
-        IndexerPID.setM_RPM(2500);
+        setIndexerRPM(IndexerConstants.INDEXER_RPM); //constant rpm
     }
 
     public boolean toggleIndexer() {
