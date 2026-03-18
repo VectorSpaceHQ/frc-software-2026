@@ -10,6 +10,8 @@ import frc.robot.configuration.Constants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Radians;
 import java.io.File;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -85,21 +87,26 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private Orientation driveOrientation = Orientation.FIELD;
 
+  // Aiming
+  private SwerveInputStream aimStream = null;
+  private Supplier<Pose2d> aimTargetSupplier = () -> getEstimatedPose(); // Default, not actually used during command
+  private boolean isAiming = false;
 
-  public SwerveSubsystem(SwerveSubsysConfig config, Supplier<Optional<EstimatedRobotPose>> visionMeasurement, Pose2d initialPose) {
+  public SwerveSubsystem(SwerveSubsysConfig config, Supplier<Optional<EstimatedRobotPose>> visionMeasurement,
+      Pose2d initialPose) {
     this.swerveConfig = config;
     this.m_visionMeasurement = visionMeasurement;
 
     if (swerveConfig.getIsPresent()) {
 
       try {
-        swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.SwerveConstants.maxSpeed,
-                                                                    new Pose2d(1, 4, new Rotation2d()));
+        swerveDrive = new SwerveParser(directory).createSwerveDrive(
+            Constants.SwerveConstants.maxSpeed,
+            new Pose2d(1, 4, new Rotation2d()));
+
         zeroGyro();
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
-
         swerveDrive.setHeadingCorrection(false);
-
         // Alternative method if you don't want to supply the conversion factor via JSON
         // files.
         // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed,
@@ -107,7 +114,9 @@ public class SwerveSubsystem extends SubsystemBase {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-      driveAngularVelocity = SwerveInputStream.of(swerveDrive,
+
+      driveAngularVelocity = SwerveInputStream.of(
+          swerveDrive,
           () -> (-swerveConfig.getController().getY() * translationMultiplier),
           () -> (-swerveConfig.getController().getX() * translationMultiplier))
           .withControllerRotationAxis(swerveConfig.getController()::getTwist)
@@ -120,9 +129,25 @@ public class SwerveSubsystem extends SubsystemBase {
        * Clone's the angular velocity input stream and converts it to a fieldRelative
        * input stream.
        */
-      driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(swerveConfig.getController()::getX,
-          swerveConfig.getController()::getY)
+      driveDirectAngle = driveAngularVelocity.copy()
+          .withControllerHeadingAxis(
+              swerveConfig.getController()::getX,
+              swerveConfig.getController()::getY)
           .headingWhile(true);
+
+      // Aim stream
+      // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
+      aimStream = driveAngularVelocity.copy() // I think this allows for translational movement with the command
+          .aim(() -> aimTargetSupplier.get()) // Give it the center of the hub
+          //.aimLookahead(Seconds.of(0.1)) if we want shoot on the move (tune as well)
+          // We aren't using vision for the hub (like an april tag we are keeping track of), but it is still useful since it accounts for other things:
+          // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html#aimLookahead(edu.wpi.first.units.measure.Time)
+          .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // offset side for shooter
+          //.aimFeedforward(0.0, 0.0, 0.0) Maybe add a feedforward and tune it so that the motors don't lag behind?
+          
+          .aimWhile(() -> isAiming); // Boolean supplier
+          
+          
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle);
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
@@ -195,13 +220,13 @@ public class SwerveSubsystem extends SubsystemBase {
   // methods from Pose Estimator SS
   public void update() {
     m_visionMeasurement.get().ifPresentOrElse(measurement -> {
-        SmartDashboard.putBoolean("Vision Measurement Present", true);
-        swerveDrive.addVisionMeasurement(
-            measurement.estimatedPose.toPose2d(),
-            measurement.timestampSeconds);
-            },
-      () -> SmartDashboard.putBoolean("Vision Measurement Present", false));
-    }
+      SmartDashboard.putBoolean("Vision Measurement Present", true);
+      swerveDrive.addVisionMeasurement(
+          measurement.estimatedPose.toPose2d(),
+          measurement.timestampSeconds);
+    },
+        () -> SmartDashboard.putBoolean("Vision Measurement Present", false));
+  }
 
   public void resetPose(Pose2d newPose) {
     swerveDrive.resetOdometry(newPose);
@@ -216,11 +241,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
-  // Unused
   public void resetPose() {
     resetOdometry();
   }
-
 
   @Override
   public void periodic() {
@@ -236,7 +259,6 @@ public class SwerveSubsystem extends SubsystemBase {
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
   }
-
 
   @Override
   public void simulationPeriodic() {
@@ -282,11 +304,8 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public Command driveRobotOriented(Supplier<ChassisSpeeds> velocity) {
-    return run(() -> {
-      swerveDrive.drive(velocity.get());
-    });
+    return run(() -> swerveDrive.drive(velocity.get()));
   }
-
   // These are for the pose estimator subsystem, which needs to access the
   // kinematics, module positions, and yaw of the swerve drive
 
@@ -328,5 +347,17 @@ public class SwerveSubsystem extends SubsystemBase {
     } else {
       driveOrientation = Orientation.FIELD;
     }
+  }
+
+  public void setAimTargetSupplier(Supplier<Pose2d> supplier) { // The pose you give to the command
+    this.aimTargetSupplier = supplier;
+  }
+
+  public void setAiming(boolean aiming) { // The toggle for aimWhile
+    this.isAiming = aiming;
+  }
+
+  public SwerveInputStream getAimStream() { // Specifically the aim stream
+    return aimStream;
   }
 }

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
 // import frc.robot.commands.Autos;
 import frc.robot.commands.DriveToTargetCommand;
@@ -193,6 +194,8 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
             0.05,
             0.035,
             Rotation2d.fromDegrees(0)).withTimeout(10));
+    m_driverController.aimTowardsHub().whileTrue(
+        new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)); // Left trigger (can change)
 
     m_driverController.halfSpeedModifier().onTrue(
             new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6), m_swerveSubsystem)
