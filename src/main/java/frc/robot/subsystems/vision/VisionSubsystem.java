@@ -306,31 +306,4 @@ public class VisionSubsystem extends SubsystemBase {
         return bestVisibleTag;
     }
 
-    public Rotation2d getHeadingToHub(Pose2d robotPose, Translation3d hubCenter) {
-        Transform2d robotToShooter = new Transform2d( // Using camera constants for now
-                VisionConstants.TRANSLATION_X,
-                VisionConstants.TRANSLATION_Y,
-                new Rotation2d(VisionConstants.ROTATION_Z));
-
-        Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
-        Translation2d targetVector = hubCenter.toTranslation2d().minus(shooterFieldPose.getTranslation());
-
-        return targetVector.getAngle().minus(robotToShooter.getRotation());
-    }
-
-    public double getDistanceToHub(Pose2d robotPose, Translation3d hubCenter) {
-        Transform2d robotToShooter = new Transform2d( // Using Camera constants for now
-                VisionConstants.TRANSLATION_X,
-                VisionConstants.TRANSLATION_Y,
-                new Rotation2d(VisionConstants.ROTATION_Z));
-
-        Pose2d shooterFieldPose = robotPose.transformBy(robotToShooter);
-
-        Translation3d shooterPosition = new Translation3d(
-                shooterFieldPose.getX(),
-                shooterFieldPose.getY(),
-                VisionConstants.TRANSLATION_Z);
-
-        return shooterPosition.getDistance(hubCenter);
-    }
 }
