@@ -67,7 +67,7 @@ public class ShooterSubsystem extends SubsystemBase {
     final SlewRateLimiter intakeRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
-    private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    private Pose2d goalPosition = ShooterConstants.blueHubCenter;
     private double solverMainVelocity = 0;
     private double solverEnglishVelocity = 0;
 
@@ -130,8 +130,6 @@ public class ShooterSubsystem extends SubsystemBase {
             englishSysId = SysId.createRoutine(this, english_PID, "English");
             mainSysId = SysId.createRoutine(this, main_PID, "Main");
             feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
-            // t_motorInputs = new MotorIOInputs();
-            // b_motorInputs = new MotorIOInputs();
 
             SmartDashboard.putData("Shooter/English PID", english_PID);
             SmartDashboard.putData("Shooter/Main PID", main_PID);
@@ -183,15 +181,6 @@ public class ShooterSubsystem extends SubsystemBase {
         main_PID.setM_RPM(0);
         feeder_PID.setM_RPM(0);
     }
-
-    // public void setAutoShot() {
-    //     english_PID.setM_RPM(-2750);
-    //     main_PID.setM_RPM(-1750);
-    //     feeder_PID.setM_RPM(-1700);
-    // }    
-
-    // private Command setShooter = run(()-> RPM.of(rpm)).ignoringDisable(true);
-    // private Command stopShooter = setVoltage(Volts.of(0)).ignoringDisable(true);
 
     public void setSysIdTarget(SysIdTarget target) {
         sysIdTarget = target;
@@ -304,7 +293,6 @@ public class ShooterSubsystem extends SubsystemBase {
         // It is also assumed that there is a loss factor in transferring momentum from wheel to ball
         // and that the english wheel transfers less than the main
 
-        //double launchVelocity = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
         double english_vel = getEnglishVelocity();
         double main_vel = getMainVelocity();
         double L_main = 0.95; // loss factor
