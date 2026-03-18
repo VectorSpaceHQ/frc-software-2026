@@ -66,7 +66,12 @@ public class ShooterSubsystem extends SubsystemBase {
     final SlewRateLimiter intakeRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
-    private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    //hub center for blue alliance as default
+    private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d()); 
+    //hub center for red alliance
+    private Pose2d redGoalPosition = new Pose2d(11.919580999999999, 4.034631, new Rotation2d());
+    //hub center for blue alliance
+    private Pose2d blueGoalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d()); 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
         this.shooterConfig = config;
@@ -88,7 +93,9 @@ public class ShooterSubsystem extends SubsystemBase {
                     goalPosition = FlippingUtil.flipFieldPose(goalPosition);
                 }
             }
-        }));        
+        }));
+        
+        
 
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
@@ -260,7 +267,7 @@ public class ShooterSubsystem extends SubsystemBase {
         float d_main = 6; // in
         double gear_ratio = 1.0;
         // double motor_rpm = main_PID.getM_realRPM();
-        double motor_rpm = main_PID.getM_RPM(); //setter NOT GETTER values for testing
+        double motor_rpm = main_PID.getM_realRPM();
         SmartDashboard.putNumber("mainRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the 
         // PID constructor, which is being used to calculate rpm separately. You would either need to remove its implementation
@@ -281,7 +288,7 @@ public class ShooterSubsystem extends SubsystemBase {
         float d_english = 4; // in
         double gear_ratio = 0.75;
         // double motor_rpm = english_PID.getM_realRPM();
-        double motor_rpm = english_PID.getM_RPM(); //setter NOT GETTER values for testing
+        double motor_rpm = english_PID.getM_realRPM();
         SmartDashboard.putNumber("englishRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12 * 60);
@@ -327,8 +334,8 @@ public class ShooterSubsystem extends SubsystemBase {
         //units are ft, lb, and s
         // returns distance in meters
         double dist_in_meters; // distance at which ball would enter hub
-        double rho = 0.075; // lb/ft^3
-        double C = 0.6;
+        double rho = 0.075; // lb/ft^3 ball density
+        double C = 0.6; //drag constant
         double A = Math.PI * Math.pow(5.9 / 24, 2); // ft^2
         double D = (rho * C * A) /2;
         D = 0.004271829698103934;
@@ -442,7 +449,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
-
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                goalPosition = redGoalPosition;
+            } else {
+                goalPosition = blueGoalPosition;
+            }
+        }
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
