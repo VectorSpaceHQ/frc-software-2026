@@ -49,13 +49,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
 
-    // private final double velocity_MOTOR =
-    // Units.rotationsPerMinuteToRadiansPerSecond(509.3); // 53.33 rads/s
-    // https://www.reca.lc/motors
-
-    // private final ControllerIfc m_driverController;
-    // private final ControllerIfc m_operatorController;
-
     private boolean useSolver = false;
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
@@ -99,7 +92,6 @@ public class ShooterSubsystem extends SubsystemBase {
                     ShooterConstants.ENGLISH_kA);
 
             // Main Flywheel Mechanism
-            //main_motor = new MotorIOKraken(this.)
             main_PID = new PID(
                     "Main",
                     new MotorIOKraken(this.shooterConfig.getShooterMainId()),
@@ -224,7 +216,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
-        //mainRpmSlew.reset(main_PID.getM_realRPM());
         double rampedMainRPM = mainRpmSlew.calculate(target_motor_rpm);
         main_PID.setM_RPM(rampedMainRPM);  
         SmartDashboard.putNumber("target main rpm", rampedMainRPM);
@@ -235,7 +226,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
-        //englishRpmSlew.reset(english_PID.getM_realRPM());
         double rampedEnglishRPM = englishRpmSlew.calculate(target_motor_rpm);
         english_PID.setM_RPM(rampedEnglishRPM);
         SmartDashboard.putNumber("target english rpm", rampedEnglishRPM);
@@ -244,7 +234,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getMainVelocity(){
         // get angular velocity of main wheel in ft/s
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
-        // double motor_rpm = main_PID.getM_realRPM();
         double motor_rpm = main_PID.getM_realRPM();
         SmartDashboard.putNumber("mainRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the 
@@ -255,15 +244,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // We need actual rpm, not PID calculated rpm
-        //double v_main = (main_PID.getM_realRPM() * Math.PI * d_main) / (60 * 12); 
-        double v_main = (wheel_rpm * Math.PI * ShooterConstants.MAIN_WHEEL_DIAMETER) / (12); 
+        double v_main = (wheel_rpm * Math.PI * ShooterConstants.MAIN_WHEEL_DIAMETER) / (12 * 60); 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return v_main;
     }
     public double getEnglishVelocity(){
         // get angular velocity of main wheel in ft/s
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
-        // double motor_rpm = english_PID.getM_realRPM();
         double motor_rpm = english_PID.getM_realRPM();
         SmartDashboard.putNumber("englishRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio;
@@ -333,7 +320,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double s = 0; // acceleration due to spin
 
         if (launch_v < 1){
-            //System.out.println("wheels too slow");
             return 0;
         }
 
@@ -393,10 +379,8 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Shooter Error", error);
         if (error > tolerance){
             //decrease wheel speeds
-            //setMainVelocity(getMainVelocity() - K * error); //this adds ft/s and rpm, needs to be changed
             solverMainVelocity = getMainVelocity() - K * error;
-            //setEnglishVelocity(getEnglishVelocity() - K * error);
-            solverMainVelocity = getEnglishVelocity() - K * error;
+            solverEnglishVelocity = getEnglishVelocity() - K * error;
             SmartDashboard.putString("Target", "too close");
         }
         else if(error < 0 && Math.abs(error) > tolerance){
@@ -424,10 +408,6 @@ public class ShooterSubsystem extends SubsystemBase {
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
-
-        //english_PID.processInputs("Shooter/English");
-        //main_PID.processInputs("Shooter/Main");
-        //feeder_PID.processInputs("Shooter/Feeder");
 
         if (runningSysId == false & shooterConfig.getIsPresent()) {
             english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
