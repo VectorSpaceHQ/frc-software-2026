@@ -191,6 +191,7 @@ public final class Constants {
 
     // English Motor (Kraken X60)
     public static final double ENGLISH_MAX_RPM = 6000.0;
+    public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
     public static final double ENGLISH_GEAR_RATIO = 0.75;
     public static final double ENGLISH_kS = 0.20027;
     public static final double ENGLISH_kP = 0.0;
@@ -201,6 +202,7 @@ public final class Constants {
 
     // Main Motor (Kraken X60)
     public static final double MAIN_MAX_RPM = 6000.0;
+    public static final double MAIN_WHEEL_DIAMETER = 6; //in    
     public static final double MAIN_GEAR_RATIO = 1;    
     public static final double MAIN_kS = 0.16432;
     public static final double MAIN_kP = 0.01;

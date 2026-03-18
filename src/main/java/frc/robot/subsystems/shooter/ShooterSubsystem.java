@@ -232,8 +232,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setMainVelocity(double target_wheel_vel){
         // Set the main wheel's angular velocity in ft/s
         // use an angular acceleration limit to avoid motor damage
-        float d_main = 6; // in
-        double gear_ratio = 1.0;
+        double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
+        double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
         //mainRpmSlew.reset(main_PID.getM_realRPM());
         double rampedMainRPM = mainRpmSlew.calculate(target_motor_rpm);
@@ -243,8 +243,8 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public void setEnglishVelocity(double target_wheel_vel){
         // Set the english wheel's angular velocity in ft/s
-        float d_english = 4; // in
-        double gear_ratio = 0.75;
+        double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
+        double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
         //englishRpmSlew.reset(english_PID.getM_realRPM());
         double rampedEnglishRPM = englishRpmSlew.calculate(target_motor_rpm);
@@ -254,8 +254,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getMainVelocity(){
         // get angular velocity of main wheel in ft/s
-        float d_main = 6; // in
-        double gear_ratio = 1.0;
+        double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
         // double motor_rpm = main_PID.getM_realRPM();
         double motor_rpm = main_PID.getM_realRPM();
         SmartDashboard.putNumber("mainRealRPM", motor_rpm);
@@ -268,19 +267,18 @@ public class ShooterSubsystem extends SubsystemBase {
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // We need actual rpm, not PID calculated rpm
         //double v_main = (main_PID.getM_realRPM() * Math.PI * d_main) / (60 * 12); 
-        double v_main = (wheel_rpm * Math.PI * d_main) / (12); 
+        double v_main = (wheel_rpm * Math.PI * ShooterConstants.MAIN_WHEEL_DIAMETER) / (12); 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return v_main;
     }
     public double getEnglishVelocity(){
         // get angular velocity of main wheel in ft/s
-        float d_english = 4; // in
-        double gear_ratio = 0.75;
+        double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
         // double motor_rpm = english_PID.getM_realRPM();
         double motor_rpm = english_PID.getM_realRPM();
         SmartDashboard.putNumber("englishRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio;
-        double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
+        double v_english = (wheel_rpm * Math.PI * ShooterConstants.ENGLISH_WHEEL_DIAMETER) / (12); 
         return v_english;
     }
 
