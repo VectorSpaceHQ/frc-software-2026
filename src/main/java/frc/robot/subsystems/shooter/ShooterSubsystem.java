@@ -89,7 +89,9 @@ public class ShooterSubsystem extends SubsystemBase {
                     goalPosition = FlippingUtil.flipFieldPose(goalPosition);
                 }
             }
-        }));        
+        }));
+        
+        
 
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
@@ -264,7 +266,9 @@ public class ShooterSubsystem extends SubsystemBase {
         // get angular velocity of main wheel in ft/s
         float d_main = 6; // in
         double gear_ratio = 1.0;
+        // double motor_rpm = main_PID.getM_realRPM();
         double motor_rpm = main_PID.getM_realRPM();
+        SmartDashboard.putNumber("mainRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the 
         // PID constructor, which is being used to calculate rpm separately. You would either need to remove its implementation
         // from the PID class (which after thought would be better since it was used as a temporary measure) or remove its implementation
@@ -282,7 +286,9 @@ public class ShooterSubsystem extends SubsystemBase {
         // get angular velocity of main wheel in ft/s
         float d_english = 4; // in
         double gear_ratio = 0.75;
+        // double motor_rpm = english_PID.getM_realRPM();
         double motor_rpm = english_PID.getM_realRPM();
+        SmartDashboard.putNumber("englishRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio;
         double v_english = (wheel_rpm * Math.PI * d_english) / (12); 
         return v_english;
@@ -326,9 +332,9 @@ public class ShooterSubsystem extends SubsystemBase {
         //units are ft, lb, and s
         // returns distance in meters
         double dist_in_meters; // distance at which ball would enter hub
-        double rho = 0.075; // lb/ft^3
-        double C = 0.6;
-        double A = Math.PI * (5.9 / 12 / 2) * (5.9 / 12 / 2); // ft^2
+        double rho = 0.075; // lb/ft^3 ball density
+        double C = 0.6; //drag constant
+        double A = Math.PI * Math.pow(5.9 / 24, 2); // ft^2
         double D = (rho * C * A) /2;
         D = 0.004271829698103934;
         double m = 0.5; // lb
@@ -432,10 +438,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
-        if (solverEnabled() == true) {
-        //solver();
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                goalPosition = redHubPosition;
+            } else {
+                goalPosition = blueGoalPosition;
+            }
         }
-
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         feeder_PID.m_updateInputs();
