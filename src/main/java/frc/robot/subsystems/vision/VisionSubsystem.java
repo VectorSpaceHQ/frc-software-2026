@@ -13,7 +13,12 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,7 +62,7 @@ public class VisionSubsystem extends SubsystemBase {
     public VisionSubsystem(VisionSubsysConfig config) {
         this.visionConfig = config;
         if (visionConfig.getIsPresent()) {
-            
+
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
@@ -69,6 +74,7 @@ public class VisionSubsystem extends SubsystemBase {
                 cameraConnected = false;
             }
         }
+
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
@@ -154,9 +160,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void updateVisionMeasurement() {
 
-        latestVisionMeasurement = Optional.empty();
-        bestVisibleTag = Optional.empty();
-
         for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
 
             var result = allUnreadResults.get(resultsIndex);
@@ -164,23 +167,22 @@ public class VisionSubsystem extends SubsystemBase {
             if (!result.hasTargets())
                 continue;
 
-                // Reject duplicate timestamps
-            double timestamp = result.getTimestampSeconds();   
-            SmartDashboard.putNumber("Timestamp", timestamp);       
+            // Reject duplicate timestamps
+            double timestamp = result.getTimestampSeconds();
+            SmartDashboard.putNumber("Timestamp", timestamp);
             if (timestamp <= lastVisionTimestamp) {
                 SmartDashboard.putString("Timestamp", "Too Old");
-                            continue;
-                            
+                continue;
+
             }
 
             // For stale poses
             double poseAge = Timer.getFPGATimestamp() - timestamp;
             SmartDashboard.putNumber("Pose Age", poseAge);
             if (poseAge > VisionConstants.MAX_POSE_AGE) {
-            SmartDashboard.putString("Pose Age", "Too Old");
+                SmartDashboard.putString("Pose Age", "Too Old");
                 continue;
             }
-                
 
             // Select the lowest ambiguity valid target (not boolean anymore)
             Optional<PhotonTrackedTarget> validTarget = result.getTargets().stream()
@@ -193,7 +195,7 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
             Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
-             SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
+            SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
 
             if (estimatedVisionPose.isEmpty()) {
                 continue;
@@ -201,12 +203,11 @@ public class VisionSubsystem extends SubsystemBase {
 
             // Accept measurement
             latestVisionMeasurement = estimatedVisionPose;
-           
+
             if (latestVisionMeasurement.isPresent()) {
-                SmartDashboard.putString("Vision Measurement", "Present"
-                );
+                SmartDashboard.putString("Vision Measurement", "Present");
             } else {
-                SmartDashboard.putString("Vision Measurement",  "Absent");
+                SmartDashboard.putString("Vision Measurement", "Absent");
             }
 
             lastVisionTimestamp = timestamp;
@@ -230,8 +231,7 @@ public class VisionSubsystem extends SubsystemBase {
             return;
 
         allUnreadResults = camera.getAllUnreadResults();
-        // SmartDashboard.putBoolean("Vision measurement empty",
-        // allUnreadResults.isEmpty());
+        
         if (!allUnreadResults.isEmpty()) {
             updateVisionMeasurement();
         }
@@ -250,5 +250,5 @@ public class VisionSubsystem extends SubsystemBase {
     public Optional<Apriltags> getBestVisibleTag() {
         return bestVisibleTag;
     }
-    
+
 }

@@ -12,6 +12,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -151,8 +152,8 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-3.0), // Volts to pivot up (fight against gravity)
-      DOWN(2.0), // Volts to pivot down
+      UP(-2.5), // Volts to pivot up (fight against gravity)
+      DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
       public final double voltage;
@@ -169,25 +170,29 @@ public final class Constants {
 
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
-    public static final double GEAR_RATIO = 25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 20;
+    public static final double GEAR_RATIO = 1/25.0;
+    public static final int INDEXER_CURRENT_LIMIT = 40;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;
     public static final double kD = 0;
     public static final double kV = 0;
     public static final double kA = 0;
+    public static final double INDEXER_RPM = 2500;
   }
 
   public static class ShooterConstants {
+    public static final Pose2d blueHubCenter = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    public static final Pose2d redHubCenter = new Pose2d(11.919581, 4.034631, new Rotation2d());
     // Shared Constants
     public static final double MAX_VOLTAGE = 12.0;
-    public static final double GEAR_RATIO = 1.5;
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
     public static final boolean RUNNING_SYS_ID = false;
 
     // English Motor (Kraken X60)
     public static final double ENGLISH_MAX_RPM = 6000.0;
+    public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
+    public static final double ENGLISH_GEAR_RATIO = 0.75;
     public static final double ENGLISH_kS = 0.20027;
     public static final double ENGLISH_kP = 0.0;
     public static final double ENGLISH_kI = 0.0;
@@ -197,6 +202,8 @@ public final class Constants {
 
     // Main Motor (Kraken X60)
     public static final double MAIN_MAX_RPM = 6000.0;
+    public static final double MAIN_WHEEL_DIAMETER = 6; //in    
+    public static final double MAIN_GEAR_RATIO = 1;    
     public static final double MAIN_kS = 0.16432;
     public static final double MAIN_kP = 0.01;
     public static final double MAIN_kI = 0.0;
@@ -206,9 +213,10 @@ public final class Constants {
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
-    public static final int FEEDER_CURRENT_LIMIT = 20;
+    public static final int FEEDER_CURRENT_LIMIT = 40;
+    public static final double FEEDER_GEAR_RATIO = 2;        
     public static final double FEEDER_kS = 0.0;
-    public static final double FEEDER_kP = 0.0;
+    public static final double FEEDER_kP = 0.01;
     public static final double FEEDER_kI = 0.0;
     public static final double FEEDER_kD = 0.0;
     public static final double FEEDER_kV = 0.0;
@@ -217,15 +225,15 @@ public final class Constants {
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
 
-    public static final double TRANSLATION_P = 4.0;
+    public static final double TRANSLATION_P = 1.3;
     public static final double TRANSLATION_I = 0.0;
     public static final double TRANSLATION_D = 0.0;
     public static final double TRANSLATION_MAX_VEL = 4.0;
     public static final double TRANSLATION_MAX_ACCEL = 4.0;
 
-    public static final double ROTATION_P = 4.0;
-    public static final double ROTATION_I = 0.0;
-    public static final double ROTATION_D = 0.0;
+    public static final double ROTATION_P = 25.0;
+    public static final double ROTATION_I = 5.0;
+    public static final double ROTATION_D = 0.32;
     public static final double ROTATION_MAX_VEL = 6.0;
     public static final double ROTATION_MAX_ACCEL = 8.0;
 
@@ -246,11 +254,11 @@ public final class Constants {
 
     // Constants for the Transformation3d objects for the camera and robot
     public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
-    public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
-    public static final double TRANSLATION_Z = 0.53345; // Meters above the robot center
+    public static final double TRANSLATION_Y = -0.3302; // Meters to the left from the robot center
+    public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 
-    public static final double ROTATION_X = Math.toRadians(-90); // 90 degree rotation around the X-axis CCW
-    public static final double ROTATION_Y = Math.toRadians(-20); // Rotate 20 degrees upward
+    public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
+    public static final double ROTATION_Y = Math.toRadians(15); // Rotate 20 degrees cw
     public static final double ROTATION_Z = Math.toRadians(90); // 90 degree rotation around the Z-axis CW
     public static final Vector<N3> VISION_ST_DEVS = VecBuilder.fill(0.7, 0.7, Math.toRadians(15)); // Meters, Meters,
                                                                                                    // Degrees (to
@@ -267,50 +275,59 @@ public final class Constants {
     // driverstations. Consistent with 2026 rebuilt fields.
 
     // For reference (and potentially commands)
+    // Note: Location is not only relative to the alliance, but the location of
+    // AprilTags on the hub are with *respect to their current side*
+    // Note: Right side of
     public enum Apriltags {
-      None(-1.0),
-      RedTrenchRightNeutralSide(1.0), // Right
-      RedHubRightBumpNeutralSide(2.0), // Right
-      RedHubRightNeutralSide(3.0), // Front
-      RedHubLeftNeutralSide(4.0), // Front
-      RedHubLeftBumpNeutralSide(5.0), // Left
-      RedTrenchLeftNeutralSide(6.0), // Left
-      RedTrenchLeftAllianceSide(7.0), // Left
-      RedHubLeftBumpAllianceSide(8.0), // Left
-      RedHubLeftAllianceSide(9.0), // Back
-      RedHubRightAllianceSide(10.0), // Back
-      RedHubRightBumpAllianceSide(11.0), // Right
-      RedTrenchRightAllianceSide(12.0), // Right
-      RedOutpostRightSide(13.0), // Closer to wall (alliance side)
-      RedOutpostLeftSide(14.0), // Closer to center (alliance side)
-      RedTowerLeftSide(15.0), // Left (alliance side)
-      RedTowerRightSide(16.0), // Right (alliance side)
+      // In order: Alliance color, element section(s), area zone (ex: 2 is on the red
+      // alliance, on the hub, in the center of the hub, closer to the neutral zone)
+      None(-1),
 
-      BlueTrenchRightNeutralSide(17.0), // Right
-      BlueHubRightBumpNeutralSide(18.0), // Right
-      BlueHubRightNeutralSide(19.0), // Front
-      BlueHubLeftNeutralSide(20.0), // Front
-      BlueHubLeftBumpNeutralSide(21.0), // Left
-      BlueTrenchLeftNeutralSide(22.0), // Left
-      BlueTrenchLeftAllianceSide(23.0), // Left
-      BlueHubLeftBumpAllianceSide(24.0), // Left
-      BlueHubLeftAllianceSide(25.0), // Back
-      BlueHubRightAllianceSide(26.0), // Back
-      BlueHubRightBumpAllianceSide(27.0), // Right
-      BlueTrenchRightAllianceSide(28.0), // Right
-      BlueOutpostRightSide(29.0), // Closer to wall (alliance side)
-      BlueOutpostLeftSide(30.0), // Closer to center (alliance side)
-      BlueTowerLeftSide(31.0), // Left (alliance side)
-      BlueTowerRightSide(32.0);
+      // Red Alliance
+      RedTrenchRightSideInNeutralZone(1), // Right side of Trench, Neutral Zone
+      RedHubRightSideBumpInNeutralZone(2), // Right side of Hub, Bump side, Neutral Zone
+      RedHubRightSideCenterInNeutralZone(3), // Right side of Hub, Center, Neutral Zone
+      RedHubLeftSideCenterInNeutralZone(4), // Left side of Hub, Center, Neutral Zone
+      RedHubLeftSideBumpInNeutralZone(5), // Left side of Hub, Bump side, Neutral Zone
+      RedTrenchLeftSideInNeutralZone(6), // Left side of Trench, Neutral Zone
+      RedTrenchLeftSideInAllianceZone(7), // Left side of Trench, Alliance Zone
+      RedHubLeftSideBumpInAllianceZone(8), // Left side of Hub, Bump side, Alliance Zone
+      RedHubLeftSideCenterInAllianceZone(9), // Left side of Hub, Center, Alliance Zone
+      RedHubRightSideCenterInAllianceZone(10), // Right side of Hub, Center, Alliance Zone
+      RedHubRightSideBumpInAllianceZone(11), // Right side of Hub, Bump side, Alliance Zone
+      RedTrenchRightSideInAllianceZone(12), // Right side of Trench, Alliance Zone
+      RedOutpostRightSideInAllianceZone(13), // Right side of Outpost, Alliance Zone
+      RedOutpostLeftSideInAllianceZone(14), // Left side of Outpost, Alliance Zone
+      RedTowerLeftSideInAllianceZone(15), // Left side of Tower, Alliance Zone
+      RedTowerRightSideInAllianceZone(16), // Right side of Tower, Alliance Zone
+
+      // Blue Alliance
+      BlueTrenchRightSideInNeutralZone(17), // Right side of Trench, Neutral Zone
+      BlueHubRightSideBumpInNeutralZone(18), // Right side of Hub, Bump side, Neutral Zone
+      BlueHubRightSideCenterInNeutralZone(19), // Right side of Hub, Center, Neutral Zone
+      BlueHubLeftSideCenterInNeutralZone(20), // Left side of Hub, Center, Neutral Zone
+      BlueHubLeftSideBumpInNeutralZone(21), // Left side of Hub, Bump side, Neutral Zone
+      BlueTrenchLeftSideInNeutralZone(22), // Left side of Trench, Neutral Zone
+      BlueTrenchLeftSideInAllianceZone(23), // Left side of Trench, Alliance Zone
+      BlueHubLeftSideBumpInAllianceZone(24), // Left side of Hub, Bump side, Alliance Zone
+      BlueHubLeftSideCenterInAllianceZone(25), // Left side of Hub, Center, Alliance Zone
+      BlueHubRightSideCenterInAllianceZone(26), // Right side of Hub, Center, Alliance Zone
+      BlueHubRightSideBumpInAllianceZone(27), // Right side of Hub, Bump side, Alliance Zone
+      BlueTrenchRightSideInAllianceZone(28), // Right side of Trench, Alliance Zone
+      BlueOutpostRightSideInAllianceZone(29), // Right side of Outpost, Alliance Zone
+      BlueOutpostLeftSideInAllianceZone(30), // Left side of Outpost, Alliance Zone
+      BlueTowerLeftSideInAllianceZone(31), // Left side of Tower, Alliance Zone
+      BlueTowerRightSideInAllianceZone(32); // Right side of Tower, Alliance Zone
 
       private int value;
 
-      private Apriltags(double id) {
-        this.value = (int) id;
+      private Apriltags(int id) {
+        this.value = id;
       }
 
       public int getId() {
         return this.value;
+
       }
 
       public Pose2d getPose(AprilTagFieldLayout layout) {
@@ -319,7 +336,8 @@ public final class Constants {
             .orElseThrow(() -> new RuntimeException("Tag not found in layout: " + getId()));
       }
     }
-
+    public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
+    public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
   }
 
 }
