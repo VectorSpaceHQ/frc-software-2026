@@ -229,9 +229,6 @@ public class SwerveSubsystem extends SubsystemBase {
     update();
     Pose2d pose = getEstimatedPose();
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
-    // Logger.recordOutput("PoseEstimator/X", pose.getX());
-    // Logger.recordOutput("PoseEstimator/Y", pose.getY());
-    // Logger.recordOutput("PoseEstimator/Theta", pose.getRotation().getRadians());
 
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
