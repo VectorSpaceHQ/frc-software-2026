@@ -181,6 +181,8 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
+    public static final Pose2d blueHubCenter = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    public static final Pose2d redHubCenter = new Pose2d(11.919581, 4.034631, new Rotation2d());
     // Shared Constants
     public static final double MAX_VOLTAGE = 12.0;
     public static final double GEAR_RATIO = 1.5;

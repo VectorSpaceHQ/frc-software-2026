@@ -67,7 +67,6 @@ public class ShooterSubsystem extends SubsystemBase {
     final SlewRateLimiter intakeRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
-    final double g = 9.8;
     private Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
     private double solverMainVelocity = 0;
     private double solverEnglishVelocity = 0;
