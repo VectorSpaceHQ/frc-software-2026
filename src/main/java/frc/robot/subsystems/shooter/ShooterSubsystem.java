@@ -82,17 +82,7 @@ public class ShooterSubsystem extends SubsystemBase {
         mainRpmSlew = new SlewRateLimiter(400.0);
         englishRpmSlew = new SlewRateLimiter(1000.0);
         intakeRpmSlew = new SlewRateLimiter(500.0);        
-
-        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == Alliance.Red) {
-                    goalPosition = FlippingUtil.flipFieldPose(goalPosition);
-                }
-            }
-        }));
         
-        
-
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
             english_PID = new PID(
