@@ -247,7 +247,7 @@ public final class Constants {
 
     // Constants for the Transformation3d objects for the camera and robot
     public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
-    public static final double TRANSLATION_Y = -0.3302; // Meters to the left from the robot center
+    public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
     public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 
     public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
