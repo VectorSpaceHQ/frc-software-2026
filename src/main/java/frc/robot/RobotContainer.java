@@ -200,6 +200,12 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
             new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3), m_swerveSubsystem)
         );            
 
+    m_visionSubsystem.onCameraConnected.onTrue(
+        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
+    ).onFalse(
+        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
+    );
+
     
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));

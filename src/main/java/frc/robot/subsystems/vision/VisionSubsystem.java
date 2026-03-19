@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
@@ -80,7 +81,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
 
-    private void updateCameraStatus() {
+    public void updateCameraStatus() {
 
         cameraConnected = camera.isConnected(); // True if camera is connected
 
@@ -229,12 +230,6 @@ public class VisionSubsystem extends SubsystemBase {
     public void periodic() {
 
         if (!cameraConnected){
-            updateCameraStatus();
-            return;
-        }
-
-        if (!cameraConnected){
-            updateCameraStatus();
             return;
         }
 
@@ -260,4 +255,5 @@ public class VisionSubsystem extends SubsystemBase {
         return bestVisibleTag;
     }
 
+    public Trigger onCameraConnected = new Trigger(() -> camera.isConnected());
 }
