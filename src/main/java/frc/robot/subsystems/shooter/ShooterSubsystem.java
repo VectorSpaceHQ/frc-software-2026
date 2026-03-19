@@ -71,10 +71,23 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
-        mainRpmSlew = new SlewRateLimiter(400.0);
-        englishRpmSlew = new SlewRateLimiter(1000.0);
-        intakeRpmSlew = new SlewRateLimiter(500.0);        
+        mainRpmSlew = new SlewRateLimiter(100.0);
+        englishRpmSlew = new SlewRateLimiter(100.0);
+        intakeRpmSlew = new SlewRateLimiter(100.0);        
+        // mainRpmSlew = new SlewRateLimiter(99900.0);
+        // englishRpmSlew = new SlewRateLimiter(99000.0);
+        // intakeRpmSlew = new SlewRateLimiter(99900.0);           
+
+        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
+            if (DriverStation.getAlliance().isPresent()) {
+                if (DriverStation.getAlliance().get() == Alliance.Red) {
+                    goalPosition = FlippingUtil.flipFieldPose(goalPosition);
+                }
+            }
+        }));
         
+        
+
         if (shooterConfigPresent) {
             // English Flywheel Mechanism
             english_PID = new PID(
@@ -369,6 +382,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // translations taken from camera in Constants
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302), 
                                                     new Rotation2d(Math.toRadians(90))));
+        double[] shooterArray = {shooterPose.getX(), shooterPose.getY()};
+        SmartDashboard.putNumberArray("shooterPose", shooterArray);
         double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
         launchAngle = 75; //degrees, temporary value for comp 1
         launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
