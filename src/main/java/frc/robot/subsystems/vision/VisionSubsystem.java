@@ -104,14 +104,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         layout = AprilTagFieldLayout.loadField(VisionConstants.FIELD_WELDED_2026);
 
-        // Origin Point
-        // var alliance = DriverStation.getAlliance();
-        // if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-        //     layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-        // } else {
-        //     layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-        // }
-
         // Initialize pose estimator (ONLY for generating measurements)
         poseEstimator = new PhotonPoseEstimator(
                 layout,
