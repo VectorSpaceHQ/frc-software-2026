@@ -18,6 +18,8 @@ public interface ControllerIfc {
 
   public double getTwist();
 
+  public double getTwistY();
+
   public Trigger toggleOrientation();
 
   public Trigger halfSpeedModifier();
@@ -32,6 +34,8 @@ public interface ControllerIfc {
   public Trigger closeShot();
 
   public Trigger farShot();
+
+  public Trigger autoShot();
 
   // Intake
   public Trigger toggleIntakeRollers();
