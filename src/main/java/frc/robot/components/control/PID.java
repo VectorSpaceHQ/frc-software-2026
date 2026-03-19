@@ -25,7 +25,6 @@ public class PID implements Sendable {
     private String name;
     private double MIN_RPM = -6000.0;
     private double MAX_RPM = 6000.0;
-    private double m_gearRatio = 1.5;
     private double MAX_VOLTS = 12.0; // Unused (For reference)
     private final double MAX_RPM_PER_VOLT;
     
@@ -87,7 +86,6 @@ public class PID implements Sendable {
             double kd, double kv, double ka) {
         this.name = name;
         m_motor = m_motorIO;
-        this.m_gearRatio = m_gearRatio;
         m_motorInputs = new MotorIOInputs();
         MAX_RPM_PER_VOLT = Units.rotationsPerMinuteToRadiansPerSecond(MAX_RPM / MAX_VOLTS);
         kv = (1.0 / MAX_RPM_PER_VOLT); // https://www.reca.lc/motors
@@ -113,6 +111,8 @@ public class PID implements Sendable {
     }
 
     public double calculate() {
+        // Convert target RPM to radians per second for feedforward and PID calculations
+        
         double target = Units.rotationsPerMinuteToRadiansPerSecond(m_RPM);
         m_volts = MathUtil.clamp(
                 feedforward.calculate(target)
@@ -136,8 +136,8 @@ public class PID implements Sendable {
 
     public void m_updateInputs() {
         m_motor.updateInputs(m_motorInputs); // With flywheel
-        motorInputs.positionRad = m_motorInputs.positionRad * m_gearRatio;
-        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec * m_gearRatio;
+        motorInputs.positionRad = m_motorInputs.positionRad;
+        motorInputs.velocityRadPerSec = m_motorInputs.velocityRadPerSec;
         motorInputs.appliedVoltage = m_motorInputs.appliedVoltage;
         motorInputs.currentAmps = motorInputs.currentAmps;
         
