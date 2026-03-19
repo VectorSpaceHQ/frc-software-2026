@@ -1,40 +1,38 @@
 package frc.robot.subsystems.shooter;
 
-import java.lang.Math;
-
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.pathplanner.lib.util.FlippingUtil;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkLowLevel;
+//spark max imports
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import frc.robot.subsystems.drive.SwerveSubsystem;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.subsystems.vision.VisionSubsystem;
-import swervelib.SwerveDrive;
-import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.components.control.PID;
+import frc.robot.components.control.SysId;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.Constants.ShooterConstants;
-import frc.robot.configuration.Constants;
-import frc.robot.configuration.Constants.OperatorConstants;
-import frc.robot.configuration.Constants.SysIdEnums;
 import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
-import frc.robot.components.control.PID;
-import frc.robot.components.control.SysId;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -130,6 +128,25 @@ public class ShooterSubsystem extends SubsystemBase {
                     ShooterConstants.FEEDER_kD,
                     ShooterConstants.FEEDER_kV,
                     ShooterConstants.FEEDER_kA);
+
+            //test motor init for sparkmax
+            SparkMax feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
+            SparkMaxConfig feederConfig = new SparkMaxConfig();
+            final SparkAbsoluteEncoder feederAbsoluteEncoder;
+            final RelativeEncoder feederRelativeEncoder;
+            
+            feederConfig.idleMode(IdleMode.kCoast);
+
+            feederConfig.smartCurrentLimit(ShooterConstants.FEEDER_CURRENT_LIMIT);
+
+            feederWheel.configure(
+                feederConfig,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kNoPersistParameters);
+
+            feederAbsoluteEncoder = feederWheel.getAbsoluteEncoder();
+            feederRelativeEncoder = feederWheel.getEncoder();
+            feederRelativeEncoder.setPosition(feederAbsoluteEncoder.getPosition());            
 
             englishSysId = SysId.createRoutine(this, english_PID, "English");
             mainSysId = SysId.createRoutine(this, main_PID, "Main");
