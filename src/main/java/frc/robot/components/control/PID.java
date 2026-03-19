@@ -23,6 +23,7 @@ public class PID implements Sendable {
 
     // Note: These values will get overwritten by constants values
     private String name;
+    private double MIN_RPM = -6000.0;
     private double MAX_RPM = 6000.0;
     private double m_gearRatio = 1.5;
     private double MAX_VOLTS = 12.0; // Unused (For reference)
@@ -95,6 +96,8 @@ public class PID implements Sendable {
         this.kp = kp;
         this.ki = ki;
         this.kd = kd;
+        this.MIN_RPM = -MAX_RPM;
+        this.MAX_RPM = MAX_RPM;
         feedforward = new SimpleMotorFeedforward(ks, kv, ka);
         pid = new PIDController(kp, ki, kd);
         pid.setIntegratorRange(lowIntegrationRange, highIntegrationRange); // Integral is only responsible for -2 to 2
@@ -244,9 +247,7 @@ public class PID implements Sendable {
     }
 
     public void setM_RPM(double m_RPM) {
-        if (m_RPM > MAX_RPM) {
-            m_RPM = MAX_RPM;
-        }
+        m_RPM = MathUtil.clamp(m_RPM, -MIN_RPM, MAX_RPM);
         this.m_RPM = m_RPM;
     }
 
