@@ -178,17 +178,21 @@ public final class Constants {
     public static final double kD = 0;
     public static final double kV = 0;
     public static final double kA = 0;
+    public static final double INDEXER_RPM = 2500;
   }
 
   public static class ShooterConstants {
+    public static final Pose2d blueHubCenter = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    public static final Pose2d redHubCenter = new Pose2d(11.919581, 4.034631, new Rotation2d());
     // Shared Constants
     public static final double MAX_VOLTAGE = 12.0;
-    public static final double GEAR_RATIO = 1.5;
     public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
     public static final boolean RUNNING_SYS_ID = false;
 
     // English Motor (Kraken X60)
     public static final double ENGLISH_MAX_RPM = 6000.0;
+    public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
+    public static final double ENGLISH_GEAR_RATIO = 0.75;
     public static final double ENGLISH_kS = 0.20027;
     public static final double ENGLISH_kP = 0.0;
     public static final double ENGLISH_kI = 0.0;
@@ -198,6 +202,8 @@ public final class Constants {
 
     // Main Motor (Kraken X60)
     public static final double MAIN_MAX_RPM = 6000.0;
+    public static final double MAIN_WHEEL_DIAMETER = 6; //in    
+    public static final double MAIN_GEAR_RATIO = 1;    
     public static final double MAIN_kS = 0.16432;
     public static final double MAIN_kP = 0.01;
     public static final double MAIN_kI = 0.0;
@@ -208,6 +214,7 @@ public final class Constants {
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
     public static final int FEEDER_CURRENT_LIMIT = 40;
+    public static final double FEEDER_GEAR_RATIO = 2;        
     public static final double FEEDER_kS = 0.0;
     public static final double FEEDER_kP = 0.01;
     public static final double FEEDER_kI = 0.0;
