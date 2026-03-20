@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
@@ -66,12 +67,13 @@ public class VisionSubsystem extends SubsystemBase {
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
-            initializeSubsystem();
+            updateCameraStatus();
 
             try {
                 initializeAprilTagFieldLayout();
             } catch (IOException e) {
                 cameraConnected = false;
+                System.err.println("Warning: Camera not connected." + e.getMessage());
             }
         }
 
@@ -79,7 +81,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
 
-    private void initializeSubsystem() {
+    public void updateCameraStatus() {
 
         cameraConnected = camera.isConnected(); // True if camera is connected
 
@@ -101,14 +103,6 @@ public class VisionSubsystem extends SubsystemBase {
     private void initializeAprilTagFieldLayout() throws IOException {
 
         layout = AprilTagFieldLayout.loadField(VisionConstants.FIELD_WELDED_2026);
-
-        // Origin Point
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-            layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-        } else {
-            layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-        }
 
         // Initialize pose estimator (ONLY for generating measurements)
         poseEstimator = new PhotonPoseEstimator(
@@ -227,13 +221,15 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!cameraConnected)
-            return;
+        if (cameraConnected){
 
-        allUnreadResults = camera.getAllUnreadResults();
-        
-        if (!allUnreadResults.isEmpty()) {
-            updateVisionMeasurement();
+            allUnreadResults = camera.getAllUnreadResults();
+            SmartDashboard.putBoolean("Vision measurement empty",
+            allUnreadResults.isEmpty());
+            if (!allUnreadResults.isEmpty()) {
+                updateVisionMeasurement();
+            }
+
         }
 
     }
@@ -251,4 +247,5 @@ public class VisionSubsystem extends SubsystemBase {
         return bestVisibleTag;
     }
 
+    public Trigger onCameraConnected = new Trigger(() -> camera.isConnected());
 }
