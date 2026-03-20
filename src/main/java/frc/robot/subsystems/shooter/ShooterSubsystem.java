@@ -438,7 +438,13 @@ public class ShooterSubsystem extends SubsystemBase {
                                                     new Rotation2d(Math.toRadians(90))));
         double[] shooterArray = {shooterPose.getX(), shooterPose.getY()};
         SmartDashboard.putNumberArray("shooterPose", shooterArray);
-        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
+        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY())
+                                    .getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
+        if(distanceToHub >= 6){
+            //if the shooter is 6m+ from the hub, don't run solver since it's too far.
+            SmartDashboard.putString("Target", "out of range");
+            return;
+        }
         launchAngle = 75; //degrees, temporary value for comp 1
         launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
         double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning

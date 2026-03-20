@@ -19,12 +19,12 @@ public class MotorIOKraken implements MotorIO {
     public MotorIOKraken(int canID) {
         motor = new TalonFX(canID);
         
-    talonFXConfig.CurrentLimits.StatorCurrentLimit = 80;
-    talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    talonFXConfig.CurrentLimits.SupplyCurrentLimit = 60;
-    talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        talonFXConfig.CurrentLimits.StatorCurrentLimit = 80;
+        talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        talonFXConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    motor.getConfigurator().apply(talonFXConfig);
+        motor.getConfigurator().apply(talonFXConfig);
     
     }
     
