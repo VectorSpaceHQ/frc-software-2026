@@ -383,11 +383,11 @@ public class ShooterSubsystem extends SubsystemBase {
             setEnglishVelocity(targetEnglishWheelVelocity);
             if (error > tolerance){
                 //decrease wheel speeds
-                SmartDashboard.putString("Target", "too close");
+                SmartDashboard.putString("Target", "shooting too far");
             }
             else if(error < 0 && Math.abs(error) > tolerance){
                 // increase wheel speeds
-                SmartDashboard.putString("Target", "too far");
+                SmartDashboard.putString("Target", "shooting too short");
             }
         }
         SmartDashboard.putNumber("target english velocity", targetEnglishWheelVelocity);
