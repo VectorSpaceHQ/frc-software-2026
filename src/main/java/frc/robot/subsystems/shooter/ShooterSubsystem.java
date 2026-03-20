@@ -192,8 +192,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setCloseShot() {
-        english_PID.setM_RPM(-1250);
-        main_PID.setM_RPM(-750);
+        startShooter();
+        setEnglishVelocity(-21.817); 
+        setMainVelocity(-19.63); //converted from rpm to ft/s
         //takes velocity in RPM
         feederRPM = 1700; //arbitrary value currently
         getMainVelocity();
@@ -202,8 +203,20 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setFarShot() {
-        english_PID.setM_RPM(-2750);
-        main_PID.setM_RPM(-1750);
+        startShooter();
+        setEnglishVelocity(-47.997); //converted from rpm to ft/s
+        setMainVelocity(-45.81); //converted from 
+        feederRPM = 1700;
+        getMainVelocity();
+        getEnglishVelocity();
+        getFeederVelocity();
+    }
+
+    public void setAutoShot() {
+        startShooter();
+        solver();
+        setMainVelocity(solverMainVelocity);
+        setEnglishVelocity(solverEnglishVelocity);
         feederRPM = 1700;
         getMainVelocity();
         getEnglishVelocity();
@@ -254,6 +267,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setMainVelocity(double target_wheel_vel){
         // Set the main wheel's angular velocity in ft/s
         // use an angular acceleration limit to avoid motor damage
+        //ft/s to rpm is 38.1971863421 * ft/s = rpm
         double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
@@ -264,6 +278,7 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public void setEnglishVelocity(double target_wheel_vel){
         // Set the english wheel's angular velocity in ft/s
+        //ft/s to rpm is 57.2957795131 * ft/s = rpm
         double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
         double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
@@ -410,8 +425,14 @@ public class ShooterSubsystem extends SubsystemBase {
         double error;
         double tolerance;
         double K;
-        double targetMainWheelVelocity;
-        double targetEnglishWheelVelocity;
+        //ensure the alliance hub pose is correct
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                goalPosition = ShooterConstants.redHubCenter;
+            } else {
+                goalPosition = ShooterConstants.blueHubCenter;
+            }
+        }
         // translations taken from camera in Constants
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302), 
                                                     new Rotation2d(Math.toRadians(90))));
@@ -428,39 +449,34 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("distance to hub", distanceToHub);
         SmartDashboard.putNumber("Shooter Error", error);
 
+        //Main and English wheels' positive rotation direction needs to be inverted.
         if(Math.abs(error) < tolerance){
+            //if the launch distance is within tolerance, keep the wheel velocities the same
+            //don't need to set new velocities to wheels
             SmartDashboard.putString("Target", "locked");
-            targetMainWheelVelocity = getMainVelocity();
-            targetEnglishWheelVelocity = getEnglishVelocity();
+            solverMainVelocity = getMainVelocity();
+            solverEnglishVelocity = getEnglishVelocity();
         } 
         else {
-            targetMainWheelVelocity = getMainVelocity() - K * error;
-            targetEnglishWheelVelocity = getEnglishVelocity() - K * error;
-            setMainVelocity(targetMainWheelVelocity);
-            setEnglishVelocity(targetEnglishWheelVelocity);
+            solverMainVelocity = getMainVelocity() - K * error;
+            solverEnglishVelocity = getEnglishVelocity() - K * error;
             if (error > tolerance){
-                //decrease wheel speeds
+                //decrease wheel speeds, overshooting
                 SmartDashboard.putString("Target", "too close");
             }
             else if(error < 0 && Math.abs(error) > tolerance){
-                // increase wheel speeds
+                // increase wheel speeds, undershooting
                 SmartDashboard.putString("Target", "too far");
             }
         }
-        SmartDashboard.putNumber("target english velocity", targetEnglishWheelVelocity);
-        SmartDashboard.putNumber("target main velocity", targetMainWheelVelocity);
+        SmartDashboard.putNumber("target english velocity", solverEnglishVelocity);
+        SmartDashboard.putNumber("target main velocity", solverMainVelocity);
 
     }
 
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
-        if (DriverStation.getAlliance().isPresent()) {
-            if (DriverStation.getAlliance().get() == Alliance.Red) {
-                goalPosition = ShooterConstants.redHubCenter;
-            } else {
-                goalPosition = ShooterConstants.blueHubCenter;
-            }
-        }
+
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
         //not needed for feeder because it just takes rpm
@@ -476,8 +492,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 //if shooter is disabled
                 setFeederRPM(0);
             }
-        } else {
-            setFeederRPM(0);
+
         }
 
         /*

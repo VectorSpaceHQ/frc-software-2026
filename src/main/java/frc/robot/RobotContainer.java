@@ -172,16 +172,15 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
       m_operatorController.toggleIndexer().onTrue(
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
     //shooter commands
+    //moved start shooter command to beginning of each shot command
     m_operatorController.toggleShooter().onTrue(
-          new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
-    m_operatorController.closeShot().onTrue(
-        new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
-            new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+          new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
+    m_operatorController.closeShot().onTrue(                                                 
+        new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));
     m_operatorController.farShot().onTrue(
-        new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
-        new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+        new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem));
     m_operatorController.autoShot().onTrue(
-        new RunCommand(() -> m_ShooterSubsystem.solver(), m_ShooterSubsystem));
+        new RunCommand(() -> m_ShooterSubsystem.setAutoShot(), m_ShooterSubsystem));
     }
 
     // m_driverController.driveToTarget().whileTrue(
