@@ -129,11 +129,11 @@ public final class Constants {
     public static final double ROLLER_STARTER_RPM = -5500;
     public static final double ROLLER_GEAR_RATIO = 1.0;
     public static final int ROLLER_CURRENT_LIMIT = 20;
-    public static final double ROLLER_kS = 0.25;
-    public static final double ROLLER_kP = 0.01;
-    public static final double ROLLER_kI = 0.0;
-    public static final double ROLLER_kD = 0.0;
-    public static final double ROLLER_kV = 0.019098;
+    public static final double ROLLER_kS = 0.34;
+    public static final double ROLLER_kP = 0.25;
+    public static final double ROLLER_kI = 0.4;
+    public static final double ROLLER_kD = 0.00004;
+    public static final double ROLLER_kV = 0.11;
     public static final double ROLLER_kA = 0.0;
 
     // Basically everything below here won't be used but whatever (nice to have)
@@ -191,25 +191,27 @@ public final class Constants {
 
     // English Motor (Kraken X60)
     public static final double ENGLISH_MAX_RPM = 6000.0;
+    public static final double ENGLISH_MIN_RPM = -6000.0;
     public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
     public static final double ENGLISH_GEAR_RATIO = 0.75;
-    public static final double ENGLISH_kS = 0.20027;
-    public static final double ENGLISH_kP = 0.0;
-    public static final double ENGLISH_kI = 0.0;
-    public static final double ENGLISH_kD = 0.0;
-    public static final double ENGLISH_kV = 0.018534;
-    public static final double ENGLISH_kA = 0.00053364;
+    public static final double ENGLISH_kS = 0.18;
+    public static final double ENGLISH_kP = 0.45;
+    public static final double ENGLISH_kI = 0.5;
+    public static final double ENGLISH_kD = 0.0005;
+    public static final double ENGLISH_kV = 0.116;
+    public static final double ENGLISH_kA = 0.0;
 
     // Main Motor (Kraken X60)
     public static final double MAIN_MAX_RPM = 6000.0;
+    public static final double MAIN_MIN_RPM = -6000.0;
     public static final double MAIN_WHEEL_DIAMETER = 6; //in    
     public static final double MAIN_GEAR_RATIO = 1;    
-    public static final double MAIN_kS = 0.16432;
-    public static final double MAIN_kP = 0.01;
-    public static final double MAIN_kI = 0.0;
-    public static final double MAIN_kD = 0.0;
-    public static final double MAIN_kV = 0.019251;
-    public static final double MAIN_kA = 0.016214;
+    public static final double MAIN_kS = 0.2;
+    public static final double MAIN_kP = 0.5;
+    public static final double MAIN_kI = 0.6;
+    public static final double MAIN_kD = 0.0005;
+    public static final double MAIN_kV = 0.118;
+    public static final double MAIN_kA = 0.0;
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
