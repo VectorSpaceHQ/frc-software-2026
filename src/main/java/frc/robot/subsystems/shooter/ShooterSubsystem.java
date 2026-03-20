@@ -4,12 +4,16 @@ import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel;
 //spark max imports
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -40,10 +44,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private PID english_PID = null;
     private PID main_PID = null;
-    private PID feeder_PID = null;
+    //removed feeder pid
+
     private SysIdRoutine englishSysId = null;
     private SysIdRoutine mainSysId = null;
     private SysIdRoutine feederSysId = null;
+
+    //spark max motor vars
+    private SparkMax feederWheel;
+    private SparkMaxConfig feederConfig;
+    private SparkClosedLoopController feederClosedLoopController;
+    private RelativeEncoder feederRelativeEncoder;
+    private double feederRPM = 0;
 
     private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
 
@@ -54,7 +66,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
-    final SlewRateLimiter intakeRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
@@ -70,11 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
         runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
         mainRpmSlew = new SlewRateLimiter(100.0);
-        englishRpmSlew = new SlewRateLimiter(100.0);
-        intakeRpmSlew = new SlewRateLimiter(100.0);        
-        // mainRpmSlew = new SlewRateLimiter(99900.0);
-        // englishRpmSlew = new SlewRateLimiter(99000.0);
-        // intakeRpmSlew = new SlewRateLimiter(99900.0);           
+        englishRpmSlew = new SlewRateLimiter(100.0);                  
 
         RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
             if (DriverStation.getAlliance().isPresent()) {
@@ -116,46 +123,52 @@ public class ShooterSubsystem extends SubsystemBase {
                     ShooterConstants.MAIN_kA);
 
             // Feeder Flywheel Mechanism
-            feeder_PID = new PID(
-                    "Feeder",
-                    new MotorIOSparkMax(this.shooterConfig.getFeederId(), ShooterConstants.FEEDER_CURRENT_LIMIT),
-                    ShooterConstants.FEEDER_MAX_RPM,
-                    ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.FEEDER_GEAR_RATIO,
-                    ShooterConstants.FEEDER_kS,
-                    ShooterConstants.FEEDER_kP,
-                    ShooterConstants.FEEDER_kI,
-                    ShooterConstants.FEEDER_kD,
-                    ShooterConstants.FEEDER_kV,
-                    ShooterConstants.FEEDER_kA);
-
             //test motor init for sparkmax
-            SparkMax feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
-            SparkMaxConfig feederConfig = new SparkMaxConfig();
-            SparkMaxPIDController feederPID = 
-            final SparkAbsoluteEncoder feederAbsoluteEncoder;
-            final RelativeEncoder feederRelativeEncoder;
+            feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
+            feederClosedLoopController = feederWheel.getClosedLoopController();
+            feederRelativeEncoder = feederWheel.getEncoder();
+            feederConfig = new SparkMaxConfig();
+
+            feederConfig.inverted(ShooterConstants.FEEDER_INVERSION);
             
+            feederConfig.encoder
+                .velocityConversionFactor(1); 
+                //if we want to convert from rpm to another unit, do so here
+
+                //PID NEEDS TUNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            feederConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                // Set PID values for velocity control in slot 0 
+                //ALWAYS USE SLOT 0
+                .p(ShooterConstants.FEEDER_kP, ClosedLoopSlot.kSlot0)
+                .i(ShooterConstants.FEEDER_kI, ClosedLoopSlot.kSlot0) 
+                .d(ShooterConstants.FEEDER_kD, ClosedLoopSlot.kSlot0)
+                .outputRange(-1, 1, ClosedLoopSlot.kSlot0)
+                .feedForward
+                // kV is now in Volts, so we multiply by the nominal voltage (12V)
+                .kV(ShooterConstants.FEEDER_kV, ClosedLoopSlot.kSlot0);
+
+
             feederConfig.idleMode(IdleMode.kCoast);
+            //how the motor behaves when it has 0v written to it
 
             feederConfig.smartCurrentLimit(ShooterConstants.FEEDER_CURRENT_LIMIT);
+
+            // Example: Set ramp rate to 0.5 seconds (0 to 100% in 0.5s)
+            // Acts as slew rate for sparkmax
+            feederConfig.closedLoopRampRate(ShooterConstants.FEEDER_SLEW_RATE);
 
             feederWheel.configure(
                 feederConfig,
                 ResetMode.kResetSafeParameters,
                 PersistMode.kNoPersistParameters);
-
-            feederAbsoluteEncoder = feederWheel.getAbsoluteEncoder();
-            feederRelativeEncoder = feederWheel.getEncoder();
-            feederRelativeEncoder.setPosition(feederAbsoluteEncoder.getPosition());            
+      
 
             englishSysId = SysId.createRoutine(this, english_PID, "English");
             mainSysId = SysId.createRoutine(this, main_PID, "Main");
-            feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
 
             SmartDashboard.putData("Shooter/English PID", english_PID);
             SmartDashboard.putData("Shooter/Main PID", main_PID);
-            SmartDashboard.putData("Shooter/Feeder PID", feeder_PID);
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
@@ -181,7 +194,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setCloseShot() {
         english_PID.setM_RPM(-1250);
         main_PID.setM_RPM(-750);
-        feeder_PID.setM_RPM(1700);
+        //takes velocity in RPM
+        feederRPM = 1700; //arbitrary value currently
         getMainVelocity();
         getEnglishVelocity();
     }
@@ -189,7 +203,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setFarShot() {
         english_PID.setM_RPM(-2750);
         main_PID.setM_RPM(-1750);
-        feeder_PID.setM_RPM(1700);
+        feederRPM = 1700;
         getMainVelocity();
         getEnglishVelocity();        
     }
@@ -197,7 +211,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void zeroRPM() {
         english_PID.setM_RPM(0);
         main_PID.setM_RPM(0);
-        feeder_PID.setM_RPM(0);
+        feederRPM = 0;
     }
 
     public void setSysIdTarget(SysIdTarget target) {
@@ -232,8 +246,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean atSpeed() {
         return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-                && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-                && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+                && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
     public void setMainVelocity(double target_wheel_vel){
@@ -448,12 +461,21 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         english_PID.m_updateInputs();
         main_PID.m_updateInputs();
-        feeder_PID.m_updateInputs();
+        //not needed for feeder because it just takes rpm
 
         if (runningSysId == false & shooterConfig.getIsPresent()) {
+            //reset pid if shooterstatus just became true, toggle if shooter status is true.
             english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
             main_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+            if(shooterStatus){
+                //if shooter is enabled
+                setFeederRPM(feederRPM);
+            } else{
+                //if shooter is disabled
+                setFeederRPM(0);
+            }
+        } else {
+            setFeederRPM(0);
         }
 
         /*
@@ -499,8 +521,16 @@ public class ShooterSubsystem extends SubsystemBase {
         super.initSendable(builder);
         english_PID.initSendable(builder);
         main_PID.initSendable(builder);
-        feeder_PID.initSendable(builder);
 
     }
 
+    public void setFeederRPM(double feederRPM){
+        //sends the RPM to the motor
+        feederClosedLoopController.setSetpoint(feederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    }
+
+    public double getFeederRPM(){
+        //returns the current velocity of the motor
+        return feederRelativeEncoder.getVelocity();
+    }
 }

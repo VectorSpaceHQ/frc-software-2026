@@ -221,6 +221,8 @@ public final class Constants {
     public static final double FEEDER_kD = 0.0;
     public static final double FEEDER_kV = 0.0;
     public static final double FEEDER_kA = 0.0;
+    public static final double FEEDER_SLEW_RATE = 0.5; //seconds to go from 0 to top speed
+    public static final boolean FEEDER_INVERSION = false; //set true if we want to flip positive/negative on motor
   }
 
   public static class DriveToTargetConstants { // Constants for profiled PID controllers
