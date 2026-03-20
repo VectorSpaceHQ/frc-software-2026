@@ -73,10 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         mainRpmSlew = new SlewRateLimiter(100.0);
         englishRpmSlew = new SlewRateLimiter(100.0);
-        intakeRpmSlew = new SlewRateLimiter(100.0);        
-        // mainRpmSlew = new SlewRateLimiter(99900.0);
-        // englishRpmSlew = new SlewRateLimiter(99000.0);
-        // intakeRpmSlew = new SlewRateLimiter(99900.0);           
+        intakeRpmSlew = new SlewRateLimiter(100.0);
 
         RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
             if (DriverStation.getAlliance().isPresent()) {
