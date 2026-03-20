@@ -365,32 +365,11 @@ public class ShooterSubsystem extends SubsystemBase {
         return 3; // failed to converge
     }
 
-    public void solver(){
-        // get new pose
-        shooterStatus = true;
-        Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
-        double launchAngle;
-        double launchVelocity;
-        double error;
-        double tolerance;
-        double K;
+    public void adjustShooter(double error){
         double targetMainWheelVelocity;
         double targetEnglishWheelVelocity;
-        // translations taken from camera in Constants
-        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302), 
-                                                    new Rotation2d(Math.toRadians(90))));
-        double[] shooterArray = {shooterPose.getX(), shooterPose.getY()};
-        SmartDashboard.putNumberArray("shooterPose", shooterArray);
-        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
-        launchAngle = 75; //degrees, temporary value for comp 1
-        launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
-        double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning
-        error = launch_distance - distanceToHub;
-        tolerance = 0.1524; // meters
-        K = 30.48; // rpm/m, NEEDS TUNING
-        SmartDashboard.putNumber("launch distance", launch_distance);
-        SmartDashboard.putNumber("distance to hub", distanceToHub);
-        SmartDashboard.putNumber("Shooter Error", error);
+        double tolerance = 0.1524; // meters
+        double K = 30.48; // rpm/m, NEEDS TUNING
 
         if(Math.abs(error) < tolerance){
             SmartDashboard.putString("Target", "locked");
@@ -413,6 +392,42 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         SmartDashboard.putNumber("target english velocity", targetEnglishWheelVelocity);
         SmartDashboard.putNumber("target main velocity", targetMainWheelVelocity);
+    }
+
+    public void solver(){
+        // Get distance from robot to hub
+        // calculate trajectory of current shooter conditions
+        // compare to actual distance
+        // use comparison to adjust wheel speeds
+        // repeat
+
+        double launchAngle;
+        double launchVelocity;
+        double error;
+        Pose2d shooterPose;
+
+        // get new pose
+        shooterStatus = true;
+        Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
+        
+        // translations taken from camera in Constants
+        shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302), 
+                                                    new Rotation2d(Math.toRadians(90))));
+        double[] shooterArray = {shooterPose.getX(), shooterPose.getY()};
+        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(
+                                new Translation2d(shooterPose.getX(), shooterPose.getY()));
+        
+        launchAngle = 75; //degrees, temporary value for comp 1
+        launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
+        double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning
+        error = launch_distance - distanceToHub;
+        
+        SmartDashboard.putNumberArray("shooterPose", shooterArray);
+        SmartDashboard.putNumber("current launch distance", launch_distance);
+        SmartDashboard.putNumber("distance to hub", distanceToHub);
+        SmartDashboard.putNumber("Shooter Error", error);
+
+        adjustShooter(error);
 
     }
 
