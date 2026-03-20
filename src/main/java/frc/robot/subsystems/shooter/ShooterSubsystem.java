@@ -132,6 +132,7 @@ public class ShooterSubsystem extends SubsystemBase {
             //test motor init for sparkmax
             SparkMax feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
             SparkMaxConfig feederConfig = new SparkMaxConfig();
+            SparkMaxPIDController feederPID = 
             final SparkAbsoluteEncoder feederAbsoluteEncoder;
             final RelativeEncoder feederRelativeEncoder;
             
