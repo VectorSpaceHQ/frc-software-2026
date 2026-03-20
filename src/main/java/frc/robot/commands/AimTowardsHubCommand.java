@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -9,6 +10,8 @@ import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import static edu.wpi.first.units.Units.Rotation;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -39,7 +42,7 @@ public class AimTowardsHubCommand extends Command {
         swerve.setAimTargetSupplier(() -> {
             Pose2d robotPose = swerve.getEstimatedPose();
             // TODO: Update with the correct/new methods to get hubcenter and distance to hub
-
+           
             Pose2d goalPosition = ShooterConstants.blueHubCenter;
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Red) {
@@ -48,35 +51,9 @@ public class AimTowardsHubCommand extends Command {
                     goalPosition = ShooterConstants.blueHubCenter;
                 }
             }
-            Translation2d targetHub = goalPosition.getTranslation(); // Gets the target hub from vision (needs to be updated with shooter_comp1?).
-            //Translation3d targetHub = null;
-
-            Translation2d robotTranslation = robotPose.getTranslation();
-
-            // TODO: Update with the correct/new methods to get hubcenter and distance to hub
-            if (targetHub == null) {
-                return new Pose2d(robotTranslation, lastTargetHeading); // Maintain current pose if vision is lost.
-            }
-
-            // Calculate vector from shooter, not robot center.
-            Translation2d robotToShooter = new Translation2d(
-                    VisionConstants.TRANSLATION_X,
-                    VisionConstants.TRANSLATION_Y)
-                    .rotateBy(robotPose.getRotation());
-            
-            Translation2d shooterTranslation = robotPose.getTranslation().plus(robotToShooter);
-            // Translation from shooter to hub.
-            Translation2d shooterToHub = targetHub.minus(shooterTranslation);
-
-            // Absolute angle from the shooter to the hub
-            Rotation2d angleShooterToHub = shooterToHub.getAngle();
-            Rotation2d targetHeading = angleShooterToHub; // Which is our target heading
-            lastTargetHeading = targetHeading;
-            
-            // Note: Return the raw hub pose and raw angle. 
-            // YAGSL's .aimHeadingOffset(-90) in the SwerveSubsystem will 
-            // handle the rotation to point the left-side shooter at this target.
-            return new Pose2d(targetHub, targetHeading);
+            lastTargetHeading = goalPosition.getRotation();
+            return goalPosition;
+  
         });
 
         swerve.setAiming(true);
@@ -94,10 +71,11 @@ public class AimTowardsHubCommand extends Command {
         swerve.getSwerveDrive().drive(swerve.getAimStream().get());
 
         // Calculate error
-       Rotation2d shooterHeading = swerve.getEstimatedPose().getRotation().plus(Rotation2d.fromDegrees(90));
+    //   Rotation2d shooterHeading = swerve.getEstimatedPose().getRotation().plus(Rotation2d.fromDegrees(90));
+        Rotation2d shooterHeading = swerve.getEstimatedPose().getRotation();
 
         // Wrap around to find the smallest distance using minus (in radians, could change).
-        double errorRads = Math.abs(shooterHeading.minus(lastTargetHeading).getRadians());
+        double errorRads = Math.abs(lastTargetHeading.minus(shooterHeading).getRadians());
         // Return true of target is within 3 degrees (converting from degrees -> radians -> degrees is a little redundant on my part).
         // Add 90 degrees to account for shooter
    

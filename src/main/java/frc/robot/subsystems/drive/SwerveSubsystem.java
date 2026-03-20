@@ -146,7 +146,8 @@ public class SwerveSubsystem extends SubsystemBase {
           // We aren't using vision for the hub (like an april tag we are keeping track of), but it is still useful since it accounts for other things:
           // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html#aimLookahead(edu.wpi.first.units.measure.Time)
           .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // offset side for shooter
-          //.aimFeedforward(0.0, 0.0, 0.0) Maybe add a feedforward and tune it so that the motors don't lag behind?
+          .aimHeadingOffset(true)
+          .aimFeedforward(0.0, 2.0, 0.0) //Maybe add a feedforward and tune it so that the motors don't lag behind?
           .aimWhile(() -> isAiming); // Boolean supplier
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
