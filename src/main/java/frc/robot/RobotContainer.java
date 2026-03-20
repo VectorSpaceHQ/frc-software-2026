@@ -197,10 +197,12 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
     m_driverController.aimTowardsHub().whileTrue(
         new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)); // Left trigger (can change)
 
+    // Do not require the swerve subsystem for these InstantCommands so they don't
+    // interrupt longer-running drive/aim commands that also require swerve.
     m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6))
         ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(1), m_swerveSubsystem)
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(1))
         );            
 
     
