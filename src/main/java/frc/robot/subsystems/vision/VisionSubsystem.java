@@ -69,12 +69,13 @@ public class VisionSubsystem extends SubsystemBase {
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
 
-            initializeSubsystem();
+            updateCameraStatus();
 
             try {
                 initializeAprilTagFieldLayout();
             } catch (IOException e) {
                 cameraConnected = false;
+                System.err.println("Warning: Camera not connected." + e.getMessage());
             }
         }
         // Red Hub Center
@@ -100,7 +101,7 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
     }
 
-    private void initializeSubsystem() {
+    private void updateCameraStatus() {
 
         cameraConnected = camera.isConnected(); // True if camera is connected
 
@@ -122,14 +123,6 @@ public class VisionSubsystem extends SubsystemBase {
     private void initializeAprilTagFieldLayout() throws IOException {
 
         layout = AprilTagFieldLayout.loadField(VisionConstants.FIELD_WELDED_2026);
-
-        // Origin Point
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-            layout.setOrigin(OriginPosition.kRedAllianceWallRightSide);
-        } else {
-            layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
-        }
 
         // Initialize pose estimator (ONLY for generating measurements)
         poseEstimator = new PhotonPoseEstimator(
@@ -305,12 +298,14 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!cameraConnected)
+        if (!cameraConnected){
+            updateCameraStatus();
             return;
+        }
 
         allUnreadResults = camera.getAllUnreadResults();
-        // SmartDashboard.putBoolean("Vision measurement empty",
-        // allUnreadResults.isEmpty());
+        SmartDashboard.putBoolean("Vision measurement empty",
+        allUnreadResults.isEmpty());
         if (!allUnreadResults.isEmpty()) {
             updateVisionMeasurement();
         }
