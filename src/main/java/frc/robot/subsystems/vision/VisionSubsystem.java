@@ -221,15 +221,15 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (!cameraConnected){
-            return;
-        }
+        if (cameraConnected){
 
-        allUnreadResults = camera.getAllUnreadResults();
-        SmartDashboard.putBoolean("Vision measurement empty",
-        allUnreadResults.isEmpty());
-        if (!allUnreadResults.isEmpty()) {
-            updateVisionMeasurement();
+            allUnreadResults = camera.getAllUnreadResults();
+            SmartDashboard.putBoolean("Vision measurement empty",
+            allUnreadResults.isEmpty());
+            if (!allUnreadResults.isEmpty()) {
+                updateVisionMeasurement();
+            }
+
         }
 
     }
