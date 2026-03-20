@@ -29,6 +29,11 @@ public class PS5ControllerIfc implements ControllerIfc {
     }
 
     @Override
+    public double getTwistY() {
+        return joystick.getRightY();
+    }
+
+    @Override
     public Trigger toggleOrientation() {
         return joystick.triangle(); // Toggle (On driver)
     }
@@ -62,6 +67,11 @@ public class PS5ControllerIfc implements ControllerIfc {
     @Override
     public Trigger farShot() {
         return joystick.circle(); // Toggle (On operator)
+    }
+
+    @Override
+    public Trigger autoShot() {
+        return joystick.square(); // Toggle (On operator)
     }
 
     // Intake

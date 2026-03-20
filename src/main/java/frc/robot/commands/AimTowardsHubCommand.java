@@ -35,10 +35,13 @@ public class AimTowardsHubCommand extends Command {
 
         swerve.setAimTargetSupplier(() -> {
             Pose2d robotPose = swerve.getEstimatedPose();
-            Translation3d targetHub = vision.getTargetHubCenter(); // Gets the target hub from vision (needs to be updated with shooter_comp1?).
+            // TODO: Update with the correct/new methods to get hubcenter and distance to hub
+            // Translation3d targetHub = vision.getTargetHubCenter(); // Gets the target hub from vision (needs to be updated with shooter_comp1?).
+            Translation3d targetHub = null;
 
             Translation2d robotTranslation = robotPose.getTranslation();
 
+            // TODO: Update with the correct/new methods to get hubcenter and distance to hub
             if (targetHub == null) {
                 return new Pose2d(robotTranslation, lastTargetHeading); // Maintain current pose if vision is lost.
             }
@@ -88,12 +91,13 @@ public class AimTowardsHubCommand extends Command {
         isCurrentlyAligned = swerve.getAimStream().aimLock(Units.Degrees.of(VisionConstants.ROTATION_TOLERANCE_RAD)).getAsBoolean();
 
         // Telemetry.
-        Translation3d targetHub = vision.getTargetHubCenter();
-        if (targetHub != null) {
-            double currentDistance = vision.getDistanceToHub(swerve.getEstimatedPose(), targetHub);
-            Logger.recordOutput("AimTowardsHub/CurrentDistance", currentDistance);
-            SmartDashboard.putNumber("AimTowardsHub/CurrentDistance", currentDistance);
-        }
+        // TODO: Update with the correct/new methods to get hubcenter and distance to hub
+        // Translation3d targetHub = vision.getTargetHubCenter();
+        // if (targetHub != null) {
+        //     double currentDistance = vision.getDistanceToHub(swerve.getEstimatedPose(), targetHub);
+        //     Logger.recordOutput("AimTowardsHub/CurrentDistance", currentDistance);
+        //     SmartDashboard.putNumber("AimTowardsHub/CurrentDistance", currentDistance);
+        // }
 
         Logger.recordOutput("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
         Logger.recordOutput("AimTowardsHub/RotationErrorRads", errorRads);

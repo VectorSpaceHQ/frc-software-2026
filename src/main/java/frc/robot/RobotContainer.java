@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
 // import frc.robot.commands.Autos;
-import frc.robot.commands.DriveToTargetCommand;
+// import frc.robot.commands.DriveToTargetCommand;
 import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
@@ -93,9 +93,9 @@ public class RobotContainer {
   private final IndexerSubsystem m_IndexerSubsystem = new IndexerSubsystem(IndexerSSConfig);
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(VisionSSConfig);
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(SwerveSSConfig,
-                                                                        () -> m_visionSubsystem.getLatestVisionMeasurement(), 
-                                                                        new Pose2d(3.5, 4, new Rotation2d())); //change this value to modify our initial pose
-private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
+          () -> m_visionSubsystem.getLatestVisionMeasurement(), 
+          new Pose2d(3.5, 4, new Rotation2d())); //change this value to modify our initial pose
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(ShooterSSConfig, m_swerveSubsystem);
 
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
@@ -159,7 +159,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
           m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     } else {
-
+        //intake commands
       m_operatorController.sendPivotUp().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
@@ -167,43 +167,51 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
         new SequentialCommandGroup(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem).withTimeout(1.25),
           new WaitCommand(0.5),
-          new InstantCommand(() -> m_IntakeSubsystem.stopPivot(), m_IntakeSubsystem)));
+          new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt(), m_IntakeSubsystem)));
 
       m_operatorController.toggleIntakeRollers().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
 
       m_operatorController.toggleIndexer().onTrue(
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
-
-      m_operatorController.toggleShooter().onTrue(
+    //shooter commands
+    m_operatorController.toggleShooter().onTrue(
           new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem));
-        m_operatorController.closeShot().onTrue(
-            new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
-                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
-            m_operatorController.farShot().onTrue(
-            new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
-                new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.closeShot().onTrue(
+        new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem).andThen(
+            new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.farShot().onTrue(
+        new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem).andThen(
+        new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)));
+    m_operatorController.autoShot().onTrue(
+        new RunCommand(() -> m_ShooterSubsystem.solver(), m_ShooterSubsystem));
     }
 
-    m_driverController.driveToTarget().whileTrue(
-        new DriveToTargetCommand(
-            m_swerveSubsystem,
-            m_visionSubsystem,
-            null,
-            1.0,
-            0.05,
-            0.035,
-            Rotation2d.fromDegrees(0)).withTimeout(10));
+    // m_driverController.driveToTarget().whileTrue(
+    //     new DriveToTargetCommand(
+    //         m_swerveSubsystem,
+    //         m_visionSubsystem,
+    //         null,
+    //         1.0,
+    //         0.05,
+    //         0.035,
+    //         Rotation2d.fromDegrees(0)).withTimeout(10));
     m_driverController.aimTowardsHub().whileTrue(
         new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)); // Left trigger (can change)
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
     m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(0.6))
+            new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(2))
         ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationMultiplier(1))
-        );            
+            new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3))
+        );           
+
+    m_visionSubsystem.onCameraConnected.onTrue(
+        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
+    ).onFalse(
+        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
+    );
 
     
     m_driverController.toggleOrientation().onTrue(

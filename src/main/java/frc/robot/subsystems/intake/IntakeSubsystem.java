@@ -117,6 +117,11 @@ public class IntakeSubsystem extends SubsystemBase {
     public void sendPivotDown() {
         this.currentPivotState = PivotState.DOWN;
     }
+    // Alternate stop pivot command using pivot state
+    public void stopPivotAlt() {
+        this.currentPivotState = PivotState.OFF;
+    }
+
 
     // Place status values here
     public boolean getIntakestatus() {

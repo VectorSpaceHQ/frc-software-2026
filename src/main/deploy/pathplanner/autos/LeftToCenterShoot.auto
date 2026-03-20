@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftToCenter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 15.0
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "ToCenterShoot",
+  "choreoAuto": false
+}

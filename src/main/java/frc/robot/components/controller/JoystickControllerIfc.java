@@ -55,6 +55,11 @@ public class JoystickControllerIfc implements ControllerIfc {
     }
 
     @Override
+    public double getTwistY() {
+        return joystick.getZ();
+    }
+
+    @Override
     public Trigger toggleOrientation() {
         return getButton(ExtendedButtonType.Button3);
     }
@@ -88,6 +93,11 @@ public class JoystickControllerIfc implements ControllerIfc {
     @Override
     public Trigger farShot() {
         return getButton(ExtendedButtonType.Button12);
+    }
+
+    @Override
+    public Trigger autoShot() {
+        return getButton(ExtendedButtonType.Button16);
     }
     
     // Intake
