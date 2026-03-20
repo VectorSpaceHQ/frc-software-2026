@@ -6,12 +6,15 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.units.*;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.configuration.Constants.ShooterConstants;
 import frc.robot.configuration.Constants.VisionConstants;
 
 public class AimTowardsHubCommand extends Command {
@@ -36,8 +39,17 @@ public class AimTowardsHubCommand extends Command {
         swerve.setAimTargetSupplier(() -> {
             Pose2d robotPose = swerve.getEstimatedPose();
             // TODO: Update with the correct/new methods to get hubcenter and distance to hub
-            // Translation3d targetHub = vision.getTargetHubCenter(); // Gets the target hub from vision (needs to be updated with shooter_comp1?).
-            Translation3d targetHub = null;
+
+            Pose2d goalPosition = ShooterConstants.blueHubCenter;
+            if (DriverStation.getAlliance().isPresent()) {
+                if (DriverStation.getAlliance().get() == Alliance.Red) {
+                    goalPosition = ShooterConstants.redHubCenter;
+                } else {
+                    goalPosition = ShooterConstants.blueHubCenter;
+                }
+            }
+            Translation2d targetHub = goalPosition.getTranslation(); // Gets the target hub from vision (needs to be updated with shooter_comp1?).
+            //Translation3d targetHub = null;
 
             Translation2d robotTranslation = robotPose.getTranslation();
 
@@ -53,20 +65,18 @@ public class AimTowardsHubCommand extends Command {
                     .rotateBy(robotPose.getRotation());
             
             Translation2d shooterTranslation = robotPose.getTranslation().plus(robotToShooter);
-            Translation2d targetHubTranslation2d = targetHub.toTranslation2d();
-
             // Translation from shooter to hub.
-            Translation2d shooterToHub = targetHubTranslation2d.minus(shooterTranslation);
+            Translation2d shooterToHub = targetHub.minus(shooterTranslation);
 
             // Absolute angle from the shooter to the hub
             Rotation2d angleShooterToHub = shooterToHub.getAngle();
             Rotation2d targetHeading = angleShooterToHub; // Which is our target heading
             lastTargetHeading = targetHeading;
-
+            
             // Note: Return the raw hub pose and raw angle. 
             // YAGSL's .aimHeadingOffset(-90) in the SwerveSubsystem will 
             // handle the rotation to point the left-side shooter at this target.
-            return new Pose2d(targetHubTranslation2d, targetHeading);
+            return new Pose2d(targetHub, targetHeading);
         });
 
         swerve.setAiming(true);
@@ -78,17 +88,19 @@ public class AimTowardsHubCommand extends Command {
     @Override
     public void execute() {
         SmartDashboard.putString("AimTowardsHub/Status", "Executing");
+
         // Drive using the dedicated aiming stream in Swerve (includes driver translation but needs testing).
         // Feed raw speeds directly to the drive method.
         swerve.getSwerveDrive().drive(swerve.getAimStream().get());
 
         // Calculate error
-       Rotation2d currentLeftHeading = swerve.getEstimatedPose().getRotation().plus(Rotation2d.fromDegrees(90));
+       Rotation2d shooterHeading = swerve.getEstimatedPose().getRotation().plus(Rotation2d.fromDegrees(90));
 
         // Wrap around to find the smallest distance using minus (in radians, could change).
-        double errorRads = Math.abs(currentLeftHeading.minus(lastTargetHeading).getRadians());
+        double errorRads = Math.abs(shooterHeading.minus(lastTargetHeading).getRadians());
         // Return true of target is within 3 degrees (converting from degrees -> radians -> degrees is a little redundant on my part).
-        isCurrentlyAligned = swerve.getAimStream().aimLock(Units.Degrees.of(VisionConstants.ROTATION_TOLERANCE_RAD)).getAsBoolean();
+        // Add 90 degrees to account for shooter
+        isCurrentlyAligned = swerve.getAimStream().aimLock(Units.Radians.of(VisionConstants.ROTATION_TOLERANCE_RAD)).getAsBoolean();
 
         // Telemetry.
         // TODO: Update with the correct/new methods to get hubcenter and distance to hub
@@ -102,9 +114,14 @@ public class AimTowardsHubCommand extends Command {
         Logger.recordOutput("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
         Logger.recordOutput("AimTowardsHub/RotationErrorRads", errorRads);
         Logger.recordOutput("AimTowardsHub/IsAligned", isCurrentlyAligned);
+        
+        Logger.recordOutput("AimTowardsHub/TargetHeading", lastTargetHeading);
+        Logger.recordOutput("AimTowardsHub/CurrentLeftHeading", shooterHeading);
+        
 
         SmartDashboard.putNumber("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
         SmartDashboard.putNumber("AimTowardsHub/RotationErrorRads", errorRads);
+        SmartDashboard.putNumber("AimTowardsHub/shooterHeading", shooterHeading.getDegrees());
         SmartDashboard.putString("AimTowardsHub/Status", "Executed");
     }
 
@@ -127,6 +144,7 @@ public class AimTowardsHubCommand extends Command {
 
         Logger.recordOutput("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
         Logger.recordOutput("AimTowardsHub/IsAligned", false);
+        
         SmartDashboard.putString("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
     }
 

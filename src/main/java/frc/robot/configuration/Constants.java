@@ -339,7 +339,7 @@ public final class Constants {
     }
     public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
     public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
-    public static final double ROTATION_TOLERANCE_RAD = Math.toRadians(3.0); // Tunable
+    public static final double ROTATION_TOLERANCE_RAD = Math.toRadians(10); // Tunable
   }
 
 }
