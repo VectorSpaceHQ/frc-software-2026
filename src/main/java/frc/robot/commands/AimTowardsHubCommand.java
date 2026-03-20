@@ -100,7 +100,10 @@ public class AimTowardsHubCommand extends Command {
         double errorRads = Math.abs(shooterHeading.minus(lastTargetHeading).getRadians());
         // Return true of target is within 3 degrees (converting from degrees -> radians -> degrees is a little redundant on my part).
         // Add 90 degrees to account for shooter
-        isCurrentlyAligned = swerve.getAimStream().aimLock(Units.Radians.of(VisionConstants.ROTATION_TOLERANCE_RAD)).getAsBoolean();
+   
+        isCurrentlyAligned = swerve.getAimStream()
+                            .aimLock(Units.Radians.of(VisionConstants.ROTATION_TOLERANCE_RAD))
+                            .getAsBoolean();
 
         // Telemetry.
         // TODO: Update with the correct/new methods to get hubcenter and distance to hub
@@ -131,7 +134,7 @@ public class AimTowardsHubCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return isCurrentlyAligned;
     }
 
     @Override
