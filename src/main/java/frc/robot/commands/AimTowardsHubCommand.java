@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.units.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -30,6 +31,7 @@ public class AimTowardsHubCommand extends Command {
 
     @Override
     public void initialize() {
+        SmartDashboard.putString("AimTowardsHub/Status", "Initializing");
 
         swerve.setAimTargetSupplier(() -> {
             Pose2d robotPose = swerve.getEstimatedPose();
@@ -67,10 +69,12 @@ public class AimTowardsHubCommand extends Command {
         swerve.setAiming(true);
         // TODO: Change loggers to sendables (optional)?
         Logger.recordOutput("AimTowardsHub/Status", "Aiming Enabled (Actual Hub Target)");
+        SmartDashboard.putString("AimTowardsHub/Status", "Initialized");
     }
 
     @Override
     public void execute() {
+        SmartDashboard.putString("AimTowardsHub/Status", "Executing");
         // Drive using the dedicated aiming stream in Swerve (includes driver translation but needs testing).
         // Feed raw speeds directly to the drive method.
         swerve.getSwerveDrive().drive(swerve.getAimStream().get());
@@ -88,13 +92,16 @@ public class AimTowardsHubCommand extends Command {
         if (targetHub != null) {
             double currentDistance = vision.getDistanceToHub(swerve.getEstimatedPose(), targetHub);
             Logger.recordOutput("AimTowardsHub/CurrentDistance", currentDistance);
+            SmartDashboard.putNumber("AimTowardsHub/CurrentDistance", currentDistance);
         }
 
         Logger.recordOutput("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
-
         Logger.recordOutput("AimTowardsHub/RotationErrorRads", errorRads);
-        
         Logger.recordOutput("AimTowardsHub/IsAligned", isCurrentlyAligned);
+
+        SmartDashboard.putNumber("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
+        SmartDashboard.putNumber("AimTowardsHub/RotationErrorRads", errorRads);
+        SmartDashboard.putString("AimTowardsHub/Status", "Executed");
     }
 
     public boolean isAligned() { // Could be used for auto or feedback (as an alternative)
@@ -116,6 +123,7 @@ public class AimTowardsHubCommand extends Command {
 
         Logger.recordOutput("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
         Logger.recordOutput("AimTowardsHub/IsAligned", false);
+        SmartDashboard.putString("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
     }
 
     // Note: I found that if you want to have shoot on the move, along with the aimLookAhead (necessary) and feedforward (useful), you would need to calculate where the hub position should be based on the velocity of the robot and the time the ball is in the air (based on the trajectory calculations, probably in solver or somewhere). Then you can add an offset (like a fake hub) that accounts for these things (otherwise shooting would be off while moving even with the other two methods). I can't do this right now. But anyway, first, you should test to see if the robot aims towards the hub. Some parameters may need tuning (for example, if it overshoots).
