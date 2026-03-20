@@ -198,6 +198,7 @@ public class ShooterSubsystem extends SubsystemBase {
         feederRPM = 1700; //arbitrary value currently
         getMainVelocity();
         getEnglishVelocity();
+        getFeederVelocity();
     }
 
     public void setFarShot() {
@@ -205,7 +206,8 @@ public class ShooterSubsystem extends SubsystemBase {
         main_PID.setM_RPM(-1750);
         feederRPM = 1700;
         getMainVelocity();
-        getEnglishVelocity();        
+        getEnglishVelocity();
+        getFeederVelocity();
     }
 
     public void zeroRPM() {
@@ -529,8 +531,9 @@ public class ShooterSubsystem extends SubsystemBase {
         feederClosedLoopController.setSetpoint(feederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
-    public double getFeederRPM(){
+    public double getFeederVelocity(){
         //returns the current velocity of the motor
+        SmartDashboard.putNumber("feederRealRPM", feederRelativeEncoder.getVelocity());
         return feederRelativeEncoder.getVelocity();
     }
 }
