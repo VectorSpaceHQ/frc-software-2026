@@ -71,6 +71,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
+    final SlewRateLimiter feederRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
@@ -86,6 +87,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         mainRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
         englishRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
+        feederRpmSlew = new SlewRateLimiter(1000); //rpm/s
 
         if (shooterConfigPresent) {
             //if we have a shooter config, configure the motors
@@ -554,7 +556,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setFeederRPM(double feederRPM) {
         // sends the RPM to the motor
-        feederClosedLoopController.setSetpoint(feederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+            // use an angular acceleration limit to avoid motor damage
+        // Keep rpm within max and min
+        double clampedMotorRPM = MathUtil.clamp(feederRPM, 0, ShooterConstants.ENGLISH_MAX_RPM);        
+        double rampedFeederRPM = feederRpmSlew.calculate(clampedMotorRPM);
+        SmartDashboard.putNumber("ramped feeder RPM", rampedFeederRPM);
+        feederClosedLoopController.setSetpoint(rampedFeederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     public double getFeederVelocity() {

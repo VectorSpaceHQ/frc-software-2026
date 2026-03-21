@@ -192,16 +192,16 @@ public final class Constants {
     public static final boolean RUNNING_SYS_ID = false;
 
     // English Motor (Kraken X60)
-    public static final double ENGLISH_MAX_RPM = 4000.0;
+    public static final double ENGLISH_MAX_RPM = 3000.0;
     public static final int ENGLISH_CURRENT_LIMIT = 60;
     public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
     public static final double ENGLISH_GEAR_RATIO = 0.75;
-    public static final double ENGLISH_kS = 0.20027;
-    public static final double ENGLISH_kP = 0.0;
-    public static final double ENGLISH_kI = 0.0;
-    public static final double ENGLISH_kD = 0.0;
-    public static final double ENGLISH_kV = 0.018534;
-    public static final double ENGLISH_kA = 0.00053364;
+    public static final double ENGLISH_kS = 0.18;
+    public static final double ENGLISH_kP = 0.3;// NOTE: need to retuen from heavier wheel 0.45;
+    public static final double ENGLISH_kI = 0.5;
+    public static final double ENGLISH_kD = 0.0005;
+    public static final double ENGLISH_kV = 0.116;
+    public static final double ENGLISH_kA = 0.0;
     public static final InvertedValue ENGLISH_INVERSION = InvertedValue.Clockwise_Positive;
     //change this value to flip motor direction
 
@@ -210,12 +210,12 @@ public final class Constants {
     public static final int MAIN_CURRENT_LIMIT = 60;
     public static final double MAIN_WHEEL_DIAMETER = 6; //in    
     public static final double MAIN_GEAR_RATIO = 1;    
-    public static final double MAIN_kS = 0.16432;
-    public static final double MAIN_kP = 0.01;
-    public static final double MAIN_kI = 0.0;
-    public static final double MAIN_kD = 0.0;
-    public static final double MAIN_kV = 0.019251;
-    public static final double MAIN_kA = 0.016214;
+    public static final double MAIN_kS = 0.2;
+    public static final double MAIN_kP = 0.35;// NOTE: need to retrun from heavier wheel 0.5;
+    public static final double MAIN_kI = 0.6;
+    public static final double MAIN_kD = 0.0005;
+    public static final double MAIN_kV = 0.118;
+    public static final double MAIN_kA = 0.0;
     public static final InvertedValue MAIN_INVERSION = InvertedValue.Clockwise_Positive;
     //change this value to flip motor direction
 
@@ -224,10 +224,10 @@ public final class Constants {
     public static final int FEEDER_CURRENT_LIMIT = 40;
     public static final double FEEDER_GEAR_RATIO = 2;        
     public static final double FEEDER_kS = 0.0;
-    public static final double FEEDER_kP = 0.01;
+    public static final double FEEDER_kP = 0.0;
     public static final double FEEDER_kI = 0.0;
     public static final double FEEDER_kD = 0.0;
-    public static final double FEEDER_kV = 0.0;
+    public static final double FEEDER_kV = 0.00216;
     public static final double FEEDER_kA = 0.0;
     public static final double FEEDER_SLEW_RATE = 0.5; //seconds to go from 0 to top speed
     public static final boolean FEEDER_INVERSION = false; //set true if we want to flip positive/negative on motor
