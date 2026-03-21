@@ -20,6 +20,7 @@ public class AimTowardsHubCommand extends Command {
 
     private Rotation2d lastTargetHeading = new Rotation2d();
     private boolean isCurrentlyAligned = false;
+    private boolean isLogging = false;
 
     public AimTowardsHubCommand(SwerveSubsystem swerve) {
         this.swerve = swerve;
@@ -49,7 +50,7 @@ public class AimTowardsHubCommand extends Command {
 
             // Shift the goal offset by the shooter translation
             Translation2d shiftedGoalPosition = goalPosition.getTranslation().minus(shooterOffset);
-            lastTargetHeading = shiftedGoalPosition.minus(robotPose.getTranslation()).getAngle();
+            lastTargetHeading = shiftedGoalPosition.getAngle();
 
             return new Pose2d(shiftedGoalPosition, new Rotation2d());
         });
@@ -74,22 +75,31 @@ public class AimTowardsHubCommand extends Command {
                 // Within 10 degrees
                 .aimLock(Units.Radians.of(VisionConstants.ROTATION_TOLERANCE_RAD))
                 .getAsBoolean();
+        if (isLogging()) {
+            Logger.recordOutput("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
+            Logger.recordOutput("AimTowardsHub/RotationErrorRads", errorRads);
+            Logger.recordOutput("AimTowardsHub/IsAligned", isCurrentlyAligned);
 
-        Logger.recordOutput("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
-        Logger.recordOutput("AimTowardsHub/RotationErrorRads", errorRads);
-        Logger.recordOutput("AimTowardsHub/IsAligned", isCurrentlyAligned);
+            Logger.recordOutput("AimTowardsHub/TargetHeading", lastTargetHeading);
+            Logger.recordOutput("AimTowardsHub/CurrentLeftHeading", shooterHeading);
 
-        Logger.recordOutput("AimTowardsHub/TargetHeading", lastTargetHeading);
-        Logger.recordOutput("AimTowardsHub/CurrentLeftHeading", shooterHeading);
-
-        SmartDashboard.putNumber("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
-        SmartDashboard.putNumber("AimTowardsHub/RotationErrorRads", errorRads);
-        SmartDashboard.putNumber("AimTowardsHub/shooterHeading", shooterHeading.getDegrees());
-        SmartDashboard.putString("AimTowardsHub/Status", "Executed");
+            SmartDashboard.putNumber("AimTowardsHub/RotationErrorDeg", Math.toDegrees(errorRads));
+            SmartDashboard.putNumber("AimTowardsHub/RotationErrorRads", errorRads);
+            SmartDashboard.putNumber("AimTowardsHub/shooterHeading", shooterHeading.getDegrees());
+            SmartDashboard.putString("AimTowardsHub/Status", "Executed");
+        }
     }
 
     public boolean isAligned() {
         return isCurrentlyAligned;
+    }
+
+    public boolean isLogging() {
+        return isLogging;
+    }
+
+    public void toggleLogging() {
+        isLogging  = !isLogging;
     }
 
     @Override
@@ -104,10 +114,12 @@ public class AimTowardsHubCommand extends Command {
         swerve.setAimTargetSupplier(swerve::getEstimatedPose);
         swerve.stopDrive();
 
-        Logger.recordOutput("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
-        Logger.recordOutput("AimTowardsHub/IsAligned", false);
+        if (isLogging()) {
+            Logger.recordOutput("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
+            Logger.recordOutput("AimTowardsHub/IsAligned", false);
 
-        SmartDashboard.putString("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
+            SmartDashboard.putString("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");
+        }
     }
 
 }
