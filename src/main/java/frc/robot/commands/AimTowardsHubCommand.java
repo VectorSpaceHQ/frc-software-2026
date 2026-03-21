@@ -45,8 +45,7 @@ public class AimTowardsHubCommand extends Command {
 
             Translation2d shooterOffset = new Translation2d(
                     VisionConstants.TRANSLATION_X,
-                    VisionConstants.TRANSLATION_Y)
-                    .rotateBy(robotPose.getRotation());
+                    VisionConstants.TRANSLATION_Y);
 
             // Shift the goal offset by the shooter translation
             Translation2d shiftedGoalPosition = goalPosition.getTranslation().minus(shooterOffset);
