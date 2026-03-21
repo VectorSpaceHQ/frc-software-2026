@@ -20,7 +20,7 @@ public class AimTowardsHubCommand extends Command {
 
     private Rotation2d lastTargetHeading = new Rotation2d();
     private boolean isCurrentlyAligned = false;
-    private boolean isLogging = false;
+    private static boolean isLogging = false;
 
     public AimTowardsHubCommand(SwerveSubsystem swerve) {
         this.swerve = swerve;
@@ -33,7 +33,6 @@ public class AimTowardsHubCommand extends Command {
         SmartDashboard.putString("AimTowardsHub/Status", "Initializing");
 
         swerve.setAimTargetSupplier(() -> {
-            Pose2d robotPose = swerve.getEstimatedPose();
 
             Pose2d goalPosition = ShooterConstants.blueHubCenter;
             if (DriverStation.getAlliance().isPresent()) {
@@ -99,7 +98,7 @@ public class AimTowardsHubCommand extends Command {
     }
 
     public void toggleLogging() {
-        isLogging  = !isLogging;
+        isLogging = !isLogging;
     }
 
     @Override
