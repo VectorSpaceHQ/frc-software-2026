@@ -120,7 +120,7 @@ public class XboxControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger aimTowardsHub() {
-        return joystick.leftTrigger(); // Hold (On driver)
+        return joystick.leftBumper(); // Hold (On driver)
     }
 
     // Tuning
