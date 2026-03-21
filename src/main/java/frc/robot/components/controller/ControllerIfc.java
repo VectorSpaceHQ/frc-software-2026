@@ -57,6 +57,8 @@ public interface ControllerIfc {
   // Vision
   public Trigger driveToTarget();
 
+  public Trigger aimTowardsHub();
+
   // Tuning
   public Trigger runQuasistatic();
 

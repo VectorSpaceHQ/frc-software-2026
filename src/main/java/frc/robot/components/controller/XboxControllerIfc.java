@@ -118,6 +118,11 @@ public class XboxControllerIfc implements ControllerIfc {
         return joystick.x(); // Hold (On driver)
     }
 
+    @Override
+    public Trigger aimTowardsHub() {
+        return joystick.leftTrigger(); // Hold (On driver)
+    }
+
     // Tuning
     @Override
     public Trigger runQuasistatic() {

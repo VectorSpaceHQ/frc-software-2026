@@ -23,7 +23,8 @@ public class JoystickControllerIfc implements ControllerIfc {
         Button13(13),
         Button14(14),
         Button15(15),
-        Button16(16);
+        Button16(16),
+        Button17(17);
 
         public final int value;
 
@@ -143,25 +144,30 @@ public class JoystickControllerIfc implements ControllerIfc {
         return getButton(ExtendedButtonType.Button12);
     }
 
-    // Tuning
     @Override
-    public Trigger runQuasistatic() {
+    public Trigger aimTowardsHub() {
         return getButton(ExtendedButtonType.Button13);
     }
 
+    // Tuning
     @Override
-    public Trigger runQuasidynamic() {
+    public Trigger runQuasistatic() {
         return getButton(ExtendedButtonType.Button14);
     }
 
     @Override
-    public Trigger runQuasistaticReverse() {
+    public Trigger runQuasidynamic() {
         return getButton(ExtendedButtonType.Button15);
     }
 
     @Override
-    public Trigger runQuasidynamicReverse() {
+    public Trigger runQuasistaticReverse() {
         return getButton(ExtendedButtonType.Button16);
+    }
+
+    @Override
+    public Trigger runQuasidynamicReverse() {
+        return getButton(ExtendedButtonType.Button17);
     }
 
     // Put autos here:
