@@ -1,5 +1,10 @@
 {
   "keyboardJoysticks": [
+      "System Joysticks": {
+      "window": {
+        "enabled": true
+        }
+      },
     {
       "axisConfig": [
         {
