@@ -173,7 +173,7 @@ public final class Constants {
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
     public static final double GEAR_RATIO = 1/25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 40;
+    public static final int INDEXER_CURRENT_LIMIT = 5;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;

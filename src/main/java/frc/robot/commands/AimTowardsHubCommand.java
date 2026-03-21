@@ -20,7 +20,7 @@ public class AimTowardsHubCommand extends Command {
 
     private Rotation2d lastTargetHeading = new Rotation2d();
     private boolean isCurrentlyAligned = false;
-    private static boolean isLogging = false;
+    private static boolean isLogging = true;
 
     public AimTowardsHubCommand(SwerveSubsystem swerve) {
         this.swerve = swerve;

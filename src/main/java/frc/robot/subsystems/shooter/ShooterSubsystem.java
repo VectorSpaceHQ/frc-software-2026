@@ -221,8 +221,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setFarShot() {
         startShooter();
-        mainRPMGoal = 1750;
-        englishRPMGoal = 2750;
+        mainRPMGoal = 1250;
+        englishRPMGoal = 2250;
         feederRPM = 1700;
     }
 
