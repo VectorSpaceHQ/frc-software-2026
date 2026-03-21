@@ -2,7 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import java.lang.Math;
 
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+//UNUSED: import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -10,14 +10,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.subsystems.vision.VisionSubsystem;
-import swervelib.SwerveDrive;
-import frc.robot.subsystems.drive.SwerveSubsystem;
+//UNUSED: import edu.wpi.first.math.geometry.Translation3d;
+//UNUSED: import frc.robot.subsystems.vision.VisionSubsystem;
+//UNUSED: import swervelib.SwerveDrive;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+//UNUSED: import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,9 +26,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.configuration.Constants.ShooterConstants;
-import frc.robot.configuration.Constants;
-import frc.robot.configuration.Constants.OperatorConstants;
-import frc.robot.configuration.Constants.SysIdEnums;
+//UNUSED: import frc.robot.configuration.Constants;
+//UNUSED: import frc.robot.configuration.Constants.OperatorConstants;
+//UNUSED: import frc.robot.configuration.Constants.SysIdEnums;
 import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
@@ -60,8 +59,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
-    private double solverMainVelocity = 0;
-    private double solverEnglishVelocity = 0;
+    //UNUSED: private double solverMainVelocity = 0;
+    //UNUSED: private double solverEnglishVelocity = 0;
 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
