@@ -197,7 +197,7 @@ public class RobotContainer {
     //         0.035,
     //         Rotation2d.fromDegrees(0)).withTimeout(10));
     m_driverController.aimTowardsHub().whileTrue(
-        new AimTowardsHubCommand(m_swerveSubsystem, m_visionSubsystem)); // Left trigger (can change)
+        new AimTowardsHubCommand(m_swerveSubsystem)); // Left trigger (can change)
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.

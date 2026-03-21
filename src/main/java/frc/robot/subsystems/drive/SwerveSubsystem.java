@@ -140,15 +140,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
       // Aim stream
       // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
-      aimStream = driveAngularVelocity.copy() // I think this allows for translational movement with the command
+      aimStream = driveAngularVelocity.copy()
           .aim(() -> aimTargetSupplier.get()) // Give it the center of the hub
-          //.aimLookahead(Seconds.of(0.1)) if we want shoot on the move (tune as well)
-          // We aren't using vision for the hub (like an april tag we are keeping track of), but it is still useful since it accounts for other things:
-          // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html#aimLookahead(edu.wpi.first.units.measure.Time)
-          .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // offset side for shooter
+          .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // Offset
           .aimHeadingOffset(true)
-          .aimFeedforward(0.0, 2.0, 0.0) //Maybe add a feedforward and tune it so that the motors don't lag behind?
-          .aimWhile(() -> isAiming); // Boolean supplier
+          .translationOnlyWhile(false)
+          .driveToPoseEnabled(false)
+          .aimFeedforward(0.0, 2.0, 0.0) // Still needs tuning
+          .aimWhile(() -> isAiming);
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
@@ -350,15 +349,15 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
-  public void setAimTargetSupplier(Supplier<Pose2d> supplier) { // The pose you give to the command
+  public void setAimTargetSupplier(Supplier<Pose2d> supplier) { // Given pose
     this.aimTargetSupplier = supplier;
   }
 
-  public void setAiming(boolean aiming) { // The toggle for aimWhile
+  public void setAiming(boolean aiming) { // AimWhile toggle
     this.isAiming = aiming;
   }
 
-  public SwerveInputStream getAimStream() { // Specifically the aim stream
+  public SwerveInputStream getAimStream() {
     return aimStream;
   }
 
