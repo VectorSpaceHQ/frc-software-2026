@@ -160,7 +160,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setCloseShot() {
         english_PID.setM_RPM(-1250);
         main_PID.setM_RPM(-750);
-        feeder_PID.setM_RPM(1700);
+        feeder_PID.setM_RPM(-1700);
         getMainVelocity();
         getEnglishVelocity();
     }

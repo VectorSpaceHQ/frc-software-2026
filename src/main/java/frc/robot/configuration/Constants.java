@@ -186,7 +186,8 @@ public final class Constants {
     public static final Pose2d redHubCenter = new Pose2d(11.919581, 4.034631, new Rotation2d());
     // Shared Constants
     public static final double MAX_VOLTAGE = 12.0;
-    public static final double SHOOTER_SPEED_TOLERANCE_RPM = 75;
+    public static final double GEAR_RATIO = 1.5;
+    public static final double SHOOTER_SPEED_TOLERANCE_RPM = 200;
     public static final boolean RUNNING_SYS_ID = false;
 
     // English Motor (Kraken X60)
@@ -338,6 +339,7 @@ public final class Constants {
     }
     public static final Translation3d HUB_TARGET_OFFSET = new Translation3d(0.0, 0.0, 0.7); // Can be tuned, roughly 0.7 meters above Apriltag center
     public static final Pose2d goalPosition = new Pose2d(4.620419, 4.034631, new Rotation2d());
+    public static final double ROTATION_TOLERANCE_RAD = Math.toRadians(3); // Tunable
   }
 
 }
