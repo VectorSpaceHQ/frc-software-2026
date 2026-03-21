@@ -1,8 +1,8 @@
 package frc.robot.components.control;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+// UNUSED: import edu.wpi.first.wpilibj2.command.Command;
+// UNUSED: import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
@@ -25,7 +25,7 @@ public class PID implements Sendable {
     private String name;
     private double MAX_RPM = 6000.0;
     private double m_gearRatio = 1.5;
-    private double MAX_VOLTS = 12.0; // Unused (For reference)
+    // private double MAX_VOLTS = 12.0; // Unused (For reference)
     private final double MAX_RPM_PER_VOLT;
     
     private PIDController pid;
