@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
 import frc.robot.configuration.configs.VisionSubsysConfig;
+import org.littletonrobotics.junction.Logger;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -75,7 +76,7 @@ public class VisionSubsystem extends SubsystemBase {
                 cameraConnected = false;
                 System.err.println("Warning: Camera not connected." + e.getMessage());
             }
-        }
+        }       
 
         SmartDashboard.putBoolean("Vision Present", visionConfig.getIsPresent());
         SmartDashboard.putBoolean("Camera Present", cameraConnected);
@@ -220,18 +221,14 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        if (cameraConnected){
-
+        if (cameraConnected) {
             allUnreadResults = camera.getAllUnreadResults();
-            SmartDashboard.putBoolean("Vision measurement empty",
-            allUnreadResults.isEmpty());
+            SmartDashboard.putBoolean("Vision measurement empty", allUnreadResults.isEmpty());
+
             if (!allUnreadResults.isEmpty()) {
                 updateVisionMeasurement();
             }
-
         }
-
     }
 
     public AprilTagFieldLayout getLayout() {

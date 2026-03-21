@@ -118,6 +118,11 @@ public class PS5ControllerIfc implements ControllerIfc {
         return joystick.square(); // Hold (On driver)
     }
 
+    @Override
+    public Trigger aimTowardsHub() {
+        return joystick.L2(); // Hold (On driver)
+    }
+
     // Tuning
     @Override
     public Trigger runQuasistatic() {
