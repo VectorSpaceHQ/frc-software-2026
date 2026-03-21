@@ -7,7 +7,7 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.components.imu.GyroIO;
+//UNUSED: import frc.robot.components.imu.GyroIO;
 
 public class GyroIOPigeon implements GyroIO {
 
