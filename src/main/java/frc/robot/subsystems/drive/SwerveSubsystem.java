@@ -9,10 +9,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.configuration.Constants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 
-import static edu.wpi.first.units.Units.Meter;
+//UNUSED: import static edu.wpi.first.units.Units.Meter;
 import java.io.File;
 import java.util.Optional;
-import java.util.function.DoubleSupplier;
+//UNUSED: import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,8 +22,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+//UNUSED: import edu.wpi.first.wpilibj.Timer;
+//UNUSED: import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
@@ -33,22 +33,18 @@ import swervelib.SwerveDrive;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+//UNUSED: import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
+//UNUSED: import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+//UNUSED: import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import swervelib.SwerveInputStream;
 
 //Imports for Pose Estimator
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
-import frc.robot.subsystems.vision.VisionSubsystem;
+//UNUSED: import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.configuration.Constants.VisionConstants;
 
@@ -84,8 +80,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
-  private double driveInversion = -1;
-  private String allianceColor;
+  //UNUSED: private double driveInversion = -1;
+  //UNUSED: private String allianceColor;
   private Orientation driveOrientation = Orientation.FIELD;
 
 
