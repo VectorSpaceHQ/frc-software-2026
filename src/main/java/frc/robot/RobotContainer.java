@@ -105,7 +105,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
+    // m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
     // Register Named Commands. These will be used in our auto routines.
     // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
     // NamedCommands.registerCommand("exampleCommand",
@@ -141,20 +141,20 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
    */
   private void configureBindings() {
     // Make sure to check controller interfaces:
-    if (RUNNING_SYS_ID) {
-      m_testingController.runQuasistatic().whileTrue(
-          m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // if (RUNNING_SYS_ID) {
+    //   m_testingController.runQuasistatic().whileTrue(
+    //       m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      m_testingController.runQuasistaticReverse().whileTrue(
-          m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    //   m_testingController.runQuasistaticReverse().whileTrue(
+    //       m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-      m_testingController.runQuasidynamic().whileTrue(
-          m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //   m_testingController.runQuasidynamic().whileTrue(
+    //       m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
 
-      m_testingController.runQuasidynamicReverse().whileTrue(
-          m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //   m_testingController.runQuasidynamicReverse().whileTrue(
+    //       m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    } else {
+    
         //intake commands
       m_operatorController.sendPivotUp().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
@@ -173,14 +173,13 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
     //shooter commands
     //moved start shooter command to beginning of each shot command
     m_operatorController.toggleShooter().onTrue(
-          new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
+        new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
     m_operatorController.closeShot().onTrue(                                                 
         new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));
     m_operatorController.farShot().onTrue(
         new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem));
     m_operatorController.autoShot().onTrue(
         new RunCommand(() -> m_ShooterSubsystem.setAutoShot(), m_ShooterSubsystem));
-    }
 
     // m_driverController.driveToTarget().whileTrue(
     //     new DriveToTargetCommand(
@@ -208,6 +207,7 @@ private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(Shooter
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

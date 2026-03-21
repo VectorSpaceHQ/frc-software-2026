@@ -7,6 +7,8 @@ package frc.robot.configuration;
 
 import org.photonvision.PhotonPoseEstimator;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -191,6 +193,7 @@ public final class Constants {
 
     // English Motor (Kraken X60)
     public static final double ENGLISH_MAX_RPM = 4000.0;
+    public static final int ENGLISH_CURRENT_LIMIT = 60;
     public static final double ENGLISH_WHEEL_DIAMETER = 4; //in   
     public static final double ENGLISH_GEAR_RATIO = 0.75;
     public static final double ENGLISH_kS = 0.20027;
@@ -199,9 +202,12 @@ public final class Constants {
     public static final double ENGLISH_kD = 0.0;
     public static final double ENGLISH_kV = 0.018534;
     public static final double ENGLISH_kA = 0.00053364;
+    public static final InvertedValue ENGLISH_INVERSION = InvertedValue.Clockwise_Positive;
+    //change this value to flip motor direction
 
     // Main Motor (Kraken X60)
     public static final double MAIN_MAX_RPM = 4000.0;
+    public static final int MAIN_CURRENT_LIMIT = 60;
     public static final double MAIN_WHEEL_DIAMETER = 6; //in    
     public static final double MAIN_GEAR_RATIO = 1;    
     public static final double MAIN_kS = 0.16432;
@@ -210,6 +216,8 @@ public final class Constants {
     public static final double MAIN_kD = 0.0;
     public static final double MAIN_kV = 0.019251;
     public static final double MAIN_kA = 0.016214;
+    public static final InvertedValue MAIN_INVERSION = InvertedValue.Clockwise_Positive;
+    //change this value to flip motor direction
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
