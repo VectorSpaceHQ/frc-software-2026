@@ -206,7 +206,7 @@ public class RobotContainer {
 
     m_visionSubsystem.onCameraConnected.onTrue(
         new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
-    ).onFalse(
+    ).whileFalse(
         new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
     );
 

@@ -244,5 +244,5 @@ public class VisionSubsystem extends SubsystemBase {
         return bestVisibleTag;
     }
 
-    public Trigger onCameraConnected = new Trigger(() -> camera.isConnected());
+    public Trigger onCameraConnected = new Trigger(() -> cameraConnected);
 }
