@@ -50,10 +50,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
-import frc.robot.configuration.Constants.SysIdEnums;
-import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 
 import static edu.wpi.first.units.Units.Volts;
 
@@ -74,9 +70,6 @@ public class RobotContainer {
   // create 2 instances of our new controller interface:
   private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
   private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
-
-  // Only for testing and tuning (such as SysId routines)
-  private final ControllerIfc m_testingController = new XboxControllerIfc(OperatorConstants.controllerPort3);
 
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);
@@ -99,15 +92,10 @@ public class RobotContainer {
   // auto command chooser
   private final SendableChooser<Command> autoChooser;
 
-  // For sys id
-  private static final SysIdTarget SYSID_TARGET = SysIdTarget.FEEDER;
-  private static final boolean RUNNING_SYS_ID = IntakeConstants.RUNNING_SYS_ID || ShooterConstants.RUNNING_SYS_ID;
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // m_ShooterSubsystem.setSysIdTarget(SYSID_TARGET);
     // Register Named Commands. These will be used in our auto routines.
     // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
     // NamedCommands.registerCommand("exampleCommand",
@@ -144,21 +132,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Make sure to check controller interfaces:
-    // if (RUNNING_SYS_ID) {
-    //   m_testingController.runQuasistatic().whileTrue(
-    //       m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-    //   m_testingController.runQuasistaticReverse().whileTrue(
-    //       m_ShooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-    //   m_testingController.runQuasidynamic().whileTrue(
-    //       m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-
-    //   m_testingController.runQuasidynamicReverse().whileTrue(
-    //       m_ShooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    
-        //intake commands
+    //intake commands
       m_operatorController.sendPivotUp().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
