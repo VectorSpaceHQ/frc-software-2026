@@ -13,7 +13,8 @@ import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnu
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-// UNUSED: import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 // UNUSED: import frc.robot.commands.ControllerCommand;
 // UNUSED: import frc.robot.commands.ExampleCommand;
@@ -36,6 +37,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 // UNUSED: import swervelib.SwerveInputStream;
