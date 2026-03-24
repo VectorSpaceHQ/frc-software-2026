@@ -229,7 +229,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setAutoShot() {
         startShooter();
         mainRPMGoal = calcMainRPM(solverMainVelocity);
-        //double L_english = 0.0001 * solverMainVelocity; // english loss factor as function of main velocity
+        //double L_english = 0.01 * solverMainVelocity; // english loss factor as function of main velocity
         //double adjustedEnglishVelocity = solverEnglishVelocity + L_english * solverEnglishVelocity 
         //englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
         englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
