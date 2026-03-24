@@ -100,12 +100,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Register Named Commands. These will be used in our auto routines.
-    // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    // NamedCommands.registerCommand("exampleCommand",
-    // exampleSubsystem.exampleCommand());
-    NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
-    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
-
+    registerNamedCommands();
     // Configure the trigger bindings
     configureBindings();
 
@@ -185,6 +180,11 @@ public class RobotContainer {
     
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
+  }
+
+  public void registerNamedCommands(){
+    NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
+    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
   }
 
 
