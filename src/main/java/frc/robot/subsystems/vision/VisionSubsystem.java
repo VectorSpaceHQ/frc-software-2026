@@ -221,8 +221,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        if(!camera.isConnected()){
+        SmartDashboard.putBoolean("Camera Present", cameraConnected);
+        if(!cameraConnected){
             updateCameraStatus(); //trigger wasn't working
         }
         if (cameraConnected) {
