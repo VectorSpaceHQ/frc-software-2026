@@ -122,6 +122,12 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "Auto Intake",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": 3.9,
+      "command": null
+    },
+    {
       "name": "Auto Shoot",
       "waypointRelativePos": 5.0,
       "endWaypointRelativePos": null,
