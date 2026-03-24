@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.AutoIntakeCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
 // UNUSED: import frc.robot.configuration.Constants;
@@ -102,7 +103,7 @@ public class RobotContainer {
     // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
     // NamedCommands.registerCommand("exampleCommand",
     // exampleSubsystem.exampleCommand());
-    // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
+    NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
     NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
 
     // Configure the trigger bindings
