@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftToCenter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Auto Shoot"
+            "pathName": "CenterToLeftBumpSweepCircuit"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "ToCenterShoot",
+  "folder": null,
   "choreoAuto": false
 }
