@@ -178,7 +178,7 @@ public class RobotContainer {
     m_operatorController.toggleShooter().onTrue(
         new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
     m_operatorController.closeShot().onTrue(                                                 
-        new InstantCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));
+        new RunCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));
     m_operatorController.farShot().onTrue(
         new InstantCommand(() -> m_ShooterSubsystem.setFarShot(), m_ShooterSubsystem));
     m_operatorController.autoShot().onTrue(
@@ -203,12 +203,6 @@ public class RobotContainer {
     //     ).onFalse(
     //         new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3))
     //     );           
-
-    m_visionSubsystem.onCameraConnected.onTrue(
-        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
-    ).onFalse(
-        new InstantCommand(() -> m_visionSubsystem.updateCameraStatus())
-    );
 
     
     m_driverController.toggleOrientation().onTrue(
