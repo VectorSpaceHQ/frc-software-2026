@@ -75,8 +75,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
-    private double solverMainVelocity = 0;
-    private double solverEnglishVelocity = 0;
+    //UNUSED: private double solverMainVelocity = 0;
+    //UNUSED: private double solverEnglishVelocity = 0;
 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
