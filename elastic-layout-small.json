@@ -1058,34 +1058,6 @@
             }
           },
           {
-            "title": "target english rpm",
-            "x": 1056.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/target english rpm",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "target main rpm",
-            "x": 1056.0,
-            "y": 96.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/target main rpm",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Solver converged",
             "x": 0.0,
             "y": 288.0,
@@ -1168,7 +1140,7 @@
           {
             "title": "englishRealRPM",
             "x": 1056.0,
-            "y": 192.0,
+            "y": 288.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Text Display",
@@ -1225,6 +1197,62 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "ramped english rpm",
+            "x": 1056.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/ramped english rpm",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "ramped main rpm",
+            "x": 1056.0,
+            "y": 96.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/ramped main rpm",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "target english velocity",
+            "x": 1056.0,
+            "y": 480.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/target english velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "target main velocity",
+            "x": 1056.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/target main velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
