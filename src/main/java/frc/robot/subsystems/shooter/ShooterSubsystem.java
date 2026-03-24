@@ -75,8 +75,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
-    //UNUSED: private double solverMainVelocity = 0;
-    //UNUSED: private double solverEnglishVelocity = 0;
+    private double solverMainVelocity = 0;
+    private double solverEnglishVelocity = 0;
 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
@@ -258,7 +258,9 @@ public class ShooterSubsystem extends SubsystemBase {
         // ft/s to rpm is 38.1971863421 * ft/s = rpm
         double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
-        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
+        // Conversion from desired wheel velocity in ft/s to motor rpm, 
+        //"magic numbers" are 60s/1min and 12in/1ft
+        double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_main);
         return target_motor_rpm;
 
     }
@@ -277,7 +279,9 @@ public class ShooterSubsystem extends SubsystemBase {
         // ft/s to rpm is 57.2957795131 * ft/s = rpm
         double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
-        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
+        // Conversion from desired wheel velocity in ft/s to motor rpm
+        //"magic numbers" are 60s/1min and 12in/1ft
+        double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_english);
         return target_motor_rpm;
 
     }
