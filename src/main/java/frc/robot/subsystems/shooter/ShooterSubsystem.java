@@ -1,66 +1,82 @@
 package frc.robot.subsystems.shooter;
 
-import java.lang.Math;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
+//spark max imports
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
-//UNUSED: import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.pathplanner.lib.util.FlippingUtil;
-
-import frc.robot.subsystems.drive.SwerveSubsystem;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-//UNUSED: import edu.wpi.first.math.geometry.Translation3d;
-//UNUSED: import frc.robot.subsystems.vision.VisionSubsystem;
-//UNUSED: import swervelib.SwerveDrive;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-//UNUSED: import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.components.motor.MotorIOKraken;
-import frc.robot.components.motor.MotorIOSparkMax;
-import frc.robot.configuration.Constants.ShooterConstants;
-//UNUSED: import frc.robot.configuration.Constants;
-//UNUSED: import frc.robot.configuration.Constants.OperatorConstants;
-//UNUSED: import frc.robot.configuration.Constants.SysIdEnums;
-import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
-import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.SysId;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+import frc.robot.components.motor.MotorIOKraken;
+import frc.robot.configuration.Constants.ShooterConstants;
+import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
+import frc.robot.configuration.configs.ShooterSubsysConfig;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private ShooterSubsysConfig shooterConfig = null;
 
-    private PID english_PID = null;
-    private PID main_PID = null;
-    private PID feeder_PID = null;
-    private SysIdRoutine englishSysId = null;
-    private SysIdRoutine mainSysId = null;
-    private SysIdRoutine feederSysId = null;
+    // removed PIDS
 
-    private SysIdTarget sysIdTarget = SysIdTarget.MAIN;
+
+    // spark max feeder motor vars
+    private SparkMax feederWheel;
+    private SparkMaxConfig feederConfig;
+    private SparkClosedLoopController feederClosedLoopController;
+    private RelativeEncoder feederRelativeEncoder;
+    private double feederRPM = 0;
+
+    //Main Kraken motor vars
+    private TalonFX mainWheel;
+    private TalonFXConfiguration mainConfig;
+    private final VelocityVoltage mainVelocityRequest = new VelocityVoltage(0);
+    private double mainRPMGoal = 0;
+
+    //English Kraken motor vars
+    private TalonFX englishWheel;
+    private TalonFXConfiguration englishConfig;
+    private final VelocityVoltage englishVelocityRequest = new VelocityVoltage(0);
+    private double englishRPMGoal = 0;
 
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
-    private boolean runningSysId;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
-    final SlewRateLimiter intakeRpmSlew;
+    final SlewRateLimiter feederRpmSlew;
 
     final SwerveSubsystem mSwerveSubsystem;
     private Pose2d goalPosition = ShooterConstants.blueHubCenter;
-    //UNUSED: private double solverMainVelocity = 0;
-    //UNUSED: private double solverEnglishVelocity = 0;
+    private double solverMainVelocity = 0;
+    private double solverEnglishVelocity = 0;
 
     public ShooterSubsystem(ShooterSubsysConfig config, SwerveSubsystem swerveSubsystem) {
         this.mSwerveSubsystem = swerveSubsystem;
@@ -68,75 +84,114 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterConfigPresent = shooterConfig.getIsPresent();
         shooterStatus = false;
         lastShooterStatus = false;
-        runningSysId = ShooterConstants.RUNNING_SYS_ID;
 
-        mainRpmSlew = new SlewRateLimiter(100.0);
-        englishRpmSlew = new SlewRateLimiter(100.0);
-        intakeRpmSlew = new SlewRateLimiter(100.0);
-
-        RobotModeTriggers.autonomous().or(RobotModeTriggers.teleop()).onTrue(Commands.runOnce(() -> {
-            if (DriverStation.getAlliance().isPresent()) {
-                if (DriverStation.getAlliance().get() == Alliance.Red) {
-                    goalPosition = FlippingUtil.flipFieldPose(goalPosition);
-                }
-            }
-        }));
-        
-        
+        mainRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
+        englishRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
+        feederRpmSlew = new SlewRateLimiter(1000); //rpm/s
 
         if (shooterConfigPresent) {
-            // English Flywheel Mechanism
-            english_PID = new PID(
-                    "English",
-                    new MotorIOKraken(this.shooterConfig.getShooterEnglishId()),
-                    ShooterConstants.ENGLISH_MAX_RPM,
-                    ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.ENGLISH_GEAR_RATIO,
-                    ShooterConstants.ENGLISH_kS,
-                    ShooterConstants.ENGLISH_kP,
-                    ShooterConstants.ENGLISH_kI,
-                    ShooterConstants.ENGLISH_kD,
-                    ShooterConstants.ENGLISH_kV,
-                    ShooterConstants.ENGLISH_kA);
-
-            // Main Flywheel Mechanism
-            main_PID = new PID(
-                    "Main",
-                    new MotorIOKraken(this.shooterConfig.getShooterMainId()),
-                    ShooterConstants.MAIN_MAX_RPM,
-                    ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.MAIN_GEAR_RATIO,
-                    ShooterConstants.MAIN_kS,
-                    ShooterConstants.MAIN_kP,
-                    ShooterConstants.MAIN_kI,
-                    ShooterConstants.MAIN_kD,
-                    ShooterConstants.MAIN_kV,
-                    ShooterConstants.MAIN_kA);
-
-            // Feeder Flywheel Mechanism
-            feeder_PID = new PID(
-                    "Feeder",
-                    new MotorIOSparkMax(this.shooterConfig.getFeederId(), ShooterConstants.FEEDER_CURRENT_LIMIT),
-                    ShooterConstants.FEEDER_MAX_RPM,
-                    ShooterConstants.MAX_VOLTAGE,
-                    ShooterConstants.FEEDER_GEAR_RATIO,
-                    ShooterConstants.FEEDER_kS,
-                    ShooterConstants.FEEDER_kP,
-                    ShooterConstants.FEEDER_kI,
-                    ShooterConstants.FEEDER_kD,
-                    ShooterConstants.FEEDER_kV,
-                    ShooterConstants.FEEDER_kA);
-
-            englishSysId = SysId.createRoutine(this, english_PID, "English");
-            mainSysId = SysId.createRoutine(this, main_PID, "Main");
-            feederSysId = SysId.createRoutine(this, feeder_PID, "Feeder");
-
-            SmartDashboard.putData("Shooter/English PID", english_PID);
-            SmartDashboard.putData("Shooter/Main PID", main_PID);
-            SmartDashboard.putData("Shooter/Feeder PID", feeder_PID);
+            //if we have a shooter config, configure the motors
+            configureShooterMotors();
+            configureFeederMotor();
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
+    }
+
+    public void configureShooterMotors() {
+        // English Flywheel Mechanism
+        englishWheel = new TalonFX(this.shooterConfig.getShooterEnglishId());
+        englishConfig = new TalonFXConfiguration();
+        englishConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        
+        // PID gains for velocity control (slot 0)
+        // COULD SET CONTANTS WHEN FIGURE OUT GOOD VALUES OR SMARTDASHBOARD
+        englishConfig.Slot0.kP = ShooterConstants.ENGLISH_kP;   // volts per rotation/sec error
+        englishConfig.Slot0.kI = ShooterConstants.ENGLISH_kI;
+        englishConfig.Slot0.kD = ShooterConstants.ENGLISH_kD;  // volts per rotation/sec²
+        englishConfig.Slot0.kS = ShooterConstants.ENGLISH_kS;   // static friction feedforward (volts)
+        englishConfig.Slot0.kV = ShooterConstants.ENGLISH_kV;   // velocity feedforward (volts per rot/sec)
+        englishConfig.Slot0.kA = ShooterConstants.ENGLISH_kA;    // acceleration feedforward
+
+        // set current limit from constants value
+        // removed stator (torque) current limit
+        // limits current supplied from battery
+        englishConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.ENGLISH_CURRENT_LIMIT;
+        englishConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        //inversion on motor, set in constants
+        englishConfig.MotorOutput.Inverted = ShooterConstants.ENGLISH_INVERSION;
+        
+        //apply configuration
+        englishWheel.getConfigurator().apply(englishConfig);
+
+        // Main Flywheel Mechanism
+        mainWheel = new TalonFX(this.shooterConfig.getShooterMainId());
+        mainConfig = new TalonFXConfiguration();
+        mainConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        
+        // PID gains for velocity control (slot 0)
+        // COULD SET CONTANTS WHEN FIGURE OUT GOOD VALUES OR SMARTDASHBOARD
+        mainConfig.Slot0.kP = ShooterConstants.MAIN_kP;   // volts per rotation/sec error
+        mainConfig.Slot0.kI = ShooterConstants.MAIN_kI;
+        mainConfig.Slot0.kD = ShooterConstants.MAIN_kD;  // volts per rotation/sec²
+        mainConfig.Slot0.kS = ShooterConstants.MAIN_kS;   // static friction feedforward (volts)
+        mainConfig.Slot0.kV = ShooterConstants.MAIN_kV;   // velocity feedforward (volts per rot/sec)
+        mainConfig.Slot0.kA = ShooterConstants.MAIN_kA;    // acceleration feedforward
+
+        // set current limit from constants value
+        // removed stator (torque) current limit
+        // limits current supplied from battery
+        mainConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.MAIN_CURRENT_LIMIT;
+        mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        //inversion on motor, set in constants
+        mainConfig.MotorOutput.Inverted = ShooterConstants.MAIN_INVERSION;
+        
+        //apply configuration
+        mainWheel.getConfigurator().apply(mainConfig);
+
+    }
+
+    public void configureFeederMotor(){
+        // Feeder Flywheel Mechanism
+        // test motor init for sparkmax
+        feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
+        feederClosedLoopController = feederWheel.getClosedLoopController();
+        feederRelativeEncoder = feederWheel.getEncoder();
+        feederConfig = new SparkMaxConfig();
+
+        feederConfig.inverted(ShooterConstants.FEEDER_INVERSION);
+
+        feederConfig.encoder
+                .velocityConversionFactor(1);
+        // if we want to convert from rpm to another unit, do so here
+
+        // PID NEEDS TUNING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        feederConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                // Set PID values for velocity control in slot 0
+                // ALWAYS USE SLOT 0
+                .p(ShooterConstants.FEEDER_kP, ClosedLoopSlot.kSlot0)
+                .i(ShooterConstants.FEEDER_kI, ClosedLoopSlot.kSlot0)
+                .d(ShooterConstants.FEEDER_kD, ClosedLoopSlot.kSlot0)
+                .outputRange(-1, 1, ClosedLoopSlot.kSlot0).feedForward
+                // kV is now in Volts, so we multiply by the nominal voltage (12V)
+                .kV(ShooterConstants.FEEDER_kV, ClosedLoopSlot.kSlot0);
+
+        feederConfig.idleMode(IdleMode.kCoast);
+        // how the motor behaves when it has 0v written to it
+
+        feederConfig.smartCurrentLimit(ShooterConstants.FEEDER_CURRENT_LIMIT);
+
+        // Example: Set ramp rate to 0.5 seconds (0 to 100% in 0.5s)
+        // Acts as slew rate for sparkmax
+        feederConfig.closedLoopRampRate(ShooterConstants.FEEDER_SLEW_RATE);
+
+        feederWheel.configure(
+                feederConfig,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kNoPersistParameters);
     }
 
     // Just in case
@@ -157,33 +212,34 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setCloseShot() {
-        english_PID.setM_RPM(-1250);
-        main_PID.setM_RPM(-750);
-        feeder_PID.setM_RPM(-1700);
-        getMainVelocity();
-        getEnglishVelocity();
+        startShooter();
+        mainRPMGoal = 750;
+        englishRPMGoal = 1250;
+        // takes velocity in RPM
+        feederRPM = 1700; // arbitrary value currently
     }
 
     public void setFarShot() {
-        english_PID.setM_RPM(-2750);
-        main_PID.setM_RPM(-1750);
-        feeder_PID.setM_RPM(1700);
-        getMainVelocity();
-        getEnglishVelocity();        
+        startShooter();
+        mainRPMGoal = 1250;
+        englishRPMGoal = 2250;
+        feederRPM = 1700;
+    }
+
+    public void setAutoShot() {
+        startShooter();
+        mainRPMGoal = calcMainRPM(solverMainVelocity);
+        //double L_english = 0.01 * solverMainVelocity; // english loss factor as function of main velocity
+        //double adjustedEnglishVelocity = solverEnglishVelocity + L_english * solverEnglishVelocity 
+        //englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
+        englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
+        feederRPM = 1700;
     }
 
     public void zeroRPM() {
-        english_PID.setM_RPM(0);
-        main_PID.setM_RPM(0);
-        feeder_PID.setM_RPM(0);
-    }
-
-    public void setSysIdTarget(SysIdTarget target) {
-        sysIdTarget = target;
-    }
-
-    public SysIdTarget getSysIdTarget() {
-        return sysIdTarget;
+        mainRPMGoal = 0;
+        englishRPMGoal = 0;
+        feederRPM = 0;
     }
 
     // Place status values here
@@ -195,115 +251,140 @@ public class ShooterSubsystem extends SubsystemBase {
         return lastShooterStatus;
     }
 
-    public SysIdRoutine getActiveSysIdRoutine() {
-        switch (sysIdTarget) {
-            case ENGLISH:
-                return englishSysId;
-            case MAIN:
-                return mainSysId;
-            case FEEDER:
-                return feederSysId;
-            default:
-                return feederSysId;
-        }
-    }
-
     public boolean atSpeed() {
-        return english_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-                && main_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-                && feeder_PID.atSpeed(ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+        return Math.abs(mainWheel.getVelocity().getValueAsDouble() * 60 - mainRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+                && Math.abs(englishWheel.getVelocity().getValueAsDouble() * 60 - englishRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
-    public void setMainVelocity(double target_wheel_vel){
-        // Set the main wheel's angular velocity in ft/s
-        // use an angular acceleration limit to avoid motor damage
+    public double calcMainRPM(double target_wheel_vel) {
+        // takes desired velocity in ft/s and returns desired velocity in rpm
+        // ft/s to rpm is 38.1971863421 * ft/s = rpm
         double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
-        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_main * gear_ratio);
-        double rampedMainRPM = mainRpmSlew.calculate(target_motor_rpm);
-        main_PID.setM_RPM(rampedMainRPM);  
-        SmartDashboard.putNumber("target main rpm", rampedMainRPM);
+        // Conversion from desired wheel velocity in ft/s to motor rpm, 
+        //"magic numbers" are 60s/1min and 12in/1ft
+        double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_main);
+        return target_motor_rpm;
+
     }
-    
-    public void setEnglishVelocity(double target_wheel_vel){
-        // Set the english wheel's angular velocity in ft/s
+
+    public void setMainRPM(double target_motor_rpm){
+        // use an angular acceleration limit to avoid motor damage
+        // Keep rpm within max and min
+        double clampedMotorRPM = MathUtil.clamp(target_motor_rpm, 0, ShooterConstants.MAIN_MAX_RPM);
+        double rampedMainRPM = mainRpmSlew.calculate(clampedMotorRPM);
+        mainWheel.setControl(mainVelocityRequest.withVelocity(rampedMainRPM / 60));
+        SmartDashboard.putNumber("ramped main rpm", rampedMainRPM);
+    }
+
+    public double calcEnglishRPM(double target_wheel_vel) {
+        // takes desired velocity in ft/s and returns desired velocity in rpm
+        // ft/s to rpm is 57.2957795131 * ft/s = rpm
         double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
-        double target_motor_rpm = (target_wheel_vel * 60 * 12) / (Math.PI * d_english * gear_ratio);
-        double rampedEnglishRPM = englishRpmSlew.calculate(target_motor_rpm);
-        english_PID.setM_RPM(rampedEnglishRPM);
-        SmartDashboard.putNumber("target english rpm", rampedEnglishRPM);
+        // Conversion from desired wheel velocity in ft/s to motor rpm
+        //"magic numbers" are 60s/1min and 12in/1ft
+        double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_english);
+        return target_motor_rpm;
+
     }
 
-    public double getMainVelocity(){
+    public void setEnglishRPM(double target_motor_rpm){
+        // use an angular acceleration limit to avoid motor damage
+        // Keep rpm within max and min
+        double clampedMotorRPM = MathUtil.clamp(target_motor_rpm, 0, ShooterConstants.ENGLISH_MAX_RPM);        
+        double rampedEnglishRPM = englishRpmSlew.calculate(clampedMotorRPM);
+        englishWheel.setControl(englishVelocityRequest.withVelocity(rampedEnglishRPM / 60));
+        SmartDashboard.putNumber("ramped english rpm", rampedEnglishRPM);
+    }
+
+    public double getMainVelocity() {
         // get angular velocity of main wheel in ft/s
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
-        double motor_rpm = main_PID.getM_realRPM();
-        SmartDashboard.putNumber("mainRealRPM", motor_rpm);
-        double wheel_rpm = motor_rpm * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the 
-        // PID constructor, which is being used to calculate rpm separately. You would either need to remove its implementation
-        // from the PID class (which after thought would be better since it was used as a temporary measure) or remove its implementation
+        double motorRPM = mainWheel.getVelocity().getValueAsDouble() * 60;
+        SmartDashboard.putNumber("mainRealRPM", motorRPM);
+        double wheel_rpm = motorRPM * gear_ratio; // Note: gear ratio is set in shooter constants and passed into the
+        // PID constructor, which is being used to calculate rpm separately. You would
+        // either need to remove its implementation
+        // from the PID class (which after thought would be better since it was used as
+        // a temporary measure) or remove its implementation
         // here since you would be accounting for gear ratio twice, not once.
-        // Additional note: Pretty sure you would divide the motor rpm by the gear ratio to get the wheel rpm, not multiply.
-
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // Additional note: Pretty sure you would divide the motor rpm by the gear ratio
+        // to get the wheel rpm, not multiply.
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // We need actual rpm, not PID calculated rpm
-        double v_main = (wheel_rpm * Math.PI * ShooterConstants.MAIN_WHEEL_DIAMETER) / (12 * 60); 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        SmartDashboard.putNumber("mainRealVelocity", v_main); 
+        double v_main = (wheel_rpm * Math.PI * ShooterConstants.MAIN_WHEEL_DIAMETER) / (12 * 60);
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        SmartDashboard.putNumber("mainRealVelocity", v_main);
         return v_main;
     }
-    public double getEnglishVelocity(){
+
+    public double getEnglishVelocity() {
         // get angular velocity of main wheel in ft/s
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
-        double motor_rpm = english_PID.getM_realRPM();
+        double motor_rpm = englishWheel.getVelocity().getValueAsDouble() * 60;
         SmartDashboard.putNumber("englishRealRPM", motor_rpm);
         double wheel_rpm = motor_rpm * gear_ratio;
-        double v_english = (wheel_rpm * Math.PI * ShooterConstants.ENGLISH_WHEEL_DIAMETER) / (12); 
+        double v_english = (wheel_rpm * Math.PI * ShooterConstants.ENGLISH_WHEEL_DIAMETER) / (12);
         return v_english;
     }
 
-    public void setShooterVelocity(double main_vel, double english_vel){
-        setMainVelocity(main_vel);
-        setEnglishVelocity(english_vel);
-    }
-
-    public double getLaunchAngle(double main_vel, double english_vel){
+    public double getLaunchAngle(double main_vel, double english_vel) {
         // given current main wheel velocity and english wheel velocity
         // return launch angle
         // This is an empirical formula, current formula is a guess, needs tuning
-        double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel) / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
+        double launchAngle = (5 * ShooterConstants.MAIN_MAX_RPM * main_vel)
+                / (ShooterConstants.ENGLISH_MAX_RPM * english_vel);
         return launchAngle;
     }
 
-    public double getLaunchVelocity(){
+    public double getLaunchVelocity() {
         // given current main wheel velocity and english wheel velocity
         // return launch velocity in ft/s
 
         // This is an empirical formula, current formula is a guess, needs tuning
-        // The assumption is that the ball velocity is the average of the wheel velocities.
-        // It is also assumed that there is a loss factor in transferring momentum from wheel to ball
+        // The assumption is that the ball velocity is the average of the wheel
+        // velocities.
+        // It is also assumed that there is a loss factor in transferring momentum from
+        // wheel to ball
         // and that the english wheel transfers less than the main
 
         double english_vel = getEnglishVelocity();
         double main_vel = getMainVelocity();
-        double L_main = 0.97; // loss factor
-        double L_english = 0.85; // loss factor
-        double launchVelocity = (L_english * english_vel + L_main * main_vel) / 2;
+        double launchVelocity = calcLaunchVelocity(english_vel, main_vel);
         SmartDashboard.putNumber("launchVelocity", launchVelocity);
         return launchVelocity;
     }
 
-    public double calcTrajectory(double launch_v, double launch_alpha){
+    public double calcLaunchVelocity(double englishVelocity, double mainVelocity) {
+        // given current main wheel velocity and english wheel velocity
+        // return launch velocity in ft/s
+
+        // This is an empirical formula, current formula is a guess, needs tuning
+        // The assumption is that the ball velocity is the average of the wheel
+        // velocities.
+        // It is also assumed that there is a loss factor in transferring momentum from
+        // wheel to ball
+        // and that the english wheel transfers less than the main
+
+        double L_main = 0.97; // loss factor
+        double L_english = 0.85; // loss factor
+        double launchVelocity = (L_english * englishVelocity + L_main * mainVelocity) / 2;
+        return launchVelocity;
+    }
+
+
+
+    public double calcTrajectory(double launch_v, double launch_alpha) {
         // Projectile motion calculation including air resistance
         // Returns distance at which ball enters center of hub,
-        //units are ft, lb, and s
+        // units are ft, lb, and s
         // returns distance in meters
         double dist_in_meters; // distance at which ball would enter hub
         double rho = 0.075; // lb/ft^3 ball density
-        double C = 0.6; //drag constant
+        double C = 0.6; // drag constant
         double A = Math.PI * Math.pow(5.9 / 24, 2); // ft^2
-        double D = (rho * C * A) /2;
+        double D = (rho * C * A) / 2;
         D = 0.004271829698103934;
         double m = 0.5; // lb
         double g = 32.2; // ft/s2
@@ -324,9 +405,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double ay = 0;
         double s = 0; // acceleration due to spin
 
-
-        for (int i=0; i<5000; i++)
-        {
+        for (int i = 0; i < 5000; i++) {
             t = t + dt;
             v = Math.sqrt(vx * vx + vy * vy);
 
@@ -337,21 +416,19 @@ public class ShooterSubsystem extends SubsystemBase {
             vy = vy_old + ay * dt;
             y = y_old + vy * dt + (0.5 * ay * dt * dt);
 
-
-
             // break condition
             // if ball new y less than old y, falling
             // and if y <= y_hub
-            if (y < y_old && y <= y_hub){
+            if (y < y_old && y <= y_hub) {
                 SmartDashboard.putBoolean("Solver converged", true);
                 SmartDashboard.putNumber("SolverY", y);
-               
+
                 dist_in_meters = x * 0.3048;
                 SmartDashboard.putNumber("solverX", dist_in_meters);
                 return dist_in_meters; // return in meters
             }
 
-            if(y >= y_old){
+            if (y >= y_old) {
                 SmartDashboard.putNumber("apogee", y);
             }
 
@@ -364,59 +441,15 @@ public class ShooterSubsystem extends SubsystemBase {
         return 3; // failed to converge
     }
 
-    public void solver(){
+    public void solver() {
         // get new pose
-        shooterStatus = true;
         Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
         double launchAngle;
         double launchVelocity;
         double error;
         double tolerance;
         double K;
-        double targetMainWheelVelocity;
-        double targetEnglishWheelVelocity;
-        // translations taken from camera in Constants
-        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302), 
-                                                    new Rotation2d(Math.toRadians(90))));
-        double[] shooterArray = {shooterPose.getX(), shooterPose.getY()};
-        SmartDashboard.putNumberArray("shooterPose", shooterArray);
-        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY()).getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
-        launchAngle = 75; //degrees, temporary value for comp 1
-        launchVelocity = getLaunchVelocity(); //LOSS NEEDS TUNING
-        double launch_distance = calcTrajectory(launchVelocity, launchAngle); //D value needs tuning
-        error = launch_distance - distanceToHub;
-        tolerance = 0.1524; // meters
-        K = 30.48; // rpm/m, NEEDS TUNING
-        SmartDashboard.putNumber("launch distance", launch_distance);
-        SmartDashboard.putNumber("distance to hub", distanceToHub);
-        SmartDashboard.putNumber("Shooter Error", error);
-
-        if(Math.abs(error) < tolerance){
-            SmartDashboard.putString("Target", "locked");
-            targetMainWheelVelocity = getMainVelocity();
-            targetEnglishWheelVelocity = getEnglishVelocity();
-        } 
-        else {
-            targetMainWheelVelocity = getMainVelocity() - K * error;
-            targetEnglishWheelVelocity = getEnglishVelocity() - K * error;
-            setMainVelocity(targetMainWheelVelocity);
-            setEnglishVelocity(targetEnglishWheelVelocity);
-            if (error > tolerance){
-                //decrease wheel speeds
-                SmartDashboard.putString("Target", "too close");
-            }
-            else if(error < 0 && Math.abs(error) > tolerance){
-                // increase wheel speeds
-                SmartDashboard.putString("Target", "too far");
-            }
-        }
-        SmartDashboard.putNumber("target english velocity", targetEnglishWheelVelocity);
-        SmartDashboard.putNumber("target main velocity", targetMainWheelVelocity);
-
-    }
-
-    @Override
-    public void periodic() { // Update inputs, calculate, then set voltages every loop
+        // ensure the alliance hub pose is correct
         if (DriverStation.getAlliance().isPresent()) {
             if (DriverStation.getAlliance().get() == Alliance.Red) {
                 goalPosition = ShooterConstants.redHubCenter;
@@ -424,14 +457,77 @@ public class ShooterSubsystem extends SubsystemBase {
                 goalPosition = ShooterConstants.blueHubCenter;
             }
         }
-        english_PID.m_updateInputs();
-        main_PID.m_updateInputs();
-        feeder_PID.m_updateInputs();
+        // translations taken from camera in Constants
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302),
+                new Rotation2d(Math.toRadians(90))));
+        double[] shooterArray = { shooterPose.getX(), shooterPose.getY() };
+        SmartDashboard.putNumberArray("shooterPose", shooterArray);
+        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY())
+                .getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
+        if (distanceToHub >= 6) {
+            // if the shooter is 6m+ from the hub, don't run solver since it's too far.
+            SmartDashboard.putString("Target", "out of range");
+            return;
+        }
+        launchAngle = 75; // degrees, temporary value for comp 1
+        //launch velocity isn't the actual velocity of the wheels
+        //the solver performs math with simulated values
+        //it sets the motor rpms to the simulated values once they're within tolerance
+        launchVelocity = calcLaunchVelocity(solverEnglishVelocity, solverMainVelocity); // LOSS NEEDS TUNING
+        double launch_distance = calcTrajectory(launchVelocity, launchAngle); // D value needs tuning
+        error = launch_distance - distanceToHub;
+        tolerance = 0.0254; // meters
+        K = 2; // ft/s / m NEEDS TUNING
+        SmartDashboard.putNumber("launch distance", launch_distance);
+        SmartDashboard.putNumber("distance to hub", distanceToHub);
+        SmartDashboard.putNumber("Shooter Error", error);
 
-        if (runningSysId == false & shooterConfig.getIsPresent()) {
-            english_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            main_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
-            feeder_PID.PIDPeriodic(shooterStatus && !lastShooterStatus, shooterStatus);
+        // Main and English wheels' positive rotation direction needs to be inverted.
+        if (Math.abs(error) < tolerance) {
+            // if the launch distance is within tolerance, keep the wheel velocities the
+            // same
+            // don't need to set new velocities to wheels
+            SmartDashboard.putString("Target", "locked");
+            
+            //removed setter statements since velocity is already correct
+        } else {
+            solverMainVelocity -= K * error;
+            solverEnglishVelocity -= K * error;
+            if (error > tolerance) {
+                // decrease wheel speeds, overshooting
+                SmartDashboard.putString("Target", "too close");
+            } else if (error < 0 && Math.abs(error) > tolerance) {
+                // increase wheel speeds, undershooting
+                SmartDashboard.putString("Target", "too far");
+            }
+        }
+        SmartDashboard.putNumber("target english velocity", solverEnglishVelocity);
+        SmartDashboard.putNumber("target main velocity", solverMainVelocity);
+
+    }
+
+    @Override
+    public void periodic() { // Update inputs, calculate, then set voltages every loop
+
+        if (shooterConfig.getIsPresent()) {
+            // reset pid if shooterstatus just became true, toggle if shooter status is
+            // true.
+            solver();
+            getMainVelocity();
+            getEnglishVelocity();
+            getFeederVelocity();
+            if (shooterStatus) {
+                // if shooter is enabled
+                setFeederRPM(feederRPM);
+                setMainRPM(mainRPMGoal);
+                setEnglishRPM(englishRPMGoal);
+            } else {
+                // if shooter is disabled
+                setFeederRPM(0);
+                setMainRPM(0);
+                setEnglishRPM(0);
+            }
+
         }
 
         /*
@@ -455,18 +551,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    public Command sysIdQuasistatic(SysIdRoutine.Direction dir) {
-        return getActiveSysIdRoutine().quasistatic(dir)
-                .beforeStarting(() -> runningSysId = true)
-                .finallyDo(() -> runningSysId = false);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction dir) {
-        return getActiveSysIdRoutine().dynamic(dir)
-                .beforeStarting(() -> runningSysId = true)
-                .finallyDo(() -> runningSysId = false);
-    }
-
     @Override
     public void initSendable(SendableBuilder builder) {
         System.out.println("Shooter init sendable called");
@@ -475,10 +559,21 @@ public class ShooterSubsystem extends SubsystemBase {
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
         builder.addBooleanProperty("At speed", this::atSpeed, null);
         super.initSendable(builder);
-        english_PID.initSendable(builder);
-        main_PID.initSendable(builder);
-        feeder_PID.initSendable(builder);
-
     }
 
+    public void setFeederRPM(double feederRPM) {
+        // sends the RPM to the motor
+            // use an angular acceleration limit to avoid motor damage
+        // Keep rpm within max and min
+        double clampedMotorRPM = MathUtil.clamp(feederRPM, 0, ShooterConstants.ENGLISH_MAX_RPM);        
+        double rampedFeederRPM = feederRpmSlew.calculate(clampedMotorRPM);
+        SmartDashboard.putNumber("ramped feeder RPM", rampedFeederRPM);
+        feederClosedLoopController.setSetpoint(rampedFeederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    }
+
+    public double getFeederVelocity() {
+        // returns the current velocity of the motor
+        SmartDashboard.putNumber("feederRealRPM", feederRelativeEncoder.getVelocity());
+        return feederRelativeEncoder.getVelocity();
+    }
 }

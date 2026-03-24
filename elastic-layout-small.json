@@ -1037,6 +1037,226 @@
           }
         ]
       }
+    },
+    {
+      "name": "AutoShotTesting",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "launch distance",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/launch distance",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Solver converged",
+            "x": 0.0,
+            "y": 288.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Solver converged",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "distance to hub",
+            "x": 0.0,
+            "y": 96.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/distance to hub",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Target",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Target",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Shooter Error",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Shooter Error",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Field",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 672.0,
+            "height": 288.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/Field",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": 0.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "englishRealRPM",
+            "x": 1056.0,
+            "y": 288.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/englishRealRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "mainRealRPM",
+            "x": 1056.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/mainRealRPM",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Camera Present",
+            "x": 864.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Camera Present",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Vision Measurement Present",
+            "x": 864.0,
+            "y": 96.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Vision Measurement Present",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "ramped english rpm",
+            "x": 1056.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/ramped english rpm",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "ramped main rpm",
+            "x": 1056.0,
+            "y": 96.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/ramped main rpm",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "target english velocity",
+            "x": 1056.0,
+            "y": 480.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/target english velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "target main velocity",
+            "x": 1056.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/target main velocity",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
     }
   ]
 }

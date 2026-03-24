@@ -221,6 +221,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("Camera Present", cameraConnected);
+        if(!cameraConnected){
+            updateCameraStatus(); //trigger wasn't working
+        }
         if (cameraConnected) {
             allUnreadResults = camera.getAllUnreadResults();
             SmartDashboard.putBoolean("Vision measurement empty", allUnreadResults.isEmpty());
@@ -244,5 +248,5 @@ public class VisionSubsystem extends SubsystemBase {
         return bestVisibleTag;
     }
 
-    public Trigger onCameraConnected = new Trigger(() -> camera.isConnected());
+    public Trigger onCameraConnected = new Trigger(() -> cameraConnected);
 }
