@@ -45,7 +45,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // removed PIDS
 
-
     // spark max feeder motor vars
     private SparkMax feederWheel;
     private SparkMaxConfig feederConfig;
@@ -53,13 +52,13 @@ public class ShooterSubsystem extends SubsystemBase {
     private RelativeEncoder feederRelativeEncoder;
     private double feederRPM = 0;
 
-    //Main Kraken motor vars
+    // Main Kraken motor vars
     private TalonFX mainWheel;
     private TalonFXConfiguration mainConfig;
     private final VelocityVoltage mainVelocityRequest = new VelocityVoltage(0);
     private double mainRPMGoal = 0;
 
-    //English Kraken motor vars
+    // English Kraken motor vars
     private TalonFX englishWheel;
     private TalonFXConfiguration englishConfig;
     private final VelocityVoltage englishVelocityRequest = new VelocityVoltage(0);
@@ -68,6 +67,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
+    private boolean tuningMode = true;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
@@ -85,17 +85,18 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterStatus = false;
         lastShooterStatus = false;
 
-        mainRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
-        englishRpmSlew = new SlewRateLimiter(1000.0); //rpm/s
-        feederRpmSlew = new SlewRateLimiter(1000); //rpm/s
+        mainRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
+        englishRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
+        feederRpmSlew = new SlewRateLimiter(1000); // rpm/s
 
         if (shooterConfigPresent) {
-            //if we have a shooter config, configure the motors
+            // if we have a shooter config, configure the motors
             configureShooterMotors();
             configureFeederMotor();
         }
 
         SmartDashboard.putBoolean("Shooter Present", shooterConfig.getIsPresent());
+        SmartDashboard.putData("Shooter Controller", this);
     }
 
     public void configureShooterMotors() {
@@ -103,15 +104,15 @@ public class ShooterSubsystem extends SubsystemBase {
         englishWheel = new TalonFX(this.shooterConfig.getShooterEnglishId());
         englishConfig = new TalonFXConfiguration();
         englishConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        
+
         // PID gains for velocity control (slot 0)
         // COULD SET CONTANTS WHEN FIGURE OUT GOOD VALUES OR SMARTDASHBOARD
-        englishConfig.Slot0.kP = ShooterConstants.ENGLISH_kP;   // volts per rotation/sec error
+        englishConfig.Slot0.kP = ShooterConstants.ENGLISH_kP; // volts per rotation/sec error
         englishConfig.Slot0.kI = ShooterConstants.ENGLISH_kI;
-        englishConfig.Slot0.kD = ShooterConstants.ENGLISH_kD;  // volts per rotation/sec²
-        englishConfig.Slot0.kS = ShooterConstants.ENGLISH_kS;   // static friction feedforward (volts)
-        englishConfig.Slot0.kV = ShooterConstants.ENGLISH_kV;   // velocity feedforward (volts per rot/sec)
-        englishConfig.Slot0.kA = ShooterConstants.ENGLISH_kA;    // acceleration feedforward
+        englishConfig.Slot0.kD = ShooterConstants.ENGLISH_kD; // volts per rotation/sec²
+        englishConfig.Slot0.kS = ShooterConstants.ENGLISH_kS; // static friction feedforward (volts)
+        englishConfig.Slot0.kV = ShooterConstants.ENGLISH_kV; // velocity feedforward (volts per rot/sec)
+        englishConfig.Slot0.kA = ShooterConstants.ENGLISH_kA; // acceleration feedforward
 
         // set current limit from constants value
         // removed stator (torque) current limit
@@ -119,25 +120,25 @@ public class ShooterSubsystem extends SubsystemBase {
         englishConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.ENGLISH_CURRENT_LIMIT;
         englishConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        //inversion on motor, set in constants
+        // inversion on motor, set in constants
         englishConfig.MotorOutput.Inverted = ShooterConstants.ENGLISH_INVERSION;
-        
-        //apply configuration
+
+        // apply configuration
         englishWheel.getConfigurator().apply(englishConfig);
 
         // Main Flywheel Mechanism
         mainWheel = new TalonFX(this.shooterConfig.getShooterMainId());
         mainConfig = new TalonFXConfiguration();
         mainConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        
+
         // PID gains for velocity control (slot 0)
         // COULD SET CONTANTS WHEN FIGURE OUT GOOD VALUES OR SMARTDASHBOARD
-        mainConfig.Slot0.kP = ShooterConstants.MAIN_kP;   // volts per rotation/sec error
+        mainConfig.Slot0.kP = ShooterConstants.MAIN_kP; // volts per rotation/sec error
         mainConfig.Slot0.kI = ShooterConstants.MAIN_kI;
-        mainConfig.Slot0.kD = ShooterConstants.MAIN_kD;  // volts per rotation/sec²
-        mainConfig.Slot0.kS = ShooterConstants.MAIN_kS;   // static friction feedforward (volts)
-        mainConfig.Slot0.kV = ShooterConstants.MAIN_kV;   // velocity feedforward (volts per rot/sec)
-        mainConfig.Slot0.kA = ShooterConstants.MAIN_kA;    // acceleration feedforward
+        mainConfig.Slot0.kD = ShooterConstants.MAIN_kD; // volts per rotation/sec²
+        mainConfig.Slot0.kS = ShooterConstants.MAIN_kS; // static friction feedforward (volts)
+        mainConfig.Slot0.kV = ShooterConstants.MAIN_kV; // velocity feedforward (volts per rot/sec)
+        mainConfig.Slot0.kA = ShooterConstants.MAIN_kA; // acceleration feedforward
 
         // set current limit from constants value
         // removed stator (torque) current limit
@@ -145,15 +146,15 @@ public class ShooterSubsystem extends SubsystemBase {
         mainConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.MAIN_CURRENT_LIMIT;
         mainConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        //inversion on motor, set in constants
+        // inversion on motor, set in constants
         mainConfig.MotorOutput.Inverted = ShooterConstants.MAIN_INVERSION;
-        
-        //apply configuration
+
+        // apply configuration
         mainWheel.getConfigurator().apply(mainConfig);
 
     }
 
-    public void configureFeederMotor(){
+    public void configureFeederMotor() {
         // Feeder Flywheel Mechanism
         // test motor init for sparkmax
         feederWheel = new SparkMax(shooterConfig.getFeederId(), SparkLowLevel.MotorType.kBrushless);
@@ -212,6 +213,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setCloseShot() {
+        setIsTuning(false); // Turn off slider tuning
         startShooter();
         mainRPMGoal = 750;
         englishRPMGoal = 1250;
@@ -220,6 +222,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setFarShot() {
+        setIsTuning(false); // Turn off slider tuning
         startShooter();
         mainRPMGoal = 1250;
         englishRPMGoal = 2250;
@@ -228,11 +231,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setAutoShot() {
         startShooter();
+        if (!tuningMode) {
         mainRPMGoal = calcMainRPM(solverMainVelocity);
-        //double L_english = 0.01 * solverMainVelocity; // english loss factor as function of main velocity
-        //double adjustedEnglishVelocity = solverEnglishVelocity + L_english * solverEnglishVelocity 
-        //englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
+        // double L_english = 0.01 * solverMainVelocity; // english loss factor as
+        // function of main velocity
+        // double adjustedEnglishVelocity = solverEnglishVelocity + L_english *
+        // solverEnglishVelocity
+        // englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
         englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
+        }
+
         feederRPM = 1700;
     }
 
@@ -252,8 +260,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean atSpeed() {
-        return Math.abs(mainWheel.getVelocity().getValueAsDouble() * 60 - mainRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
-                && Math.abs(englishWheel.getVelocity().getValueAsDouble() * 60 - englishRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
+        return Math
+                .abs(mainWheel.getVelocity().getValueAsDouble() * 60
+                        - mainRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM)
+                && Math.abs(englishWheel.getVelocity().getValueAsDouble() * 60
+                        - englishRPMGoal) < (ShooterConstants.SHOOTER_SPEED_TOLERANCE_RPM);
     }
 
     public double calcMainRPM(double target_wheel_vel) {
@@ -261,14 +272,14 @@ public class ShooterSubsystem extends SubsystemBase {
         // ft/s to rpm is 38.1971863421 * ft/s = rpm
         double d_main = ShooterConstants.MAIN_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.MAIN_GEAR_RATIO;
-        // Conversion from desired wheel velocity in ft/s to motor rpm, 
-        //"magic numbers" are 60s/1min and 12in/1ft
+        // Conversion from desired wheel velocity in ft/s to motor rpm,
+        // "magic numbers" are 60s/1min and 12in/1ft
         double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_main);
         return target_motor_rpm;
 
     }
 
-    public void setMainRPM(double target_motor_rpm){
+    public void setMainRPM(double target_motor_rpm) {
         // use an angular acceleration limit to avoid motor damage
         // Keep rpm within max and min
         double clampedMotorRPM = MathUtil.clamp(target_motor_rpm, 0, ShooterConstants.MAIN_MAX_RPM);
@@ -283,16 +294,16 @@ public class ShooterSubsystem extends SubsystemBase {
         double d_english = ShooterConstants.ENGLISH_WHEEL_DIAMETER; // in
         double gear_ratio = ShooterConstants.ENGLISH_GEAR_RATIO;
         // Conversion from desired wheel velocity in ft/s to motor rpm
-        //"magic numbers" are 60s/1min and 12in/1ft
+        // "magic numbers" are 60s/1min and 12in/1ft
         double target_motor_rpm = (target_wheel_vel * gear_ratio * 60 * 12) / (Math.PI * d_english);
         return target_motor_rpm;
 
     }
 
-    public void setEnglishRPM(double target_motor_rpm){
+    public void setEnglishRPM(double target_motor_rpm) {
         // use an angular acceleration limit to avoid motor damage
         // Keep rpm within max and min
-        double clampedMotorRPM = MathUtil.clamp(target_motor_rpm, 0, ShooterConstants.ENGLISH_MAX_RPM);        
+        double clampedMotorRPM = MathUtil.clamp(target_motor_rpm, 0, ShooterConstants.ENGLISH_MAX_RPM);
         double rampedEnglishRPM = englishRpmSlew.calculate(clampedMotorRPM);
         englishWheel.setControl(englishVelocityRequest.withVelocity(rampedEnglishRPM / 60));
         SmartDashboard.putNumber("ramped english rpm", rampedEnglishRPM);
@@ -372,8 +383,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double launchVelocity = (L_english * englishVelocity + L_main * mainVelocity) / 2;
         return launchVelocity;
     }
-
-
 
     public double calcTrajectory(double launch_v, double launch_alpha) {
         // Projectile motion calculation including air resistance
@@ -470,9 +479,9 @@ public class ShooterSubsystem extends SubsystemBase {
             return;
         }
         launchAngle = 75; // degrees, temporary value for comp 1
-        //launch velocity isn't the actual velocity of the wheels
-        //the solver performs math with simulated values
-        //it sets the motor rpms to the simulated values once they're within tolerance
+        // launch velocity isn't the actual velocity of the wheels
+        // the solver performs math with simulated values
+        // it sets the motor rpms to the simulated values once they're within tolerance
         launchVelocity = calcLaunchVelocity(solverEnglishVelocity, solverMainVelocity); // LOSS NEEDS TUNING
         double launch_distance = calcTrajectory(launchVelocity, launchAngle); // D value needs tuning
         error = launch_distance - distanceToHub;
@@ -488,8 +497,8 @@ public class ShooterSubsystem extends SubsystemBase {
             // same
             // don't need to set new velocities to wheels
             SmartDashboard.putString("Target", "locked");
-            
-            //removed setter statements since velocity is already correct
+
+            // removed setter statements since velocity is already correct
         } else {
             solverMainVelocity -= K * error;
             solverEnglishVelocity -= K * error;
@@ -506,13 +515,40 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
+    public double getMainRPMGoal() {
+        return this.mainRPMGoal;
+    }
+
+    public void setMainRPMGoal(double rpmGoal) {
+        this.mainRPMGoal = MathUtil.clamp(rpmGoal, 0, ShooterConstants.MAIN_MAX_RPM);
+    }
+
+    public double getEnglishRPMGoal() {
+        return this.englishRPMGoal;
+    }
+
+    public void setEnglishRPMGoal(double rpmGoal) {
+        this.englishRPMGoal = MathUtil.clamp(rpmGoal, 0, ShooterConstants.ENGLISH_MAX_RPM);
+    }
+
+    public boolean isTuning() {
+        return tuningMode;
+    }
+
+    public void setIsTuning(boolean tuning) {
+        this.tuningMode = tuning;
+    }
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
 
         if (shooterConfig.getIsPresent()) {
             // reset pid if shooterstatus just became true, toggle if shooter status is
-            // true.
-            solver();
+            // true. Tuning mode defaulted to false. Turns off solver.
+            if (!tuningMode) {
+                solver();
+            }
+
             getMainVelocity();
             getEnglishVelocity();
             getFeederVelocity();
@@ -554,7 +590,10 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         System.out.println("Shooter init sendable called");
-        builder.setSmartDashboardType("Shooter Controller");
+        builder.setSmartDashboardType("Subsystem");
+        builder.addDoubleProperty("Main RPM Tuner", this::getMainRPMGoal, this::setMainRPMGoal);
+        builder.addDoubleProperty("English RPM Tuner", this::getEnglishRPMGoal, this::setEnglishRPMGoal);
+        builder.addBooleanProperty("Tuning Mode Active", this::isTuning, this::setIsTuning);
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
         builder.addBooleanProperty("At speed", this::atSpeed, null);
@@ -563,9 +602,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setFeederRPM(double feederRPM) {
         // sends the RPM to the motor
-            // use an angular acceleration limit to avoid motor damage
+        // use an angular acceleration limit to avoid motor damage
         // Keep rpm within max and min
-        double clampedMotorRPM = MathUtil.clamp(feederRPM, 0, ShooterConstants.ENGLISH_MAX_RPM);        
+        double clampedMotorRPM = MathUtil.clamp(feederRPM, 0, ShooterConstants.ENGLISH_MAX_RPM);
         double rampedFeederRPM = feederRpmSlew.calculate(clampedMotorRPM);
         SmartDashboard.putNumber("ramped feeder RPM", rampedFeederRPM);
         feederClosedLoopController.setSetpoint(rampedFeederRPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
