@@ -458,7 +458,7 @@ public class ShooterSubsystem extends SubsystemBase {
             }
         }
         // translations taken from camera in Constants
-        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302),
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0),
                 new Rotation2d(Math.toRadians(90))));
         double[] shooterArray = { shooterPose.getX(), shooterPose.getY() };
         SmartDashboard.putNumberArray("shooterPose", shooterArray);
