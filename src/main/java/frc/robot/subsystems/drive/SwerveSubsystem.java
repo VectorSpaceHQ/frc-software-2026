@@ -6,6 +6,7 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.configuration.Constants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 
@@ -80,13 +81,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveSubsysConfig swerveConfig = null;
   private SwerveInputStream driveDirectAngle = null;
   private Command driveFieldOrientedDirectAngle = null;
+  public Command driveFieldOrientedAngularVelocityHalfSpeed = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
+  private SwerveInputStream driveAngularVelocityHalfSpeed = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
   private double translationScaling = 1;
   //translation scaling for half speed modifier
-  //UNUSED: private double driveInversion = -1;
-  //UNUSED: private String allianceColor;
   private Orientation driveOrientation = Orientation.FIELD;
 
   // Aiming
@@ -137,6 +138,13 @@ public class SwerveSubsystem extends SubsystemBase {
               swerveConfig.getController()::getTwistY)
           .headingWhile(true);
 
+      driveAngularVelocityHalfSpeed = driveAngularVelocity.copy()
+          .scaleTranslation(translationScaling * 0.5)
+          .withControllerHeadingAxis(
+              swerveConfig.getController()::getTwist,
+              swerveConfig.getController()::getTwistY)
+          .headingWhile(true);
+
       // Aim stream
       // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
       aimStream = driveAngularVelocity.copy()
@@ -150,6 +158,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
+      driveFieldOrientedAngularVelocityHalfSpeed = driveFieldOriented(driveAngularVelocityHalfSpeed);
       setDefaultCommand(driveFieldOrientedAnglularVelocity);
       // publish field orientation to smart dashboard
 
@@ -336,10 +345,6 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(new Pose2d());
   }
 
-  public void setTranslationScaling(double translationMultiplier) {
-    translationScaling = translationMultiplier;
-  }
-
   public void orientationToggle() {
     if (driveOrientation == Orientation.FIELD) {
       driveOrientation = Orientation.ROBOT;
@@ -358,6 +363,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveInputStream getAimStream() {
     return aimStream;
+  }
+
+  public SwerveInputStream getHalfSpeedStream() {
+    return driveAngularVelocityHalfSpeed;
   }
 
   public double inputScaling(double controllerAnalog, double exponent){

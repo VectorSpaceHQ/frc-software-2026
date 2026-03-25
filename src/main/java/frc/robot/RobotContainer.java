@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.commands.AutoIntakeCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
@@ -171,11 +172,9 @@ public class RobotContainer {
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
-    m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(0.5))
-        ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(1))
-        );           
+    m_driverController.halfSpeedModifier().whileTrue(
+            new HalfSpeedDriveCommand(m_swerveSubsystem)); //Left bumper
+        
 
     
     m_driverController.toggleOrientation().onTrue(
