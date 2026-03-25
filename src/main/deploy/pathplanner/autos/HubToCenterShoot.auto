@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "HubToCenter"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "HubToCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Intake"
+                }
+              }
+            ]
           }
         },
         {
