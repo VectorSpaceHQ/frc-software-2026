@@ -184,6 +184,7 @@ public class RobotContainer {
   public void registerNamedCommands(){
     NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
     NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
+    NamedCommands.registerCommand("Auto Aim", new AimTowardsHubCommand(m_swerveSubsystem));
   }
 
 

@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Auto Aim"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Auto Shoot"
           }
         }
