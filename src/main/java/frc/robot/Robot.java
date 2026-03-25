@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-//UNUSED: import edu.wpi.first.wpilibj.TimedRobot;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
