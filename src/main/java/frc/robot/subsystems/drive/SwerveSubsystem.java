@@ -83,6 +83,8 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
+  private double translationScaling = 1;
+  //translation scaling for half speed modifier
   //UNUSED: private double driveInversion = -1;
   //UNUSED: private String allianceColor;
   private Orientation driveOrientation = Orientation.FIELD;
@@ -121,7 +123,7 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * -1)
         .withControllerRotationAxis( () -> inputScaling(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
-        .scaleTranslation(1)
+        .scaleTranslation(translationScaling)
         .allianceRelativeControl(() -> isFieldOriented())
         .robotRelative(() -> isRobotOriented());
 
@@ -334,8 +336,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(new Pose2d());
   }
 
-  public void setSpeedScaling(double speedMultiplier) {
-    speedScaling = speedMultiplier;
+  public void setTranslationScaling(double translationMultiplier) {
+    translationScaling = translationMultiplier;
   }
 
   public void orientationToggle() {

@@ -171,11 +171,11 @@ public class RobotContainer {
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
-    // m_driverController.halfSpeedModifier().onTrue(
-    //         new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(2))
-    //     ).onFalse(
-    //         new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3))
-    //     );           
+    m_driverController.halfSpeedModifier().onTrue(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(2))
+        ).onFalse(
+            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(1))
+        );           
 
     
     m_driverController.toggleOrientation().onTrue(

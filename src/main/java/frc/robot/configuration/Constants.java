@@ -119,7 +119,7 @@ public final class Constants {
   }
 
   public static class SwerveConstants {
-    public static final double maxSpeed = Units.feetToMeters(4.5);
+    public static final double maxSpeed = Units.feetToMeters(12);
   }
 
   public static class IntakeConstants {
@@ -128,7 +128,7 @@ public final class Constants {
 
     // Roller Motor
     public static final double ROLLER_MAX_RPM = 11000.0;
-    public static final double ROLLER_STARTER_RPM = -5500;
+    public static final double ROLLER_STARTER_RPM = -5000;
     public static final double ROLLER_GEAR_RATIO = 1.0;
     public static final int ROLLER_CURRENT_LIMIT = 20;
     public static final double ROLLER_kS = 0.25;
@@ -154,7 +154,7 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-2.5), // Volts to pivot up (fight against gravity)
+      UP(-3.5), // Volts to pivot up (fight against gravity)
       DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
