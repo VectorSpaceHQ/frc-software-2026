@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -28,14 +27,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.components.control.PID;
-import frc.robot.components.control.SysId;
-import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.ShooterConstants;
-import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 
@@ -212,13 +205,18 @@ public class ShooterSubsystem extends SubsystemBase {
         return shooterStatus;
     }
 
+    public void setReverseFeeder() {
+        startShooter();
+        feederRPM = -1700;
+    }
+
     public void setCloseShot() {
         setIsTuning(false); // Turn off slider tuning
         startShooter();
         mainRPMGoal = 750;
         englishRPMGoal = 1250;
         // takes velocity in RPM
-        feederRPM = 1700; // arbitrary value currently
+        feederRPM = 3400; // arbitrary value currently
     }
 
     public void setFarShot() {
@@ -226,7 +224,7 @@ public class ShooterSubsystem extends SubsystemBase {
         startShooter();
         mainRPMGoal = 1250;
         englishRPMGoal = 2250;
-        feederRPM = 1700;
+        feederRPM = 3400;
     }
 
     public void setAutoShot() {
@@ -241,7 +239,7 @@ public class ShooterSubsystem extends SubsystemBase {
         englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
         }
 
-        feederRPM = 1700;
+        feederRPM = 3400;
     }
 
     public void zeroRPM() {
@@ -467,7 +465,7 @@ public class ShooterSubsystem extends SubsystemBase {
             }
         }
         // translations taken from camera in Constants
-        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302),
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0),
                 new Rotation2d(Math.toRadians(90))));
         double[] shooterArray = { shooterPose.getX(), shooterPose.getY() };
         SmartDashboard.putNumberArray("shooterPose", shooterArray);
