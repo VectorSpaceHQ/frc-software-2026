@@ -12,15 +12,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-//UNUSED: import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
-//UNUSED: import edu.wpi.first.math.geometry.Pose2d;
-//UNUSED: import edu.wpi.first.math.geometry.Rotation2d;
-//UNUSED: import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-//UNUSED: import edu.wpi.first.math.geometry.Translation2d;
-//UNUSED: import edu.wpi.first.math.geometry.Translation3d;
-//UNUSED: import edu.wpi.first.wpilibj.DriverStation;
-//UNUSED: import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.Constants.VisionConstants.Apriltags;
 import frc.robot.configuration.configs.VisionSubsysConfig;
-import org.littletonrobotics.junction.Logger;
+
 
 public class VisionSubsystem extends SubsystemBase {
 

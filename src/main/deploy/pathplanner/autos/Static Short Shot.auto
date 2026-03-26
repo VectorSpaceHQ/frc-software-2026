@@ -11,26 +11,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Shoot"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Auto Shoot"
+                  "name": "Auto Aim"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim"
+                  "name": "Auto Shoot"
                 }
               }
             ]

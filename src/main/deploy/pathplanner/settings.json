@@ -4,7 +4,7 @@
   "holonomicMode": true,
   "pathFolders": [],
   "autoFolders": [
-    "ToCenterShoot"
+    "New Folder"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
@@ -12,11 +12,11 @@
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 54.431,
-  "robotMOI": 4.43933666,
+  "robotMOI": 4.439,
   "robotTrackwidth": 0.546,
-  "driveWheelRadius": 0.1016,
+  "driveWheelRadius": 0.102,
   "driveGearing": 6.03,
-  "maxDriveSpeed": 12.0,
+  "maxDriveSpeed": 14.0,
   "driveMotorType": "krakenX60",
   "driveCurrentLimit": 60.0,
   "wheelCOF": 1.19,

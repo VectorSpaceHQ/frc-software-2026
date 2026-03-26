@@ -6,24 +6,18 @@ package frc.robot;
 
 import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.HalfSpeedDriveCommand;
+import frc.robot.commands.AutoIntakeCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
-// UNUSED: import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-// UNUSED: import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-// UNUSED: import frc.robot.commands.ControllerCommand;
-// UNUSED: import frc.robot.commands.ExampleCommand;
-// UNUSED: import frc.robot.components.motor.MotorIO;
-// UNUSED: import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
-import frc.robot.configuration.Constants.ShooterConstants;
-// UNUSED: import frc.robot.configuration.Constants.VisionConstants;
-import frc.robot.configuration.Constants.IntakeConstants;
-// UNUSED: import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.VisionSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
@@ -31,17 +25,14 @@ import frc.robot.configuration.configs.IndexerSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-// UNUSED: import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-// UNUSED: import swervelib.SwerveInputStream;
-// UNUSED: import frc.robot.components.control.PID;
 import frc.robot.components.controller.ControllerIfc;
-// UNUSED: import frc.robot.components.controller.JoystickControllerIfc;
 import frc.robot.components.controller.XboxControllerIfc;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -51,9 +42,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-// UNUSED: import static edu.wpi.first.units.Units.Volts;
-
-// UNUSED: import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -97,12 +85,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Register Named Commands. These will be used in our auto routines.
-    // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    // NamedCommands.registerCommand("exampleCommand",
-    // exampleSubsystem.exampleCommand());
-    // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
-    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
-
+    registerNamedCommands();
     // Configure the trigger bindings
     configureBindings();
 
@@ -169,19 +152,23 @@ public class RobotContainer {
     //         0.035,
     //         Rotation2d.fromDegrees(0)).withTimeout(10));
     m_driverController.aimTowardsHub().whileTrue(
-        new AimTowardsHubCommand(m_swerveSubsystem)); // Left trigger (can change)
+        new AimTowardsHubCommand(m_swerveSubsystem)); // Left trigger (can change, auto false)
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
-    // m_driverController.halfSpeedModifier().onTrue(
-    //         new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(2))
-    //     ).onFalse(
-    //         new InstantCommand(() -> m_swerveSubsystem.setSpeedScaling(1.3))
-    //     );           
+    m_driverController.halfSpeedModifier().whileTrue(
+            new HalfSpeedDriveCommand(m_swerveSubsystem)); //Left bumper
+        
 
     
     m_driverController.toggleOrientation().onTrue(
-        new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
+  }
+
+  public void registerNamedCommands(){
+    NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
+    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
+    NamedCommands.registerCommand("Auto Aim", new AimTowardsHubCommand(m_swerveSubsystem));
   }
 
 

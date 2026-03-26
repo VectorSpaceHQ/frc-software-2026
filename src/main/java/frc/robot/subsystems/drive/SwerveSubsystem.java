@@ -6,16 +6,12 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.configuration.Constants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 
-//UNUSED: import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.io.File;
 import java.util.Optional;
-//UNUSED: import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -25,8 +21,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-//UNUSED: import edu.wpi.first.wpilibj.Timer;
-//UNUSED: import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
@@ -36,10 +30,7 @@ import swervelib.SwerveDrive;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-//UNUSED: import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-//UNUSED: import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-//UNUSED: import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import swervelib.SwerveInputStream;
 
 //Imports for Pose Estimator
@@ -47,7 +38,6 @@ import swervelib.SwerveInputStream;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
-//UNUSED: import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.configuration.Constants.VisionConstants;
 
@@ -80,11 +70,13 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveSubsysConfig swerveConfig = null;
   private SwerveInputStream driveDirectAngle = null;
   private Command driveFieldOrientedDirectAngle = null;
+  public Command driveFieldOrientedAngularVelocityHalfSpeed = null;
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
+  private SwerveInputStream driveAngularVelocityHalfSpeed = null;
   private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
-  //UNUSED: private double driveInversion = -1;
-  //UNUSED: private String allianceColor;
+  private double translationScaling = 1;
+  //translation scaling for half speed modifier
   private Orientation driveOrientation = Orientation.FIELD;
 
   // Aiming
@@ -121,7 +113,7 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> inputScaling(swerveConfig.getController().getX(), speedScaling) * -1)
         .withControllerRotationAxis( () -> inputScaling(swerveConfig.getController().getTwist(), speedScaling))
         .deadband(swerveConfig.getDeadband())
-        .scaleTranslation(1)
+        .scaleTranslation(translationScaling)
         .allianceRelativeControl(() -> isFieldOriented())
         .robotRelative(() -> isRobotOriented());
 
@@ -135,20 +127,35 @@ public class SwerveSubsystem extends SubsystemBase {
               swerveConfig.getController()::getTwistY)
           .headingWhile(true);
 
+      driveAngularVelocityHalfSpeed = driveAngularVelocity.copy()
+          .scaleTranslation(translationScaling * 0.5);
+
+
       // Aim stream
       // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
       aimStream = driveAngularVelocity.copy()
           .aim(() -> aimTargetSupplier.get()) // Give it the center of the hub
+          .withControllerRotationAxis(() -> 0.0)
           .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // Offset
           .aimHeadingOffset(true)
           .translationOnlyWhile(false)
           .driveToPoseEnabled(false)
+          .scaleTranslation(0.5*translationScaling)
           .aimFeedforward(0.0, 2.0, 0.0) // Still needs tuning
           .aimWhile(() -> isAiming);
 
+
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
-      driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
-      setDefaultCommand(driveFieldOrientedAnglularVelocity);
+
+      // Done this way to (hopefully) prevent scheduling conflicts
+      setDefaultCommand(run(() -> {
+            if (isAiming) {
+                // Uses the aimStream which (should) combine joystick translation and auto rotation
+                swerveDrive.driveFieldOriented(aimStream.get());
+            } else {
+                swerveDrive.driveFieldOriented(driveAngularVelocity.get());
+            }
+        }));
       // publish field orientation to smart dashboard
 
       SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
@@ -169,8 +176,8 @@ public class SwerveSubsystem extends SubsystemBase {
                                                                   // individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
                                             // holonomic drive trains
-                new PIDConstants(1.3, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(25.0, 5.0, 0.32) // Rotation PID constants
+                new PIDConstants(1, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(10.0, 1.0, 1) // Rotation PID constants
             ),
             PathPlannerConfig, // The robot configuration
             () -> {
@@ -334,10 +341,6 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.resetOdometry(new Pose2d());
   }
 
-  public void setSpeedScaling(double speedMultiplier) {
-    speedScaling = speedMultiplier;
-  }
-
   public void orientationToggle() {
     if (driveOrientation == Orientation.FIELD) {
       driveOrientation = Orientation.ROBOT;
@@ -356,6 +359,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveInputStream getAimStream() {
     return aimStream;
+  }
+
+  public SwerveInputStream getHalfSpeedStream() {
+    return driveAngularVelocityHalfSpeed;
   }
 
   public double inputScaling(double controllerAnalog, double exponent){
