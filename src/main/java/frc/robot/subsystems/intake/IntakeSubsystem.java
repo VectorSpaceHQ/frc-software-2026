@@ -1,13 +1,10 @@
 package frc.robot.subsystems.intake;
 
-//UNUSED: import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
-//UNUSED: import frc.robot.configuration.Constants.SysIdEnums;
-//UNUSED: import frc.robot.configuration.Constants.SysIdEnums.SysIdTarget;
 import frc.robot.configuration.Constants.IntakeConstants.PivotState;
 import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.components.motor.MotorIOSparkMax;
@@ -17,7 +14,6 @@ import frc.robot.components.control.PivotPID;
 import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
-//UNUSED: import frc.robot.components.motor.MotorIOKraken;
 
 
 public class IntakeSubsystem extends SubsystemBase {

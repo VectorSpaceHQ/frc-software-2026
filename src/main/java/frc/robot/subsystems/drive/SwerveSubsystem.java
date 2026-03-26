@@ -10,13 +10,8 @@ import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.configuration.Constants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 
-//UNUSED: import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.io.File;
 import java.util.Optional;
-//UNUSED: import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -26,8 +21,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-//UNUSED: import edu.wpi.first.wpilibj.Timer;
-//UNUSED: import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import swervelib.parser.SwerveParser;
@@ -37,10 +30,7 @@ import swervelib.SwerveDrive;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-//UNUSED: import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-//UNUSED: import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-//UNUSED: import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import swervelib.SwerveInputStream;
 
 //Imports for Pose Estimator
@@ -48,7 +38,6 @@ import swervelib.SwerveInputStream;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
-//UNUSED: import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.configuration.Constants.VisionConstants;
 

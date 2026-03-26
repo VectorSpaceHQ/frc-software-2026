@@ -10,7 +10,6 @@ import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.commands.AutoIntakeCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
-// UNUSED: import frc.robot.configuration.Constants;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -18,15 +17,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-// UNUSED: import frc.robot.commands.ControllerCommand;
-// UNUSED: import frc.robot.commands.ExampleCommand;
-// UNUSED: import frc.robot.components.motor.MotorIO;
-// UNUSED: import frc.robot.components.motor.MotorIOKraken;
 import frc.robot.configuration.Constants.OperatorConstants;
-import frc.robot.configuration.Constants.ShooterConstants;
-// UNUSED: import frc.robot.configuration.Constants.VisionConstants;
-import frc.robot.configuration.Constants.IntakeConstants;
-// UNUSED: import frc.robot.configuration.configs.SubsystemConfig;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.VisionSubsysConfig;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
@@ -34,7 +25,6 @@ import frc.robot.configuration.configs.IndexerSubsysConfig;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-// UNUSED: import frc.robot.subsystems.shooter.ShooterSubsystem.SysIdTarget;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -42,10 +32,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-// UNUSED: import swervelib.SwerveInputStream;
-// UNUSED: import frc.robot.components.control.PID;
 import frc.robot.components.controller.ControllerIfc;
-// UNUSED: import frc.robot.components.controller.JoystickControllerIfc;
 import frc.robot.components.controller.XboxControllerIfc;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -55,9 +42,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-// UNUSED: import static edu.wpi.first.units.Units.Volts;
-
-// UNUSED: import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
