@@ -84,6 +84,9 @@ public class RobotContainer {
     // exampleSubsystem.exampleCommand());
     // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
     NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
+    // Example
+    NamedCommands.registerCommand("Auto Align To Hub", 
+        new AimTowardsHubCommand(m_swerveSubsystem, true));
 
     // Configure the trigger bindings
     configureBindings();
@@ -151,7 +154,7 @@ public class RobotContainer {
     //         0.035,
     //         Rotation2d.fromDegrees(0)).withTimeout(10));
     m_driverController.aimTowardsHub().whileTrue(
-        new AimTowardsHubCommand(m_swerveSubsystem)); // Left trigger (can change)
+        new AimTowardsHubCommand(m_swerveSubsystem)); // Left trigger (can change, auto false)
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
@@ -163,7 +166,7 @@ public class RobotContainer {
 
     
     m_driverController.toggleOrientation().onTrue(
-        new InstantCommand(() -> m_swerveSubsystem.orientationToggle(), m_swerveSubsystem));
+        new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
   }
 
 
