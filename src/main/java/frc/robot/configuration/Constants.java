@@ -222,11 +222,11 @@ public final class Constants {
 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
-    public static final int FEEDER_CURRENT_LIMIT = 40;
-    public static final double FEEDER_GEAR_RATIO = 2;        
+    public static final int FEEDER_CURRENT_LIMIT = 80;
+    public static final double FEEDER_GEAR_RATIO = 4.5;        
     public static final double FEEDER_kS = 0.0;
-    public static final double FEEDER_kP = 0.0;
-    public static final double FEEDER_kI = 0.0;
+    public static final double FEEDER_kP = 0.000002;
+    public static final double FEEDER_kI = 0.0000004;
     public static final double FEEDER_kD = 0.0;
     public static final double FEEDER_kV = 0.00216;
     public static final double FEEDER_kA = 0.0;

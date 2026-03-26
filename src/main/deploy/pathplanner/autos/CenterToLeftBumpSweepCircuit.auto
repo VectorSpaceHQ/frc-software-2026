@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftToCenter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Auto Shoot"
+            "pathName": "CenterToLeftBumpSweepCircuit"
           }
         }
       ]

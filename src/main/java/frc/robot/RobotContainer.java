@@ -6,12 +6,17 @@ package frc.robot;
 
 import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
+import frc.robot.commands.HalfSpeedDriveCommand;
+import frc.robot.commands.AutoIntakeCommand;
 // import frc.robot.commands.Autos;
 // import frc.robot.commands.DriveToTargetCommand;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
 import frc.robot.configuration.Constants.OperatorConstants;
 import frc.robot.configuration.configs.SwerveSubsysConfig;
 import frc.robot.configuration.configs.VisionSubsysConfig;
@@ -24,6 +29,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.components.controller.ControllerIfc;
@@ -79,15 +85,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Register Named Commands. These will be used in our auto routines.
-    // NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    // NamedCommands.registerCommand("exampleCommand",
-    // exampleSubsystem.exampleCommand());
-    // NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
-    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
-    // Example
-    NamedCommands.registerCommand("Auto Align To Hub", 
-        new AimTowardsHubCommand(m_swerveSubsystem, true));
-
+    registerNamedCommands();
     // Configure the trigger bindings
     configureBindings();
 
@@ -158,15 +156,19 @@ public class RobotContainer {
 
     // Do not require the swerve subsystem for these InstantCommands so they don't
     // interrupt longer-running drive/aim commands that also require swerve.
-    m_driverController.halfSpeedModifier().onTrue(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(2))
-        ).onFalse(
-            new InstantCommand(() -> m_swerveSubsystem.setTranslationScaling(1))
-        );           
+    m_driverController.halfSpeedModifier().whileTrue(
+            new HalfSpeedDriveCommand(m_swerveSubsystem)); //Left bumper
+        
 
     
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
+  }
+
+  public void registerNamedCommands(){
+    NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
+    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
+    NamedCommands.registerCommand("Auto Aim", new AimTowardsHubCommand(m_swerveSubsystem));
   }
 
 

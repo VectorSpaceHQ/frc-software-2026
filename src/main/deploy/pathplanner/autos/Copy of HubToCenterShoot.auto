@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "RightToCenter"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "RightToCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -26,6 +39,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "ToCenterShoot",
+  "folder": null,
   "choreoAuto": false
 }

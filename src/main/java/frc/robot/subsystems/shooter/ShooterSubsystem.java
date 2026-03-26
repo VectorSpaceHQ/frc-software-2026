@@ -204,19 +204,24 @@ public class ShooterSubsystem extends SubsystemBase {
         return shooterStatus;
     }
 
+    public void setReverseFeeder() {
+        startShooter();
+        feederRPM = -1700;
+    }
+
     public void setCloseShot() {
         startShooter();
         mainRPMGoal = 750;
         englishRPMGoal = 1250;
         // takes velocity in RPM
-        feederRPM = 1700; // arbitrary value currently
+        feederRPM = 3400; // arbitrary value currently
     }
 
     public void setFarShot() {
         startShooter();
         mainRPMGoal = 1250;
         englishRPMGoal = 2250;
-        feederRPM = 1700;
+        feederRPM = 3400;
     }
 
     public void setAutoShot() {
@@ -226,7 +231,7 @@ public class ShooterSubsystem extends SubsystemBase {
         //double adjustedEnglishVelocity = solverEnglishVelocity + L_english * solverEnglishVelocity 
         //englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
         englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
-        feederRPM = 1700;
+        feederRPM = 3400;
     }
 
     public void zeroRPM() {
@@ -451,7 +456,7 @@ public class ShooterSubsystem extends SubsystemBase {
             }
         }
         // translations taken from camera in Constants
-        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0.3302),
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(-0.1778, 0),
                 new Rotation2d(Math.toRadians(90))));
         double[] shooterArray = { shooterPose.getX(), shooterPose.getY() };
         SmartDashboard.putNumberArray("shooterPose", shooterArray);
