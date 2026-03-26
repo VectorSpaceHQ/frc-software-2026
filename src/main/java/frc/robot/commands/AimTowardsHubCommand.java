@@ -103,8 +103,7 @@ public class AimTowardsHubCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
-        // return isCurrentlyAligned; // May change
+        return isCurrentlyAligned; // May change
     }
 
     @Override
