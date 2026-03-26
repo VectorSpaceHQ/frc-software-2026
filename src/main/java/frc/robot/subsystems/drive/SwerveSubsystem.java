@@ -135,18 +135,27 @@ public class SwerveSubsystem extends SubsystemBase {
       // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
       aimStream = driveAngularVelocity.copy()
           .aim(() -> aimTargetSupplier.get()) // Give it the center of the hub
+          .withControllerRotationAxis(() -> 0.0)
           .aimHeadingOffset(Rotation2d.fromDegrees(-90)) // Offset
           .aimHeadingOffset(true)
           .translationOnlyWhile(false)
           .driveToPoseEnabled(false)
+          .scaleTranslation(0.5*translationScaling)
           .aimFeedforward(0.0, 2.0, 0.0) // Still needs tuning
           .aimWhile(() -> isAiming);
 
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
-      driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);
-      driveFieldOrientedAngularVelocityHalfSpeed = driveFieldOriented(driveAngularVelocityHalfSpeed);
-      setDefaultCommand(driveFieldOrientedAnglularVelocity);
+
+      // Done this way to (hopefully) prevent scheduling conflicts
+      setDefaultCommand(run(() -> {
+            if (isAiming) {
+                // Uses the aimStream which (should) combine joystick translation and auto rotation
+                swerveDrive.driveFieldOriented(aimStream.get());
+            } else {
+                swerveDrive.driveFieldOriented(driveAngularVelocity.get());
+            }
+        }));
       // publish field orientation to smart dashboard
 
       SmartDashboard.putString("Swerve Orientation", driveOrientation.textValue());
