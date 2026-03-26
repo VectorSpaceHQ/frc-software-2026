@@ -5,34 +5,28 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "HubToCenter"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "HubToCenter"
+                  "name": "Auto Shoot"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Intake"
+                  "name": "Auto Aim"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Auto Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 15.0
           }
         }
       ]
