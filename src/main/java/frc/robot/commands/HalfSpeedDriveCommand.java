@@ -23,7 +23,7 @@ public class HalfSpeedDriveCommand extends Command {
     public void execute() {
         // Drive using the dedicated half speed stream in Swerve. Feed raw speeds directly
         // to the drive method.
-        swerve.getSwerveDrive().drive(swerve.getHalfSpeedStream().get());
+        swerve.getSwerveDrive().driveFieldOriented(swerve.getHalfSpeedStream().get());
 
     }
 
