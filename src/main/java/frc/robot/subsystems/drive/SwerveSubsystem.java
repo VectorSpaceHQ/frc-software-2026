@@ -139,11 +139,8 @@ public class SwerveSubsystem extends SubsystemBase {
           .headingWhile(true);
 
       driveAngularVelocityHalfSpeed = driveAngularVelocity.copy()
-          .scaleTranslation(translationScaling * 0.5)
-          .withControllerHeadingAxis(
-              swerveConfig.getController()::getTwist,
-              swerveConfig.getController()::getTwistY)
-          .headingWhile(true);
+          .scaleTranslation(translationScaling * 0.5);
+
 
       // Aim stream
       // https://yet-another-software-suite.github.io/YAGSL/javadocs/swervelib/SwerveInputStream.html
@@ -155,6 +152,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .driveToPoseEnabled(false)
           .aimFeedforward(0.0, 2.0, 0.0) // Still needs tuning
           .aimWhile(() -> isAiming);
+
 
       driveFieldOrientedDirectAngle = driveFieldOriented(driveDirectAngle); //right joystick heading determines robot heading
       driveFieldOrientedAnglularVelocity = driveFieldOriented(driveAngularVelocity);

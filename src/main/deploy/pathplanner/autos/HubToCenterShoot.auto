@@ -13,20 +13,27 @@
                 "data": {
                   "pathName": "HubToCenter"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Auto Intake"
-                }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Auto Shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Aim"
+                }
+              }
+            ]
           }
         },
         {
