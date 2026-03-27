@@ -154,7 +154,7 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-3.5), // Volts to pivot up (fight against gravity)
+      UP(-6.5), // Volts to pivot up (fight against gravity)
       DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
