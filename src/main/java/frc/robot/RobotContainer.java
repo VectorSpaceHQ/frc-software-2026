@@ -120,11 +120,9 @@ public class RobotContainer {
       m_operatorController.sendPivotUp().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.sendPivotUp(), m_IntakeSubsystem));
 
-      m_operatorController.sendPivotDown().onTrue(
-        new SequentialCommandGroup(
-          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem).withTimeout(1.25),
-          new WaitCommand(0.5),
-          new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt(), m_IntakeSubsystem)));
+      m_operatorController.sendPivotDown().whileTrue(
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem))
+          .onFalse( new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt()));
 
       m_operatorController.toggleIntakeRollers().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
@@ -133,7 +131,7 @@ public class RobotContainer {
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
     //shooter commands
     //moved start shooter command to beginning of each shot command
-    m_operatorController.toggleShooter().onTrue(
+    m_operatorController.stopShooter().onTrue(
         new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
     m_operatorController.closeShot().onTrue(                                                 
         new RunCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));
