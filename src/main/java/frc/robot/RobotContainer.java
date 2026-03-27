@@ -133,7 +133,7 @@ public class RobotContainer {
           new InstantCommand(() -> m_IndexerSubsystem.toggleIndexer(), m_IndexerSubsystem));
     //shooter commands
     //moved start shooter command to beginning of each shot command
-    m_operatorController.toggleShooter().onTrue(
+    m_operatorController.stopShooter().onTrue(
         new InstantCommand(() -> m_ShooterSubsystem.toggleShooter(), m_ShooterSubsystem)); 
     m_operatorController.closeShot().onTrue(                                                 
         new RunCommand(() -> m_ShooterSubsystem.setCloseShot(), m_ShooterSubsystem));

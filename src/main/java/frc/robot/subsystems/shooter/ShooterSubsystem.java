@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.configuration.Constants.ShooterConstants;
+import frc.robot.configuration.Constants.VisionConstants;
 import frc.robot.configuration.configs.ShooterSubsysConfig;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 
@@ -60,7 +61,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
-    private boolean tuningMode = false;
+    private boolean tuningMode = true;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
@@ -79,7 +80,7 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
 
         mainRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
-        englishRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
+        englishRpmSlew = new SlewRateLimiter(400.0); // rpm/s
         feederRpmSlew = new SlewRateLimiter(1000); // rpm/s
 
         if (shooterConfigPresent) {
@@ -231,7 +232,7 @@ public class ShooterSubsystem extends SubsystemBase {
         startShooter();
         if (!tuningMode) {
         mainRPMGoal = calcMainRPM(solverMainVelocity);
-        double L_english = 0.01 * solverMainVelocity + 0.01 * Math.pow(solverMainVelocity, 2); 
+        double L_english = 0.02 * solverMainVelocity; 
         // english loss factor as
         // function of main velocity
         double adjustedEnglishVelocity = solverEnglishVelocity + L_english *
@@ -239,9 +240,15 @@ public class ShooterSubsystem extends SubsystemBase {
         englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
 
         } else {
-            //if testing is enabled
-            mainRPMGoal = getMainRPMGoal();
-            englishRPMGoal = getEnglishRPMGoal();
+            //if testing is enabled use these for sliders
+            // mainRPMGoal = getMainRPMGoal();
+            // englishRPMGoal = getEnglishRPMGoal();
+            // setEnglishRPM(englishRPMGoal);
+            // setMainRPM(mainRPMGoal);
+
+            //testing regression equations
+            mainRPMGoal = mainRPMRegression();
+            englishRPMGoal = 0.22 * mainRPMGoal + 1255;
             setEnglishRPM(englishRPMGoal);
             setMainRPM(mainRPMGoal);
         }
@@ -619,5 +626,21 @@ public class ShooterSubsystem extends SubsystemBase {
         // returns the current velocity of the motor
         SmartDashboard.putNumber("feederRealRPM", feederRelativeEncoder.getVelocity());
         return feederRelativeEncoder.getVelocity();
+    }
+
+    public double mainRPMRegression() {
+        Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
+        
+        Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(VisionConstants.TRANSLATION_X, 0),
+                new Rotation2d(Math.toRadians(90))));
+        double[] shooterArray = { shooterPose.getX(), shooterPose.getY() };
+        SmartDashboard.putNumberArray("shooterPose", shooterArray);
+        double distanceToHub = new Translation2d(goalPosition.getX(), goalPosition.getY())
+                .getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
+        
+        //use the distance to hub and our regression equation to get a main RPM
+        double mainRPM = 446 * distanceToHub - 296;
+
+        return mainRPM;
     }
 }
