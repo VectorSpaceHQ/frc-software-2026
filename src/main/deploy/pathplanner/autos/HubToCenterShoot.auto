@@ -9,9 +9,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Auto Shoot"
+                  "pathName": "HubToCenter"
                 }
               }
             ]
