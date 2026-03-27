@@ -122,9 +122,9 @@ public class RobotContainer {
 
       m_operatorController.sendPivotDown().onTrue(
         new SequentialCommandGroup(
-          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem).withTimeout(1.25),
-          new WaitCommand(0.5),
-          new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt(), m_IntakeSubsystem)));
+          new InstantCommand(() -> m_IntakeSubsystem.sendPivotDown(), m_IntakeSubsystem).withTimeout(1.25)));
+          // new WaitCommand(0.5),
+          // new InstantCommand(() -> m_IntakeSubsystem.stopPivotAlt(), m_IntakeSubsystem)));
 
       m_operatorController.toggleIntakeRollers().onTrue(
           new InstantCommand(() -> m_IntakeSubsystem.toggleRollers(), m_IntakeSubsystem));
