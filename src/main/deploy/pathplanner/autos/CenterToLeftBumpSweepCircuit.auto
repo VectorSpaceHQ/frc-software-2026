@@ -5,15 +5,66 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "CenterToLeftBumpSweepCircuit"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CenterToLeftBumpSweepCircuit"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 5.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Auto Spin Up"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Index"
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Testable Autos",
   "choreoAuto": false
 }

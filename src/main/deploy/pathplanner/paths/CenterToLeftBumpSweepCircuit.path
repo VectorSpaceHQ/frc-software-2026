@@ -12,7 +12,7 @@
         "y": 5.671740370898717
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LeftBumpPointingCenter"
     },
     {
       "anchor": {
@@ -167,13 +167,7 @@
     {
       "name": "Auto Intake",
       "waypointRelativePos": 2.0,
-      "endWaypointRelativePos": 3.9,
-      "command": null
-    },
-    {
-      "name": "Auto Shoot",
-      "waypointRelativePos": 6.0,
-      "endWaypointRelativePos": null,
+      "endWaypointRelativePos": 4.901869158878542,
       "command": null
     }
   ],

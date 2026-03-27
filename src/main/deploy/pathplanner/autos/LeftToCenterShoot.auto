@@ -5,21 +5,59 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "LeftToCenter"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LeftToCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Spin Up"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Intake"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Auto Shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Intake"
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Testable Autos",
   "choreoAuto": false
 }

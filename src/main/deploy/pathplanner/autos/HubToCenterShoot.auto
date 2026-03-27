@@ -9,15 +9,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Auto Spin Up"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "HubToCenter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Spin Up"
                 }
               }
             ]
@@ -40,24 +40,37 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "Auto Index"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Auto Index"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 15.0
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 15.0
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Testable Autos",
   "choreoAuto": false
 }

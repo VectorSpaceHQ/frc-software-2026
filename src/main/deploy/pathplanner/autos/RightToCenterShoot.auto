@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftToDepot"
+                  "pathName": "RightToCenter"
                 }
               },
               {
@@ -21,22 +21,9 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Auto Spin Up"
-                      }
-                    }
-                  ]
+                  "name": "Auto Spin Up"
                 }
               }
             ]
@@ -49,35 +36,28 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Aim"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.25
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Auto Index"
-                      }
-                    }
-                  ]
+                  "name": "Auto Shoot"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Shoot"
+                  "name": "Auto Aim"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Index"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 15.0
           }
         }
       ]

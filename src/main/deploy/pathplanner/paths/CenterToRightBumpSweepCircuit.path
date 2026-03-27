@@ -84,12 +84,12 @@
         "y": 5.646
       },
       "prevControl": {
-        "x": 7.3516898666064705,
-        "y": 5.547819003999463
+        "x": 7.354685623655512,
+        "y": 5.642246188676294
       },
       "nextControl": {
-        "x": 3.4193803269016882,
-        "y": 5.788364530769494
+        "x": 3.4675512820512835,
+        "y": 5.651320512820514
       },
       "isLocked": false,
       "linkedName": null
@@ -130,6 +130,10 @@
       "rotationDegrees": 180.0
     },
     {
+      "waypointRelativePos": 5.8422090729783225,
+      "rotationDegrees": 180.0
+    },
+    {
       "waypointRelativePos": 6.0,
       "rotationDegrees": 180.0
     }
@@ -167,7 +171,7 @@
     {
       "name": "Auto Intake",
       "waypointRelativePos": 2.0,
-      "endWaypointRelativePos": 3.9,
+      "endWaypointRelativePos": 4.8925233644859984,
       "command": null
     }
   ],
