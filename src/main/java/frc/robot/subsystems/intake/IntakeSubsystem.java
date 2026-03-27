@@ -15,7 +15,6 @@ import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 
-
 public class IntakeSubsystem extends SubsystemBase {
 
     public enum SysIdTarget {
@@ -47,8 +46,9 @@ public class IntakeSubsystem extends SubsystemBase {
         if (this.IntakeConfig.getIsPresent()) {
 
             // Intake Roller Mechanism
-            //feel free to move this into your custom class but there need to be current limits.
-            
+            // feel free to move this into your custom class but there need to be current
+            // limits.
+
             intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId());
             intakeRollerPid = new PID(
                     "IntakeRoller",
@@ -92,9 +92,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
             Intakestatus = false;
             lastIntakestatus = false;
+            SmartDashboard.putData("Intake Controller", this);
 
-            SmartDashboard.putData("Intake Roller PID", this.intakeRollerPid);
-            SmartDashboard.putData("Pivot Motors PID", this.pivotMotorPid);
         }
 
         SmartDashboard.putBoolean("Intake Present", this.IntakeConfig.getIsPresent());
@@ -113,11 +112,11 @@ public class IntakeSubsystem extends SubsystemBase {
     public void sendPivotDown() {
         this.currentPivotState = PivotState.DOWN;
     }
+
     // Alternate stop pivot command using pivot state
     public void stopPivotAlt() {
         this.currentPivotState = PivotState.OFF;
     }
-
 
     // Place status values here
     public boolean getIntakestatus() {

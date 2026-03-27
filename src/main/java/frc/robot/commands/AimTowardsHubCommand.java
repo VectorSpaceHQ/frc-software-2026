@@ -21,11 +21,17 @@ public class AimTowardsHubCommand extends Command {
     private Rotation2d lastTargetHeading = new Rotation2d();
     private boolean isCurrentlyAligned = false;
     private static boolean isLogging = false;
+    private final boolean isAutonomous;
 
+    // Teleop constructor (auto false)
     public AimTowardsHubCommand(SwerveSubsystem swerve) {
-        this.swerve = swerve;
+        this(swerve, false);
+    }
 
-        addRequirements(swerve);
+    // Auto constructor (auto true)
+    public AimTowardsHubCommand(SwerveSubsystem swerve, boolean isAutonomous) {
+        this.swerve = swerve;
+        this.isAutonomous = isAutonomous;
     }
 
     @Override
@@ -62,9 +68,6 @@ public class AimTowardsHubCommand extends Command {
     public void execute() {
         SmartDashboard.putString("AimTowardsHub/Status", "Executing");
 
-        // Drive using the dedicated aiming stream in Swerve. Feed raw speeds directly
-        // to the drive method.
-        swerve.getSwerveDrive().drive(swerve.getAimStream().get());
         Rotation2d shooterHeading = swerve.getEstimatedPose().getRotation();
 
         // Wrap around to find the smallest distance using minus
@@ -103,7 +106,13 @@ public class AimTowardsHubCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return isCurrentlyAligned; // May change
+        if (isAutonomous) {
+            // In auto, finish the command when aligned
+            return isCurrentlyAligned;
+        } else {
+            // In teleop, don't finish until button isn't held anymore
+            return false;
+        }
     }
 
     @Override
@@ -111,7 +120,6 @@ public class AimTowardsHubCommand extends Command {
         isCurrentlyAligned = false;
         swerve.setAiming(false);
         swerve.setAimTargetSupplier(swerve::getEstimatedPose);
-        swerve.stopDrive();
 
         if (isLogging()) {
             Logger.recordOutput("AimTowardsHub/Status", interrupted ? "Interrupted" : "Finished");

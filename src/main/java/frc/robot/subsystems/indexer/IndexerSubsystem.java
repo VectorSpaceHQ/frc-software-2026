@@ -40,7 +40,7 @@ public class IndexerSubsystem extends SubsystemBase {
             Indexerstatus = false;
             lastIndexerstatus = false;
 
-            SmartDashboard.putData("Indexer PID", this.IndexerPID);
+            SmartDashboard.putData("Indexer Controller", this);
         }
 
         SmartDashboard.putBoolean("Indexer Present", this.IndexerConfig.getIsPresent());
