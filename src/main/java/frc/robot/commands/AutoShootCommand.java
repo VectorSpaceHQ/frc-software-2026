@@ -26,7 +26,7 @@ public class AutoShootCommand extends Command {
   @Override
   public void execute() {
     // Do I keep this here?
-    shooterSubsystem.setCloseShot();
+    shooterSubsystem.setAutoShot();
   }
 
   @Override
