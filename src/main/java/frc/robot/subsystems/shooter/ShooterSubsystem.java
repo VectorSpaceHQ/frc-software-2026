@@ -60,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
-    private boolean tuningMode = true;
+    private boolean tuningMode = false;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
@@ -231,12 +231,13 @@ public class ShooterSubsystem extends SubsystemBase {
         startShooter();
         if (!tuningMode) {
         mainRPMGoal = calcMainRPM(solverMainVelocity);
-        // double L_english = 0.01 * solverMainVelocity; // english loss factor as
+        double L_english = 0.02 * solverMainVelocity; 
+        // english loss factor as
         // function of main velocity
-        // double adjustedEnglishVelocity = solverEnglishVelocity + L_english *
-        // solverEnglishVelocity
-        // englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
-        englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
+        double adjustedEnglishVelocity = solverEnglishVelocity + L_english *
+        solverEnglishVelocity;
+        englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
+        // englishRPMGoal = calcEnglishRPM(solverEnglishVelocity);
         }
 
         feederRPM = 3400;
