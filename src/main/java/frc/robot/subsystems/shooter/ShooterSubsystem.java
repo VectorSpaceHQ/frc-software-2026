@@ -61,7 +61,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
-    private boolean tuningMode = true;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
@@ -80,7 +79,7 @@ public class ShooterSubsystem extends SubsystemBase {
         lastShooterStatus = false;
 
         mainRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
-        englishRpmSlew = new SlewRateLimiter(400.0); // rpm/s
+        englishRpmSlew = new SlewRateLimiter(1000.0); // rpm/s
         feederRpmSlew = new SlewRateLimiter(1000); // rpm/s
 
         if (shooterConfigPresent) {
@@ -211,8 +210,7 @@ public class ShooterSubsystem extends SubsystemBase {
         feederRPM = -1700;
     }
 
-    public void setCloseShot() {
-        setIsTuning(false); // Turn off slider tuning
+    public void setCloseShot() { 
         startShooter();
         mainRPMGoal = 750;
         englishRPMGoal = 1250;
@@ -221,7 +219,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setFarShot() {
-        setIsTuning(false); // Turn off slider tuning
         startShooter();
         mainRPMGoal = 1250;
         englishRPMGoal = 2250;
@@ -230,28 +227,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setAutoShot() {
         startShooter();
-        if (!tuningMode) {
-        mainRPMGoal = calcMainRPM(solverMainVelocity);
-        double L_english = 0.02 * solverMainVelocity; 
-        // english loss factor as
-        // function of main velocity
-        double adjustedEnglishVelocity = solverEnglishVelocity + L_english *
-        solverEnglishVelocity;
-        englishRPMGoal = calcEnglishRPM(adjustedEnglishVelocity);
-
-        } else {
-            //if testing is enabled use these for sliders
-            // mainRPMGoal = getMainRPMGoal();
-            // englishRPMGoal = getEnglishRPMGoal();
-            // setEnglishRPM(englishRPMGoal);
-            // setMainRPM(mainRPMGoal);
-
             //testing regression equations
             mainRPMGoal = mainRPMRegression();
             englishRPMGoal = 0.22 * mainRPMGoal + 1255;
             setEnglishRPM(englishRPMGoal);
             setMainRPM(mainRPMGoal);
-        }
 
         feederRPM = 3400;
     }
@@ -543,23 +523,13 @@ public class ShooterSubsystem extends SubsystemBase {
         this.englishRPMGoal = MathUtil.clamp(rpmGoal, 0, ShooterConstants.ENGLISH_MAX_RPM);
     }
 
-    public boolean isTuning() {
-        return tuningMode;
-    }
-
-    public void setIsTuning(boolean tuning) {
-        this.tuningMode = tuning;
-    }
-
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
 
         if (shooterConfig.getIsPresent()) {
             // reset pid if shooterstatus just became true, toggle if shooter status is
             // true. Tuning mode defaulted to false. Turns off solver.
-            if (!tuningMode) {
                 solver();
-            }
 
             getMainVelocity();
             getEnglishVelocity();
@@ -605,7 +575,6 @@ public class ShooterSubsystem extends SubsystemBase {
         builder.setSmartDashboardType("Shooter Controller");
         builder.addDoubleProperty("Main RPM Tuner", this::getMainRPMGoal, this::setMainRPMGoal);
         builder.addDoubleProperty("English RPM Tuner", this::getEnglishRPMGoal, this::setEnglishRPMGoal);
-        builder.addBooleanProperty("Tuning Mode Active", this::isTuning, this::setIsTuning);
         builder.addBooleanProperty("Shooter Status", this::getShooterStatus, null);
         builder.addBooleanProperty("Last Shooter Status", this::getLastShooterStatus, null);
         builder.addBooleanProperty("At speed", this::atSpeed, null);
