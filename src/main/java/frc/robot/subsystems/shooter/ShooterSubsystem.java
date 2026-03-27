@@ -588,7 +588,7 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         System.out.println("Shooter init sendable called");
-        builder.setSmartDashboardType("Subsystem");
+        builder.setSmartDashboardType("Shooter Controller");
         builder.addDoubleProperty("Main RPM Tuner", this::getMainRPMGoal, this::setMainRPMGoal);
         builder.addDoubleProperty("English RPM Tuner", this::getEnglishRPMGoal, this::setEnglishRPMGoal);
         builder.addBooleanProperty("Tuning Mode Active", this::isTuning, this::setIsTuning);
