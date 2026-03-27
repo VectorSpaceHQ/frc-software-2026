@@ -47,7 +47,7 @@ public class AutoShootCommand extends Command {
 
     // Set shooter rpms to zero
     shooterSubsystem.zeroRPM();
-    indexerSubsystem.setIndexerRPM(0);
+    // indexerSubsystem.setIndexerRPM(0);
   }
 
   @Override
