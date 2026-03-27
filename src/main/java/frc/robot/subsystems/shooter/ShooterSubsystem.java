@@ -60,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean shooterConfigPresent;
     private boolean shooterStatus;
     private boolean lastShooterStatus;
-    private boolean tuningMode = true;
+    private boolean tuningMode = false;
 
     final SlewRateLimiter mainRpmSlew;
     final SlewRateLimiter englishRpmSlew;
