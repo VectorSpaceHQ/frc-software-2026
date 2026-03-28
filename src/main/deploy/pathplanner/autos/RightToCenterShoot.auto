@@ -50,14 +50,14 @@
                 "data": {
                   "name": "Auto Index"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 15.0
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 15.0
           }
         }
       ]

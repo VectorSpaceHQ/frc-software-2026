@@ -50,6 +50,12 @@
                 "data": {
                   "name": "Auto Intake"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 15.0
+                }
               }
             ]
           }
