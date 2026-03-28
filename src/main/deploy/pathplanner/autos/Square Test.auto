@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Move Backright"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Auto Shoot"
+            "pathName": "Square Test Path"
           }
         }
       ]

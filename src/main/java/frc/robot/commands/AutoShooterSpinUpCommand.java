@@ -3,10 +3,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
-public class AutoShootCommand extends Command {
+public class AutoShooterSpinUpCommand extends Command {
   private final ShooterSubsystem shooterSubsystem;
 
-  public AutoShootCommand(ShooterSubsystem shooter) {
+  public AutoShooterSpinUpCommand(ShooterSubsystem shooter) {
     this.shooterSubsystem = shooter;
 
     addRequirements(shooterSubsystem);
@@ -19,14 +19,15 @@ public class AutoShootCommand extends Command {
       shooterSubsystem.toggleShooter();
     }
 
-    // Set speeds to shooter and feeder wheel
+    // Set speeds to shooter wheels, set feeder wheel rpm to 0.
     shooterSubsystem.setAutoShot();
+    shooterSubsystem.setFeederRPM(0);
   }
 
   @Override
   public void execute() {
     // Do I keep this here?
-    shooterSubsystem.setAutoShot();
+    shooterSubsystem.setCloseShot();
   }
 
   @Override

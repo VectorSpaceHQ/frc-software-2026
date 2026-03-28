@@ -366,6 +366,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public double inputScaling(double controllerAnalog, double exponent){
+    //exponentially scales controller input for smoother driving
     if(controllerAnalog >= 0){
       //if the controller input is greater than or equal to 0
       return Math.pow(controllerAnalog, exponent);

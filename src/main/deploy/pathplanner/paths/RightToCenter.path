@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.526,
-        "y": 0.821
+        "x": 3.537,
+        "y": 2.635
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.777527764117453,
-        "y": 1.3949620518749906
+        "x": 2.788527764117453,
+        "y": 3.20896205187499
       },
       "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.2233333333333345,
-        "y": 1.9535512820512828
-      },
-      "prevControl": {
-        "x": 2.4076619089692923,
-        "y": 1.576456935948412
-      },
-      "nextControl": {
-        "x": 2.048215603773959,
-        "y": 2.3118023317942726
-      },
-      "isLocked": false,
-      "linkedName": null
+      "linkedName": "RightBumpPointingCenter"
     },
     {
       "anchor": {
@@ -53,12 +37,19 @@
         "y": 4.034631
       },
       "rotationOffset": -90.0,
-      "minWaypointRelativePos": 0.25,
-      "maxWaypointRelativePos": 0.75,
+      "minWaypointRelativePos": 0.15,
+      "maxWaypointRelativePos": 0.4,
       "name": "Point Towards Zone"
     }
   ],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Auto Intake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -75,7 +66,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -35.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

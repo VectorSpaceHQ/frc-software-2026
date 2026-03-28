@@ -8,8 +8,8 @@ import frc.robot.commands.AimTowardsHubCommand;
 import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.HalfSpeedDriveCommand;
 import frc.robot.commands.AutoIntakeCommand;
-// import frc.robot.commands.Autos;
-// import frc.robot.commands.DriveToTargetCommand;
+import frc.robot.commands.AutoIndexCommand;
+import frc.robot.commands.AutoShooterSpinUpCommand;
 import static frc.robot.configuration.Constants.OperatorConstants.SubSystemIDEnum.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -164,9 +164,16 @@ public class RobotContainer {
   }
 
   public void registerNamedCommands(){
+    //intake commands
     NamedCommands.registerCommand("Auto Intake", new AutoIntakeCommand(m_IntakeSubsystem));
-    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem, m_IndexerSubsystem));
+    //indexer commands
+    NamedCommands.registerCommand("Auto Index", new AutoIndexCommand(m_IndexerSubsystem));    
+    //drive commands
     NamedCommands.registerCommand("Auto Aim", new AimTowardsHubCommand(m_swerveSubsystem));
+    //shooter commands
+    NamedCommands.registerCommand("Auto Shoot", new AutoShootCommand(m_ShooterSubsystem));
+    NamedCommands.registerCommand("Auto Spin Up", new AutoShooterSpinUpCommand(m_ShooterSubsystem));
+
   }
 
 

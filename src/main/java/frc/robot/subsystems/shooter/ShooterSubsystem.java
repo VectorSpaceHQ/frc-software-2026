@@ -598,6 +598,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double mainRPMRegression() {
+        double distanceOffset = 0.3; //constant in meters to test error of auto shoot
         Pose2d robotPose = mSwerveSubsystem.getEstimatedPose();
         
         Pose2d shooterPose = robotPose.transformBy(new Transform2d(new Translation2d(VisionConstants.TRANSLATION_X, 0),
@@ -608,8 +609,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 .getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
         
         //use the distance to hub and our regression equation to get a main RPM
-        double mainRPM = (446 * distanceToHub) - 296;
-
+        double mainRPM = (446 * (distanceToHub + distanceOffset)) - 296;
         return mainRPM;
     }
 }
