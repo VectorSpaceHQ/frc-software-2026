@@ -25,14 +25,13 @@ public class AutoShootCommand extends Command {
     }
 
     // Set speeds
-    shooterSubsystem.setCloseShot();
+    shooterSubsystem.setAutoShot();
     indexerSubsystem.setIndexerRPM(2500); 
   }
 
   @Override
   public void execute() {
-    // Do I keep this here?
-    shooterSubsystem.setCloseShot();
+    shooterSubsystem.setAutoShot();
   }
 
   @Override

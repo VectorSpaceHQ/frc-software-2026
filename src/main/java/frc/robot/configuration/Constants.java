@@ -144,7 +144,7 @@ public final class Constants {
     public static final double PIVOT_MIN_ANGLE_RAD = -1.360;
     public static final double PIVOT_MAX_ANGLE_RAD = 0.05;
     public static final double PIVOT_TOLERANCE_RAD = 0.05;
-    public static final int PIVOT_CURRENT_LIMIT = 20;
+    public static final int PIVOT_CURRENT_LIMIT = 30;
     public static final double PIVOT_kS = 0.0; // TODO: Find kS
     public static final double PIVOT_kG = 0.0; // TODO: Find kG
     public static final double PIVOT_kV = 0.0; // TODO: Find kV
@@ -154,7 +154,7 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-6.5), // Volts to pivot up (fight against gravity)
+      UP(-4.5), // Volts to pivot up (fight against gravity)
       DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
@@ -264,9 +264,9 @@ public final class Constants {
     public static final double MAX_AMBIGUITY = 0.35;
 
     // Constants for the Transformation3d objects for the camera and robot
-    public static final double TRANSLATION_X = -0.2397; // Meters forward from the robot center
-    public static final double TRANSLATION_Y = 0.36195; // Meters to the left from the robot center
-    public static final double TRANSLATION_Z = 0.612775; // Meters above the robot center
+    public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
+    public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
+    public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 
     public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
     public static final double ROTATION_Y = Math.toRadians(15); // Rotate 20 degrees cw

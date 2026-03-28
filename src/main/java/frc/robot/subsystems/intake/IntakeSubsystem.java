@@ -64,7 +64,8 @@ public class IntakeSubsystem extends SubsystemBase {
                     IntakeConstants.ROLLER_kA);
             intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
-            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 20);
+            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 
+                                            IntakeConstants.PIVOT_CURRENT_LIMIT);
             pivotFollower = new MotorIOSparkMaxFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
                     pivotMotor.getMotor(),
