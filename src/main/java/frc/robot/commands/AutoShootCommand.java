@@ -1,17 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class AutoShootCommand extends Command {
   private final ShooterSubsystem shooterSubsystem;
-  private final IndexerSubsystem indexerSubsystem;
 
-  public AutoShootCommand(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+  public AutoShootCommand(ShooterSubsystem shooter) {
     this.shooterSubsystem = shooter;
-    this.indexerSubsystem = indexer;
-    addRequirements(shooterSubsystem, indexerSubsystem);
+    addRequirements(shooterSubsystem);
   }
 
   @Override
@@ -20,13 +17,9 @@ public class AutoShootCommand extends Command {
     if (!shooterSubsystem.getShooterStatus()) {
       shooterSubsystem.toggleShooter();
     }
-    if (!indexerSubsystem.getIndexerStatus()) {
-      indexerSubsystem.toggleIndexer();
-    }
 
     // Set speeds
     shooterSubsystem.setAutoShot();
-    indexerSubsystem.setIndexerRPM(2500); 
   }
 
   @Override
@@ -39,9 +32,6 @@ public class AutoShootCommand extends Command {
   // Turn shooter and indexer off
     if (shooterSubsystem.getShooterStatus()) {
       shooterSubsystem.toggleShooter();
-    }
-    if (indexerSubsystem.getIndexerStatus()) {
-      indexerSubsystem.toggleIndexer();
     }
 
     // Set shooter rpms to zero

@@ -219,7 +219,7 @@ public final class Constants {
     public static final double MAIN_kA = 0.0;
     public static final InvertedValue MAIN_INVERSION = InvertedValue.Clockwise_Positive;
     //change this value to flip motor direction
-
+ 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
     public static final int FEEDER_CURRENT_LIMIT = 80;
@@ -264,7 +264,7 @@ public final class Constants {
     public static final double MAX_AMBIGUITY = 0.35;
 
     // Constants for the Transformation3d objects for the camera and robot
-    public static final double TRANSLATION_X = -0.1778; // Meters forward from the robot center
+    public static final double TRANSLATION_X = -0.2397; // Meters forward from the robot center
     public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
     public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 

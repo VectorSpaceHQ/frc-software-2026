@@ -5,13 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftToDepot"
+                  "pathName": "RightToCenter"
                 }
               },
               {
@@ -59,6 +59,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 15.0
           }
         }
       ]

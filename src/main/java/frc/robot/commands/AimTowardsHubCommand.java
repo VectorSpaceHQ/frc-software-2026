@@ -39,19 +39,35 @@ public class AimTowardsHubCommand extends Command {
         SmartDashboard.putString("AimTowardsHub/Status", "Initializing");
 
         swerve.setAimTargetSupplier(() -> {
-
+            
+            Translation2d shooterOffset;
             Pose2d goalPosition = ShooterConstants.blueHubCenter;
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Red) {
                     goalPosition = ShooterConstants.redHubCenter;
+                    // shooterOffset = new Translation2d(
+                    //     -VisionConstants.TRANSLATION_X,
+                    //     -VisionConstants.TRANSLATION_Y);
+                        shooterOffset = new Translation2d(
+                        -0.25,
+                        -0.25);
                 } else {
                     goalPosition = ShooterConstants.blueHubCenter;
-                }
-            }
 
-            Translation2d shooterOffset = new Translation2d(
-                    VisionConstants.TRANSLATION_X,
-                    VisionConstants.TRANSLATION_Y);
+                    // shooterOffset = new Translation2d(
+                    //     VisionConstants.TRANSLATION_X,
+                    //     VisionConstants.TRANSLATION_Y);
+                        shooterOffset = new Translation2d(
+                        0.25,
+                        0.25);
+                }
+            } else{
+                shooterOffset = new Translation2d();
+            }
+            // shooterOffset = new Translation2d();
+            // Translation2d shooterOffset = new Translation2d(
+            //         VisionConstants.TRANSLATION_X,
+            //         VisionConstants.TRANSLATION_Y);
 
             // Shift the goal offset by the shooter translation
             Translation2d shiftedGoalPosition = goalPosition.getTranslation().minus(shooterOffset);
