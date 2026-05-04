@@ -144,7 +144,7 @@ public final class Constants {
     public static final double PIVOT_MIN_ANGLE_RAD = -1.360;
     public static final double PIVOT_MAX_ANGLE_RAD = 0.05;
     public static final double PIVOT_TOLERANCE_RAD = 0.05;
-    public static final int PIVOT_CURRENT_LIMIT = 30;
+    public static final int PIVOT_CURRENT_LIMIT = 25;
     public static final double PIVOT_kS = 0.0; // TODO: Find kS
     public static final double PIVOT_kG = 0.0; // TODO: Find kG
     public static final double PIVOT_kV = 0.0; // TODO: Find kV
@@ -154,7 +154,7 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(-4.5), // Volts to pivot up (fight against gravity)
+      UP(-4.0), // Volts to pivot up (fight against gravity)
       DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
@@ -173,7 +173,7 @@ public final class Constants {
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
     public static final double GEAR_RATIO = 1/25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 5;
+    public static final int INDEXER_CURRENT_LIMIT = 10;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;

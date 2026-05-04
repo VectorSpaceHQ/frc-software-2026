@@ -22,6 +22,7 @@ public class AimTowardsHubCommand extends Command {
     private boolean isCurrentlyAligned = false;
     private static boolean isLogging = false;
     private final boolean isAutonomous;
+    Translation2d shooterPosition;
 
     // Teleop constructor (auto false)
     public AimTowardsHubCommand(SwerveSubsystem swerve) {
@@ -37,43 +38,49 @@ public class AimTowardsHubCommand extends Command {
     @Override
     public void initialize() {
         SmartDashboard.putString("AimTowardsHub/Status", "Initializing");
+       
 
         swerve.setAimTargetSupplier(() -> {
-            
-            Translation2d shooterOffset;
+            Pose2d robotPose = swerve.getEstimatedPose();
             Pose2d goalPosition = ShooterConstants.blueHubCenter;
             if (DriverStation.getAlliance().isPresent()) {
                 if (DriverStation.getAlliance().get() == Alliance.Red) {
                     goalPosition = ShooterConstants.redHubCenter;
-                    // shooterOffset = new Translation2d(
-                    //     -VisionConstants.TRANSLATION_X,
-                    //     -VisionConstants.TRANSLATION_Y);
-                        shooterOffset = new Translation2d(
-                        -0.25,
-                        -0.25);
                 } else {
                     goalPosition = ShooterConstants.blueHubCenter;
-
-                    // shooterOffset = new Translation2d(
-                    //     VisionConstants.TRANSLATION_X,
-                    //     VisionConstants.TRANSLATION_Y);
-                        shooterOffset = new Translation2d(
-                        0.25,
-                        0.25);
                 }
-            } else{
-                shooterOffset = new Translation2d();
             }
-            // shooterOffset = new Translation2d();
-            // Translation2d shooterOffset = new Translation2d(
-            //         VisionConstants.TRANSLATION_X,
-            //         VisionConstants.TRANSLATION_Y);
+        Translation2d hubPosition = goalPosition.getTranslation();
 
-            // Shift the goal offset by the shooter translation
-            Translation2d shiftedGoalPosition = goalPosition.getTranslation().minus(shooterOffset);
-            lastTargetHeading = shiftedGoalPosition.getAngle();
+            
 
-            return new Pose2d(shiftedGoalPosition, new Rotation2d());
+            Translation2d shooterOffset = new Translation2d(
+                    VisionConstants.TRANSLATION_X,
+                    VisionConstants.TRANSLATION_Y);
+            
+                    
+            Translation2d targetShooterPosition = shooterOffset.rotateBy(robotPose.getRotation());
+            Logger.recordOutput("True Hub Posiiton", hubPosition);
+            Logger.recordOutput("Target Shooter Position", targetShooterPosition);
+            Logger.recordOutput("Actual Shooter Location", shooterPosition);
+             shooterPosition = robotPose.getTranslation().plus(targetShooterPosition);
+            
+           
+            Translation2d targetHubPosition = hubPosition.minus(targetShooterPosition);
+             Logger.recordOutput("Target Hub Position", targetHubPosition);
+
+             
+             
+
+            // // Shift the goal offset by the shooter translation (commented out but kept for reference)
+            // Translation2d shiftedGoalPosition = goalPosition.getTranslation().minus(shooterOffset);
+            // lastTargetHeading = shiftedGoalPosition.getAngle();
+            
+        //     swerve.getField().getObject("aimingLine").setPoses(new Pose2d(shooterPosition, new Rotation2d()), new Pose2d(hubPosition, new Rotation2d()));
+        // swerve.getField().getObject("targetHubPosition").setPose(new Pose2d(targetHubPosition, new Rotation2d()));
+        
+
+            return new Pose2d(targetHubPosition, new Rotation2d(Math.toRadians(0)));
         });
 
         swerve.setAiming(true);
@@ -106,6 +113,8 @@ public class AimTowardsHubCommand extends Command {
             SmartDashboard.putNumber("AimTowardsHub/shooterHeading", shooterHeading.getDegrees());
             SmartDashboard.putString("AimTowardsHub/Status", "Executed");
         }
+        
+        
     }
 
     public boolean isAligned() {
