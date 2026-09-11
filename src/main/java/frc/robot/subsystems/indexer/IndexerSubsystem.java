@@ -1,5 +1,6 @@
 package frc.robot.subsystems.indexer;
 
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.configuration.Constants;
 import frc.robot.configuration.Constants.IndexerConstants;
@@ -8,6 +9,7 @@ import frc.robot.components.motor.MotorIOSparkMax;
 import frc.robot.components.control.PID;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 
 public class IndexerSubsystem extends SubsystemBase {
 
@@ -49,7 +51,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public boolean toggleIndexer() {
         Indexerstatus = !Indexerstatus;
-        return !Indexerstatus;
+        return !Indexerstatus; // Double negative invisible bug (?)
     }
 
     // Place status values here
@@ -65,13 +67,25 @@ public class IndexerSubsystem extends SubsystemBase {
         IndexerPID.setM_RPM(RPM); //set the RPM of the Indexer
     }
 
+    private int timer = 0;
+
     @Override
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (this.IndexerConfig.getIsPresent()) {
-            IndexerPID.m_updateInputs();
+            if (this.Indexerstatus) {
+                if (timer >= 25) {timer = 25; return;}
+                timer += 1;
+            } else {
+                timer = 0;
+            }
 
+            IndexerPID.m_updateInputs();
             IndexerPID.processInputs("Indexer/Indexer Motor");
-            IndexerPID.PIDPeriodic(Indexerstatus && !lastIndexerstatus, Indexerstatus);
+
+            
+            if (timer == 25) {
+                IndexerPID.PIDPeriodic(Indexerstatus && !lastIndexerstatus, Indexerstatus);
+            }
         }
     }
 
