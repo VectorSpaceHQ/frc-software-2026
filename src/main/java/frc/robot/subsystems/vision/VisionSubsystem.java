@@ -28,6 +28,7 @@ public class VisionSubsystem extends SubsystemBase {
     private VisionSubsysConfig visionConfig = null;
     // PhotonVision camera
     private PhotonCamera camera;
+    private PhotonCamera camera2;
 
     // AprilTag layout for the 2026 field
     private AprilTagFieldLayout layout;
@@ -59,8 +60,10 @@ public class VisionSubsystem extends SubsystemBase {
 
             // Initialize camera with name matching PhotonVision GUI (HAS TO MATCH)
             camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
+            camera2 = new PhotonCamera(VisionConstants.CAMERA_NAME2);
 
             updateCameraStatus();
+            updateCamera2Status();
 
             try {
                 initializeAprilTagFieldLayout();
@@ -89,6 +92,17 @@ public class VisionSubsystem extends SubsystemBase {
     // Method to check if the camera is connected
     public boolean isCameraConnected() {
         return cameraConnected;
+    }
+
+    public void updateCamera2Status() {
+
+        cameraConnected = camera2.isConnected();
+
+        if (!cameraConnected) {
+            System.err.println("Warning: Camera2 not connected.");
+            return;
+        }
+        System.out.println("Camera2 connected. Vision Subsystem initialized.");
     }
 
     // Initializes the AprilTag field layout from the JSON file containing the 2026
