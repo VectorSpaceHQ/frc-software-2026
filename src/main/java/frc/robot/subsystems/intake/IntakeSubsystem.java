@@ -7,13 +7,16 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.configuration.Constants.IntakeConstants.PivotState;
 import frc.robot.components.motor.MotorIOKraken;
-import frc.robot.components.motor.MotorIOSparkMax;
-import frc.robot.components.motor.MotorIOSparkMaxFollower;
+import frc.robot.components.motor.MotorIOKrakenFollower;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.PivotPID;
 import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import static frc.robot.configuration.Constants.OperatorConstants.MotorCanIDEnum.*;
+import frc.robot.components.motor.MotorIO;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -34,11 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean lastIntakestatus = false;
     private boolean runningSysId;
 
-    private MotorIOSparkMax pivotMotor = null;
+    private MotorIO pivotMotor = null;
     private PivotState currentPivotState = PivotState.UP;
 
     @SuppressWarnings("unused")
-    private MotorIOSparkMaxFollower pivotFollower = null;
+    private MotorIO pivotFollower = null;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
@@ -64,12 +67,12 @@ public class IntakeSubsystem extends SubsystemBase {
                     IntakeConstants.ROLLER_kA);
             intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
-            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 20);
-            pivotFollower = new MotorIOSparkMaxFollower( // Right pivot
+            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId());
+            pivotFollower = new MotorIOKrakenFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
-                    pivotMotor.getMotor(),
-                    true, // inverted
-                    IntakeConstants.PIVOT_CURRENT_LIMIT);
+                    this.IntakeConfig.getIntakePivotLeftId(),
+                    true // inverted
+                    );
 
             // Pivot Motor Mechanism
             pivotMotorPid = new PivotPID(
