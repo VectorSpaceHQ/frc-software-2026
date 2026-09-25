@@ -49,6 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Getting All Unread Results
     private List<PhotonPipelineResult> allUnreadResults = new ArrayList<>();
+    private List<PhotonPipelineResult> allUnreadResults2 = new ArrayList<>();
 
     // Distance from the robot to the camera
     private Transform3d robotToCamera = VisionConstants.robotToCamera; // Removed Inverse
@@ -161,13 +162,81 @@ public class VisionSubsystem extends SubsystemBase {
 
     private void updateVisionMeasurement() {
 
-        for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex--) {
+        for (int resultsIndex = allUnreadResults.size() - 1; resultsIndex >= 0; resultsIndex-- ) {
 
             var result = allUnreadResults.get(resultsIndex);
             SmartDashboard.putBoolean("Result Has Targets", result.hasTargets());
-            if (!result.hasTargets())
+            if (!result.hasTargets()) {
+                continue;
+            }
+            
+            // Reject duplicate timestamps
+            double timestamp = result.getTimestampSeconds();
+            SmartDashboard.putNumber("Timestamp", timestamp);
+            if (timestamp <= lastVisionTimestamp) {
+                SmartDashboard.putString("Timestamp", "Too Old");
                 continue;
 
+            }
+
+            // For stale poses
+            double poseAge = Timer.getFPGATimestamp() - timestamp;
+            SmartDashboard.putNumber("Pose Age", poseAge);
+            if (poseAge > VisionConstants.MAX_POSE_AGE) {
+                SmartDashboard.putString("Pose Age", "Too Old");
+                continue;
+            }
+
+            // Select the lowest ambiguity valid target (not boolean anymore)
+            Optional<PhotonTrackedTarget> validTarget = result.getTargets().stream()
+                    .filter(t -> t.getPoseAmbiguity() < VisionConstants.MAX_AMBIGUITY)
+                    .min((a, b) -> Double.compare(a.getPoseAmbiguity(), b.getPoseAmbiguity()));
+            SmartDashboard.putBoolean("Result Has Valid Targets", validTarget.isPresent());
+
+            if (validTarget.isEmpty()) {
+                continue;
+            }
+
+            Optional<EstimatedRobotPose> estimatedVisionPose = poseEstimator.update(result);
+            SmartDashboard.putBoolean("Estimated Vision Pose", estimatedVisionPose.isPresent());
+
+            if (estimatedVisionPose.isEmpty()) {
+                continue;
+            }
+
+            // Accept measurement
+            latestVisionMeasurement = estimatedVisionPose;
+
+            if (latestVisionMeasurement.isPresent()) {
+                SmartDashboard.putString("Vision Measurement", "Present");
+            } else {
+                SmartDashboard.putString("Vision Measurement", "Absent");
+            }
+
+            lastVisionTimestamp = timestamp;
+
+            int id = validTarget.get().getFiducialId();
+            for (Apriltags tag : Apriltags.values()) {
+                if (tag.getId() == id) {
+                    bestVisibleTag = Optional.of(tag);
+                    break;
+                }
+            }
+
+            break;
+        }
+    }
+
+    private void updateVisionMeasurement2() {
+
+        for (int resultsIndex = allUnreadResults2.size() - 1; resultsIndex >= 0; resultsIndex-- ) {
+
+            var result = allUnreadResults2.get(resultsIndex);
+            SmartDashboard.putBoolean("Result Has Targets", result.hasTargets());
+            if (!result.hasTargets()) {
+                continue;
+            }
+            
             // Reject duplicate timestamps
             double timestamp = result.getTimestampSeconds();
             SmartDashboard.putNumber("Timestamp", timestamp);
@@ -233,11 +302,15 @@ public class VisionSubsystem extends SubsystemBase {
         }
         if (cameraConnected) {
             allUnreadResults = camera.getAllUnreadResults();
+            allUnreadResults2 = camera2.getAllUnreadResults();
+
             SmartDashboard.putBoolean("Vision measurement empty", allUnreadResults.isEmpty());
 
-            if (!allUnreadResults.isEmpty()) {
+            if (!allUnreadResults.isEmpty() || !allUnreadResults2.isEmpty()) {
                 updateVisionMeasurement();
+                updateVisionMeasurement2();
             }
+        
         }
     }
 

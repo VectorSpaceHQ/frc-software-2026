@@ -46,6 +46,8 @@ public class SwerveSubsystem extends SubsystemBase {
   File directory = new File(Filesystem.getDeployDirectory(), "swerve");
   private SwerveDrive swerveDrive;
   private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement;
+  private final Supplier<Optional<EstimatedRobotPose>> m_visionMeasurement2;
+
   private Field2d m_field = new Field2d();
 
   private enum Orientation {
@@ -86,9 +88,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveSubsystem(SwerveSubsysConfig config,
 		  				 Supplier<Optional<EstimatedRobotPose>> visionMeasurement,
+               Supplier<Optional<EstimatedRobotPose>> visionMeasurement2,
 		  				 Pose2d initialPose) {
     this.swerveConfig = config;
     this.m_visionMeasurement = visionMeasurement;
+    this.m_visionMeasurement2 = visionMeasurement2;
 
     if (swerveConfig.getIsPresent()) {
 
@@ -224,6 +228,14 @@ public class SwerveSubsystem extends SubsystemBase {
   // methods from Pose Estimator SS
   public void update() {
     m_visionMeasurement.get().ifPresentOrElse(measurement -> {
+      SmartDashboard.putBoolean("Vision Measurement Present", true);
+      swerveDrive.addVisionMeasurement(
+          measurement.estimatedPose.toPose2d(),
+          measurement.timestampSeconds);
+    },
+        () -> SmartDashboard.putBoolean("Vision Measurement Present", false));
+    
+    m_visionMeasurement2.get().ifPresentOrElse(measurement -> {
       SmartDashboard.putBoolean("Vision Measurement Present", true);
       swerveDrive.addVisionMeasurement(
           measurement.estimatedPose.toPose2d(),
