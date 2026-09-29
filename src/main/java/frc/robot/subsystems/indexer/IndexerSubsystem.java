@@ -73,7 +73,7 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic() { // Update inputs, calculate, then set voltages every loop
         if (this.IndexerConfig.getIsPresent()) {
             if (this.Indexerstatus) {
-                if (timer >= 25) {timer = 25; return;}
+                if (timer >= 25) {timer = 24;}
                 timer += 1;
             } else {
                 timer = 0;
