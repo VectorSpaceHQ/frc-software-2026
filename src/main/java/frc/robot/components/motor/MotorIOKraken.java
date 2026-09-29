@@ -16,12 +16,12 @@ public class MotorIOKraken implements MotorIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut neutralRequest = new NeutralOut();
 
-    public MotorIOKraken(int canID) {
+    public MotorIOKraken(int canID, double StatorCurrentLimit, double SupplyCurrentLimit) {
         motor = new TalonFX(canID);
         
-        talonFXConfig.CurrentLimits.StatorCurrentLimit = 80;
+        talonFXConfig.CurrentLimits.StatorCurrentLimit = StatorCurrentLimit;
         talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        talonFXConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        talonFXConfig.CurrentLimits.SupplyCurrentLimit = SupplyCurrentLimit;
         talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         motor.getConfigurator().apply(talonFXConfig);

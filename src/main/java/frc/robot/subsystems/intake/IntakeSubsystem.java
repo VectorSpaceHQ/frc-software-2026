@@ -52,7 +52,7 @@ public class IntakeSubsystem extends SubsystemBase {
             // feel free to move this into your custom class but there need to be current
             // limits.
 
-            intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId());
+            intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId(),IntakeConstants.ROLLER_CURRENT_LIMIT,IntakeConstants.ROLLER_CURRENT_LIMIT);
             intakeRollerPid = new PID(
                     "IntakeRoller",
                     intakeRollerMotor, // how to set current limit??
@@ -67,11 +67,13 @@ public class IntakeSubsystem extends SubsystemBase {
                     IntakeConstants.ROLLER_kA);
             intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
-            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId());
+            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId(),IntakeConstants.PIVOT_CURRENT_LIMIT,IntakeConstants.PIVOT_CURRENT_LIMIT);
             pivotFollower = new MotorIOKrakenFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
                     this.IntakeConfig.getIntakePivotLeftId(),
                     true // inverted
+                    ,IntakeConstants.PIVOT_CURRENT_LIMIT
+                    ,IntakeConstants.PIVOT_CURRENT_LIMIT
                     );
 
             // Pivot Motor Mechanism
