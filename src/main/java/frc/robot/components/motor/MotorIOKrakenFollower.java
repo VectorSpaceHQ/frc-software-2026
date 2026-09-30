@@ -22,6 +22,7 @@ public class MotorIOKrakenFollower implements MotorIO {
 
         follower.getConfigurator().apply(talonFXConfig);
 
-        follower.setControl(new Follower(canIDleader, alignment));
+        follower.setControl(new Follower(canIDleader, alignment)
+                                    .withUpdateFreqHz(100));
     }
 }
