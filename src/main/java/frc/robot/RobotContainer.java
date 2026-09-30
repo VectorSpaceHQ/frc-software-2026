@@ -35,13 +35,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.components.controller.ControllerIfc;
 import frc.robot.components.controller.XboxControllerIfc;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -161,6 +162,10 @@ public class RobotContainer {
     
     m_driverController.toggleOrientation().onTrue(
         new InstantCommand(() -> m_swerveSubsystem.orientationToggle()));
+
+    // zero pivot motor on enable
+    new Trigger(DriverStation::isEnabled).
+      onTrue(Commands.runOnce(()->m_IntakeSubsystem.zeroPosition()).ignoringDisable(true));
   }
 
   public void registerNamedCommands(){

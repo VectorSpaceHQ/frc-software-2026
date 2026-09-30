@@ -37,11 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean lastIntakestatus = false;
     private boolean runningSysId;
 
-    private MotorIO pivotMotor = null;
+    private MotorIOKraken pivotMotor = null;
     private PivotState currentPivotState = PivotState.UP;
 
     @SuppressWarnings("unused")
-    private MotorIO pivotFollower = null;
+    private MotorIOKrakenFollower pivotFollower = null;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
@@ -75,6 +75,8 @@ public class IntakeSubsystem extends SubsystemBase {
                     ,IntakeConstants.PIVOT_CURRENT_LIMIT
                     ,IntakeConstants.PIVOT_CURRENT_LIMIT
                     );
+
+            
 
             // Pivot Motor Mechanism
             pivotMotorPid = new PivotPID(
@@ -144,6 +146,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return sysIdTarget;
     }
 
+    public void zeroPosition(){
+        pivotMotor.zeroPosition();
+    }
+
     private SysIdRoutine getActiveSysIdRoutine() {
         switch (sysIdTarget) {
             case PIVOT:
@@ -203,10 +209,24 @@ public class IntakeSubsystem extends SubsystemBase {
             pivotMotor.setVoltage(currentPivotState.voltage);
 
             intakeRollerPid.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
+
+
+            int threshold_angle = -2; // value empirically determined
+            if (pivotMotorPid.getCurrentAngleDeg() > threshold_angle && pivotMotor.getStatorCurrentLimit() > 10) {
+                // limit current
+                pivotMotor.setStatorCurrentLimit(10);
+                pivotFollower.setStatorCurrentLimit(10);
+            }
+            else if (pivotMotorPid.getCurrentAngleDeg() <= threshold_angle && pivotMotor.getStatorCurrentLimit() <= 10) {
+                pivotMotor.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
+                pivotFollower.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
+            }
         }
 
         lastIntakestatus = Intakestatus;
         SmartDashboard.putString("Pivot Position", this.currentPivotState.textName());
+        SmartDashboard.putNumber("Pivot Angle", pivotMotorPid.getCurrentAngleDeg());
+        SmartDashboard.putNumber("Pivot Motor Current Limit", pivotMotor.getStatorCurrentLimit());
     }
 
     @Override

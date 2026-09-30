@@ -25,4 +25,9 @@ public class MotorIOKrakenFollower implements MotorIO {
         follower.setControl(new Follower(canIDleader, alignment)
                                     .withUpdateFreqHz(100));
     }
+
+    public void setStatorCurrentLimit(double current){
+        talonFXConfig.CurrentLimits.StatorCurrentLimit = current;
+        follower.getConfigurator().apply(talonFXConfig, 0.0);
+    }
 }
