@@ -74,7 +74,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private Command driveFieldOrientedAnglularVelocity = null;
   private SwerveInputStream driveAngularVelocity = null;
   private SwerveInputStream driveAngularVelocityHalfSpeed = null;
-  private double speedScaling = 1.3; //speed scaling power, we raise our controller values to the power of this.
+  private double speedScaling = 1.4; //speed scaling power, we raise our controller values to the power of this.
   private double translationScaling = 1;
   //translation scaling for half speed modifier
   private Orientation driveOrientation = Orientation.FIELD;
@@ -128,7 +128,8 @@ public class SwerveSubsystem extends SubsystemBase {
           .headingWhile(true);
 
       driveAngularVelocityHalfSpeed = driveAngularVelocity.copy()
-          .scaleTranslation(translationScaling * 0.5);
+          .scaleTranslation(translationScaling * 0.5)
+          ;
 
 
       // Aim stream
@@ -141,7 +142,7 @@ public class SwerveSubsystem extends SubsystemBase {
           .translationOnlyWhile(false)
           .driveToPoseEnabled(false)
           .scaleTranslation(0.5*translationScaling)
-          .aimFeedforward(0.0, 2.0, 0.0) // Still needs tuning
+          .aimFeedforward(0.0, 0.8, 0.0) // Still needs tuning
           .aimWhile(() -> isAiming);
 
 

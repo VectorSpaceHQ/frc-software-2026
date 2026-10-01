@@ -31,6 +31,25 @@
                 "data": {
                   "name": "Auto Intake"
                 }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 3.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Auto Index"
+                      }
+                    }
+                  ]
+                }
               }
             ]
           }

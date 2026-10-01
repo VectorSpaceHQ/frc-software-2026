@@ -144,7 +144,7 @@ public final class Constants {
     public static final double PIVOT_MIN_ANGLE_RAD = -1.360;
     public static final double PIVOT_MAX_ANGLE_RAD = 0.05;
     public static final double PIVOT_TOLERANCE_RAD = 0.05;
-    public static final int PIVOT_CURRENT_LIMIT = 20;
+    public static final int PIVOT_CURRENT_LIMIT = 25;
     public static final double PIVOT_kS = 0.0; // TODO: Find kS
     public static final double PIVOT_kG = 0.0; // TODO: Find kG
     public static final double PIVOT_kV = 0.0; // TODO: Find kV
@@ -154,8 +154,8 @@ public final class Constants {
     public static final double PIVOT_kD = 0.0; // TODO: Find kD
 
     public enum PivotState {
-      UP(2.5), // Volts to pivot up (fight against gravity)
-      DOWN(-1.5), // Volts to pivot down
+      UP(-4.0), // Volts to pivot up (fight against gravity)
+      DOWN(1.5), // Volts to pivot down
       OFF(0.0);
 
       public final double voltage;
@@ -173,7 +173,7 @@ public final class Constants {
   public static class IndexerConstants {
     public static final double MAX_RPM = 6000;
     public static final double GEAR_RATIO = 1/25.0;
-    public static final int INDEXER_CURRENT_LIMIT = 5;
+    public static final int INDEXER_CURRENT_LIMIT = 10;
     public static final double kS = 0.25;
     public static final double kP = 0.005;
     public static final double kI = 0.0005;
@@ -219,7 +219,7 @@ public final class Constants {
     public static final double MAIN_kA = 0.0;
     public static final InvertedValue MAIN_INVERSION = InvertedValue.Clockwise_Positive;
     //change this value to flip motor direction
-
+ 
     // Feeder Motor (NEO / SparkMax)
     public static final double FEEDER_MAX_RPM = 5676.0;
     public static final int FEEDER_CURRENT_LIMIT = 80;
@@ -265,8 +265,8 @@ public final class Constants {
 
     // Constants for the Transformation3d objects for the camera and robot
     public static final double TRANSLATION_X = -0.2397; // Meters forward from the robot center
-    public static final double TRANSLATION_Y = 0.36195; // Meters to the left from the robot center
-    public static final double TRANSLATION_Z = 0.612775; // Meters above the robot center
+    public static final double TRANSLATION_Y = 0.3302; // Meters to the left from the robot center
+    public static final double TRANSLATION_Z = 0.632; // Meters above the robot center
 
     public static final double ROTATION_X = Math.toRadians(0); // 90 degree rotation around the X-axis CCW
     public static final double ROTATION_Y = Math.toRadians(15); // Rotate 20 degrees cw

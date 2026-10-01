@@ -608,7 +608,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 .getDistance(new Translation2d(shooterPose.getX(), shooterPose.getY()));
         
         //use the distance to hub and our regression equation to get a main RPM
-        double mainRPM = (446 * distanceToHub) - 296;
+        double mainRPM = (446 * (distanceToHub + 0.2)) - 296;
 
         return mainRPM;
     }
