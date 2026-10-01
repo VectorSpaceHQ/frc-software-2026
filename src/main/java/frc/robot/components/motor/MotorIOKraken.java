@@ -16,16 +16,15 @@ public class MotorIOKraken implements MotorIO {
     private final VoltageOut voltageRequest = new VoltageOut(0.0);
     private final NeutralOut neutralRequest = new NeutralOut();
 
-    public MotorIOKraken(int canID) {
+    public MotorIOKraken(int canID, double StatorCurrentLimit, double SupplyCurrentLimit) {
         motor = new TalonFX(canID);
         
-        talonFXConfig.CurrentLimits.StatorCurrentLimit = 80;
+        talonFXConfig.CurrentLimits.StatorCurrentLimit = StatorCurrentLimit;
         talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        talonFXConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        talonFXConfig.CurrentLimits.SupplyCurrentLimit = SupplyCurrentLimit;
         talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        motor.getConfigurator().apply(talonFXConfig);
-    
+        motor.getConfigurator().apply(talonFXConfig);    
     }
     
 
@@ -47,6 +46,19 @@ public class MotorIOKraken implements MotorIO {
     @Override
     public void setVoltage(double volts) {
         motor.setControl(voltageRequest.withOutput(MathUtil.clamp(volts, -12.0, 12.0))); // Applies the voltage
+    }
+
+    public void setStatorCurrentLimit(double current){
+        talonFXConfig.CurrentLimits.StatorCurrentLimit = current;
+        motor.getConfigurator().apply(talonFXConfig, 0.0);
+    }
+
+    public double getStatorCurrentLimit() {
+        return talonFXConfig.CurrentLimits.StatorCurrentLimit;
+    }
+
+    public double getPosition() {
+        return motor.getPosition().getValueAsDouble();
     }
 
     @Override
