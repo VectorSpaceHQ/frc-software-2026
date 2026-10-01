@@ -7,13 +7,16 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.configuration.configs.IntakeSubsysConfig;
 import frc.robot.configuration.Constants.IntakeConstants.PivotState;
 import frc.robot.components.motor.MotorIOKraken;
-import frc.robot.components.motor.MotorIOSparkMax;
-import frc.robot.components.motor.MotorIOSparkMaxFollower;
+import frc.robot.components.motor.MotorIOKrakenFollower;
 import frc.robot.components.control.PID;
 import frc.robot.components.control.PivotPID;
 import frc.robot.components.control.SysId;
 import frc.robot.configuration.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import static frc.robot.configuration.Constants.OperatorConstants.MotorCanIDEnum.*;
+import frc.robot.components.motor.MotorIO;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -34,11 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean lastIntakestatus = false;
     private boolean runningSysId;
 
-    private MotorIOSparkMax pivotMotor = null;
+    private MotorIOKraken pivotMotor = null;
     private PivotState currentPivotState = PivotState.UP;
 
     @SuppressWarnings("unused")
-    private MotorIOSparkMaxFollower pivotFollower = null;
+    private MotorIOKrakenFollower pivotFollower = null;
 
     public IntakeSubsystem(IntakeSubsysConfig config) {
         this.IntakeConfig = config;
@@ -49,7 +52,7 @@ public class IntakeSubsystem extends SubsystemBase {
             // feel free to move this into your custom class but there need to be current
             // limits.
 
-            intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId());
+            intakeRollerMotor = new MotorIOKraken(this.IntakeConfig.getIntakeRollerId(),IntakeConstants.ROLLER_CURRENT_LIMIT,IntakeConstants.ROLLER_CURRENT_LIMIT);
             intakeRollerPid = new PID(
                     "IntakeRoller",
                     intakeRollerMotor, // how to set current limit??
@@ -64,13 +67,16 @@ public class IntakeSubsystem extends SubsystemBase {
                     IntakeConstants.ROLLER_kA);
             intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
-            pivotMotor = new MotorIOSparkMax(this.IntakeConfig.getIntakePivotLeftId(), 
-                                            IntakeConstants.PIVOT_CURRENT_LIMIT);
-            pivotFollower = new MotorIOSparkMaxFollower( // Right pivot
+            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId(),IntakeConstants.PIVOT_CURRENT_LIMIT,IntakeConstants.PIVOT_CURRENT_LIMIT);
+            pivotFollower = new MotorIOKrakenFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
-                    pivotMotor.getMotor(),
-                    true, // inverted
-                    IntakeConstants.PIVOT_CURRENT_LIMIT);
+                    this.IntakeConfig.getIntakePivotLeftId(),
+                    true // inverted
+                    ,IntakeConstants.PIVOT_CURRENT_LIMIT
+                    ,IntakeConstants.PIVOT_CURRENT_LIMIT
+                    );
+
+            
 
             // Pivot Motor Mechanism
             pivotMotorPid = new PivotPID(
@@ -140,6 +146,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return sysIdTarget;
     }
 
+    public void zeroPosition(){
+        pivotMotor.zeroPosition();
+    }
+
     private SysIdRoutine getActiveSysIdRoutine() {
         switch (sysIdTarget) {
             case PIVOT:
@@ -199,10 +209,24 @@ public class IntakeSubsystem extends SubsystemBase {
             pivotMotor.setVoltage(currentPivotState.voltage);
 
             intakeRollerPid.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
+
+
+            int threshold_angle = -2; // value empirically determined
+            if (pivotMotorPid.getCurrentAngleDeg() > threshold_angle && pivotMotor.getStatorCurrentLimit() > 10) {
+                // limit current
+                pivotMotor.setStatorCurrentLimit(10);
+                pivotFollower.setStatorCurrentLimit(10);
+            }
+            else if (pivotMotorPid.getCurrentAngleDeg() <= threshold_angle && pivotMotor.getStatorCurrentLimit() <= 10) {
+                pivotMotor.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
+                pivotFollower.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
+            }
         }
 
         lastIntakestatus = Intakestatus;
         SmartDashboard.putString("Pivot Position", this.currentPivotState.textName());
+        SmartDashboard.putNumber("Pivot Angle", pivotMotorPid.getCurrentAngleDeg());
+        SmartDashboard.putNumber("Pivot Motor Current Limit", pivotMotor.getStatorCurrentLimit());
     }
 
     @Override
