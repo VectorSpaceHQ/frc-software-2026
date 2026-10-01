@@ -254,7 +254,7 @@ public final class Constants {
   public static class VisionConstants {
     // Constants for the camera name and field layout path
     public static final AprilTagFields FIELD_WELDED_2026 = AprilTagFields.k2026RebuiltWelded;
-    public static final String CAMERA_NAME = "Front_Camera_Robot2";
+    public static final String CAMERA_NAME = "Team10257_Front_CameraX";
 
     // Strategy for processing multiple AprilTags on the coprocessor
     public static final PhotonPoseEstimator.PoseStrategy MULTI_TAG_PNP_ON_COPROCESSOR = PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
