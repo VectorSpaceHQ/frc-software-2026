@@ -33,6 +33,8 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.components.controller.ControllerIfc;
+import frc.robot.components.controller.JoystickControllerIfc;
+import frc.robot.components.controller.PS5ControllerIfc;
 import frc.robot.components.controller.XboxControllerIfc;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -57,8 +59,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // create 2 instances of our new controller interface:
-  private final ControllerIfc m_driverController = new XboxControllerIfc(OperatorConstants.controllerPort1);
-  private final ControllerIfc m_operatorController = new XboxControllerIfc(OperatorConstants.controllerPort2);
+  private final ControllerIfc m_driverController = new JoystickControllerIfc(OperatorConstants.controllerPort1);
+  private final ControllerIfc m_operatorController = new PS5ControllerIfc(OperatorConstants.controllerPort2);
 
   // subsystems:
   private final ShooterSubsysConfig ShooterSSConfig = new ShooterSubsysConfig(true, SHOOTER_SUBSYSTEM);

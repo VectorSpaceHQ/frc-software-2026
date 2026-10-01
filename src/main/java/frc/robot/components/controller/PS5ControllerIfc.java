@@ -56,7 +56,7 @@ public class PS5ControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleShooter() {
-        return joystick.R1(); // Toggle (On operator)
+        return joystick.R2(); // Toggle (On operator)
     }
 
     @Override
@@ -77,23 +77,23 @@ public class PS5ControllerIfc implements ControllerIfc {
     // Intake
     @Override
     public Trigger toggleIntakeRollers() {
-        return joystick.cross(); // Toggle (On operator)
+        return joystick.povUp(); // Toggle (On operator)
     }
 
     @Override
     public Trigger sendPivotUp() {
-        return joystick.R1(); // Toggle (On operator)
+        return joystick.L1(); // Toggle (On operator)
     }
 
     @Override
     public Trigger sendPivotDown() {
-        return joystick.R2(); // Toggle (On operator)
+        return joystick.L2(); // Toggle (On operator)
     }
 
     // Indexer
     @Override
     public Trigger toggleIndexer() {
-        return joystick.square(); // Toggle (On operator)
+        return joystick.R1(); // Toggle (On operator)
     }
 
     // Climb
