@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -257,6 +258,12 @@ public class SwerveSubsystem extends SubsystemBase {
     update();
     Pose2d pose = getEstimatedPose();
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
+
+    // TEMP gyro direction debugging: raw Pigeon yaw -> YAGSL yaw -> fused pose heading
+    SmartDashboard.putNumber("GyroDebug/PigeonRawYaw",
+        ((Pigeon2) swerveDrive.getGyro().getIMU()).getYaw().getValueAsDouble());
+    SmartDashboard.putNumber("GyroDebug/YagslYaw", swerveDrive.getYaw().getDegrees());
+    SmartDashboard.putNumber("GyroDebug/PoseHeading", pose.getRotation().getDegrees());
 
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
