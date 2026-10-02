@@ -67,7 +67,8 @@ public class IntakeSubsystem extends SubsystemBase {
                     IntakeConstants.ROLLER_kA);
             intakeRollerPid.setM_RPM(IntakeConstants.ROLLER_STARTER_RPM); // Negative to go in the other direction
 
-            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId(),IntakeConstants.PIVOT_CURRENT_LIMIT,IntakeConstants.PIVOT_CURRENT_LIMIT);
+            pivotMotor = new MotorIOKraken(this.IntakeConfig.getIntakePivotLeftId(),
+                        IntakeConstants.PIVOT_CURRENT_LIMIT,IntakeConstants.PIVOT_CURRENT_LIMIT);
             pivotFollower = new MotorIOKrakenFollower( // Right pivot
                     this.IntakeConfig.getIntakePivotRightId(),
                     this.IntakeConfig.getIntakePivotLeftId(),
@@ -211,13 +212,13 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeRollerPid.PIDPeriodic(Intakestatus && !lastIntakestatus, Intakestatus);
 
 
-            int threshold_angle = -2; // value empirically determined
-            if (pivotMotorPid.getCurrentAngleDeg() > threshold_angle && pivotMotor.getStatorCurrentLimit() > 10) {
+            int threshold_angle = -20; // value empirically determined
+            if (pivotMotorPid.getCurrentAngleDeg() > threshold_angle && pivotMotor.getStatorCurrentLimit() > 5) {
                 // limit current
-                pivotMotor.setStatorCurrentLimit(10);
-                pivotFollower.setStatorCurrentLimit(10);
+                pivotMotor.setStatorCurrentLimit(5);
+                pivotFollower.setStatorCurrentLimit(5);
             }
-            else if (pivotMotorPid.getCurrentAngleDeg() <= threshold_angle && pivotMotor.getStatorCurrentLimit() <= 10) {
+            else if (pivotMotorPid.getCurrentAngleDeg() <= threshold_angle && pivotMotor.getStatorCurrentLimit() <= 5) {
                 pivotMotor.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
                 pivotFollower.setStatorCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
             }

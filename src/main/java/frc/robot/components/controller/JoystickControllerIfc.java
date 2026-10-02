@@ -10,6 +10,8 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     // Ignoring joystick keybinds with the exception of swerve because it is unlikely that we would be using this at competition (this is also a lot of buttons)
     public enum ExtendedButtonType {
+        Button1(1),
+        Button2(2),
         Button3(3),
         Button4(4),
         Button5(5),
@@ -61,12 +63,12 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger toggleOrientation() {
-        return getButton(ExtendedButtonType.Button3);
+        return getButton(ExtendedButtonType.Button13);
     }
  
     @Override
     public Trigger halfSpeedModifier() {
-        return getButton(ExtendedButtonType.Button8); // while held (On driver)
+        return getButton(ExtendedButtonType.Button3); // while held (On driver)
     }
     
     // Shooter
@@ -146,7 +148,7 @@ public class JoystickControllerIfc implements ControllerIfc {
 
     @Override
     public Trigger aimTowardsHub() {
-        return getButton(ExtendedButtonType.Button13);
+        return getButton(ExtendedButtonType.Button1);
     }
 
     // Tuning
