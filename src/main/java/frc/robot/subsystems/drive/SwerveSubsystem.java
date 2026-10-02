@@ -259,12 +259,6 @@ public class SwerveSubsystem extends SubsystemBase {
     Pose2d pose = getEstimatedPose();
     Logger.recordOutput("PoseEstimator/EstimatedPose", pose); // For AdvantageScope
 
-    // TEMP gyro direction debugging: raw Pigeon yaw -> YAGSL yaw -> fused pose heading
-    SmartDashboard.putNumber("GyroDebug/PigeonRawYaw",
-        ((Pigeon2) swerveDrive.getGyro().getIMU()).getYaw().getValueAsDouble());
-    SmartDashboard.putNumber("GyroDebug/YagslYaw", swerveDrive.getYaw().getDegrees());
-    SmartDashboard.putNumber("GyroDebug/PoseHeading", pose.getRotation().getDegrees());
-
     m_field.setRobotPose(pose);
     // This method will be called once per scheduler run
   } 
